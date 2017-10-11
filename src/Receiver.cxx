@@ -6,7 +6,6 @@
 #include "net/UniqueSocketDescriptor.hxx"
 #include "net/UdpListener.hxx"
 #include "net/UdpListenerConfig.hxx"
-#include "net/log/Datagram.hxx"
 #include "net/log/Parser.hxx"
 #include "util/PrintException.hxx"
 
@@ -18,7 +17,7 @@ Instance::OnUdpDatagram(const void *data, size_t length,
 	(void)uid;
 
 	try {
-		const auto d = Net::Log::ParseDatagram(data, (const uint8_t *)data + length);
+		const auto d = database.Emplace({(const uint8_t *)data, length}).GetParsed();
 
 		// TODO: insert into database
 		if (d.http_uri != nullptr)

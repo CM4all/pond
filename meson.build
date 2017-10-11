@@ -181,6 +181,7 @@ executable('cm4all-pond',
   'src/Instance.cxx',
   'src/Receiver.cxx',
   'src/Config.cxx',
+  'src/Database.cxx',
   include_directories: inc,
   dependencies: [
     libsystemd,

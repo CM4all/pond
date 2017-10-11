@@ -4,6 +4,7 @@
 
 #pragma once
 
+#include "Database.hxx"
 #include "event/Loop.hxx"
 #include "event/ShutdownListener.hxx"
 #include "event/SignalEvent.hxx"
@@ -26,6 +27,8 @@ class Instance final : UdpHandler {
 	SignalEvent sighup_event;
 
 	std::forward_list<UdpListener> receivers;
+
+	Database database;
 
 public:
 	Instance();
