@@ -49,7 +49,6 @@ add_global_arguments(common_flags,
 boost = dependency('boost', modules: ['system', 'filesystem'], version: '>= 1.54')
 libevent = dependency('libevent', version: '>= 2.0.19')
 libsystemd = dependency('libsystemd')
-libbp = dependency('libcm4all-beng-proxy', version: '>= 13.0.4')
 
 gtest_compile_args = [
   '-Wno-undef',
@@ -184,7 +183,6 @@ executable('cm4all-pond',
   'src/Config.cxx',
   include_directories: inc,
   dependencies: [
-    libbp,
     libsystemd,
     event_dep,
     system_dep,
