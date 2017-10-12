@@ -17,13 +17,16 @@ Instance::OnUdpDatagram(const void *data, size_t length,
 	(void)address;
 	(void)uid;
 
-	const auto d = Net::Log::ParseDatagram(data, (const uint8_t *)data + length);
+	try {
+		const auto d = Net::Log::ParseDatagram(data, (const uint8_t *)data + length);
 
-	// TODO: insert into database
-	if (d.http_uri != nullptr)
-		logger(1, "received http_uri='", d.http_uri, "'");
-	else if (d.message != nullptr)
-		logger(1, "received message='", d.message, "'");
+		// TODO: insert into database
+		if (d.http_uri != nullptr)
+			logger(1, "received http_uri='", d.http_uri, "'");
+		else if (d.message != nullptr)
+			logger(1, "received message='", d.message, "'");
+	} catch (Net::Log::ProtocolError) {
+	}
 }
 
 void
