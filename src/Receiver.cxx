@@ -5,7 +5,7 @@
 #include "Instance.hxx"
 #include "net/UniqueSocketDescriptor.hxx"
 #include "net/UdpListener.hxx"
-#include "net/UdpListenerConfig.hxx"
+#include "net/SocketConfig.hxx"
 #include "net/log/Parser.hxx"
 #include "util/PrintException.hxx"
 

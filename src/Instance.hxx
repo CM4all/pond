@@ -13,7 +13,7 @@
 
 #include <forward_list>
 
-struct UdpListenerConfig;
+struct SocketConfig;
 class UdpListener;
 
 class Instance final : UdpHandler {
@@ -38,7 +38,7 @@ public:
 		return event_loop;
 	}
 
-	void AddReceiver(const UdpListenerConfig &config);
+	void AddReceiver(const SocketConfig &config);
 
 	void Dispatch() {
 		event_loop.Dispatch();

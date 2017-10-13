@@ -19,7 +19,7 @@ class PondConfigParser final : public NestedConfigParser {
 
 	class Receiver final : public ConfigParser {
 		Config &parent;
-		UdpListenerConfig config;
+		SocketConfig config;
 
 	public:
 		explicit Receiver(Config &_parent):parent(_parent) {}

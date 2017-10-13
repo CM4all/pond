@@ -4,7 +4,7 @@
 
 #include "Instance.hxx"
 #include "net/UdpListener.hxx"
-#include "net/UdpListenerConfig.hxx"
+#include "net/SocketConfig.hxx"
 
 #include <signal.h>
 #include <unistd.h>
@@ -22,11 +22,11 @@ Instance::~Instance()
 }
 
 void
-Instance::AddReceiver(const UdpListenerConfig &config)
+Instance::AddReceiver(const SocketConfig &config)
 {
 	UdpHandler &handler = *this;
 	receivers.emplace_front(event_loop,
-				config.Create(),
+				config.Create(SOCK_DGRAM),
 				handler);
 }
 

@@ -4,12 +4,12 @@
 
 #pragma once
 
-#include "net/UdpListenerConfig.hxx"
+#include "net/SocketConfig.hxx"
 
 #include <forward_list>
 
 struct Config {
-	std::forward_list<UdpListenerConfig> receivers;
+	std::forward_list<SocketConfig> receivers;
 
 	void Check();
 };
