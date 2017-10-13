@@ -22,6 +22,9 @@ Run(const Config &config)
 	for (const auto &i : config.receivers)
 		instance.AddReceiver(i);
 
+	for (const auto &i : config.listeners)
+		instance.AddListener(i);
+
 	/* tell systemd we're ready */
 	sd_notify(0, "READY=1");
 

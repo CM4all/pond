@@ -11,6 +11,8 @@
 struct Config {
 	std::forward_list<SocketConfig> receivers;
 
+	std::forward_list<SocketConfig> listeners;
+
 	void Check();
 };
 

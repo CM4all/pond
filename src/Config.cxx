@@ -30,6 +30,22 @@ class PondConfigParser final : public NestedConfigParser {
 		void Finish() override;
 	};
 
+	class Listener final : public ConfigParser {
+		Config &parent;
+		SocketConfig config;
+
+	public:
+		explicit Listener(Config &_parent):parent(_parent) {
+			config.listen = 64;
+			config.tcp_defer_accept = 10;
+		}
+
+	protected:
+		/* virtual methods from class ConfigParser */
+		void ParseLine(FileLineParser &line) override;
+		void Finish() override;
+	};
+
 public:
 	explicit PondConfigParser(Config &_config)
 		:config(_config) {}
@@ -68,6 +84,31 @@ PondConfigParser::Receiver::Finish()
 }
 
 void
+PondConfigParser::Listener::ParseLine(FileLineParser &line)
+{
+	const char *word = line.ExpectWord();
+
+	if (strcmp(word, "bind") == 0) {
+		config.bind_address = ParseSocketAddress(line.ExpectValueAndEnd(),
+							 5480, true);
+	} else if (strcmp(word, "interface") == 0) {
+		config.interface = line.ExpectValueAndEnd();
+	} else
+		throw LineParser::Error("Unknown option");
+}
+
+void
+PondConfigParser::Listener::Finish()
+{
+	if (config.bind_address.IsNull())
+		throw LineParser::Error("Listener has no bind address");
+
+	parent.listeners.emplace_front(std::move(config));
+
+	ConfigParser::Finish();
+}
+
+void
 PondConfigParser::ParseLine2(FileLineParser &line)
 {
 	const char *word = line.ExpectWord();
@@ -75,6 +116,9 @@ PondConfigParser::ParseLine2(FileLineParser &line)
 	if (strcmp(word, "receiver") == 0) {
 		line.ExpectSymbolAndEol('{');
 		SetChild(std::make_unique<Receiver>(config));
+	} else if (strcmp(word, "listener") == 0) {
+		line.ExpectSymbolAndEol('{');
+		SetChild(std::make_unique<Listener>(config));
 	} else
 		throw LineParser::Error("Unknown option");
 }

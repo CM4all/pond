@@ -5,19 +5,24 @@
 #pragma once
 
 #include "Database.hxx"
+#include "Connection.hxx"
 #include "event/Loop.hxx"
 #include "event/ShutdownListener.hxx"
 #include "event/SignalEvent.hxx"
 #include "event/net/UdpHandler.hxx"
 #include "io/Logger.hxx"
 
+#include <boost/intrusive/list.hpp>
+
 #include <forward_list>
 
 struct SocketConfig;
+class UniqueSocketDescriptor;
 class UdpListener;
+class Listener;
 
 class Instance final : UdpHandler {
-	RootLogger logger;
+	const RootLogger logger;
 
 	EventLoop event_loop;
 
@@ -27,6 +32,10 @@ class Instance final : UdpHandler {
 	SignalEvent sighup_event;
 
 	std::forward_list<UdpListener> receivers;
+	std::forward_list<Listener> listeners;
+
+	boost::intrusive::list<Connection,
+			       boost::intrusive::constant_time_size<false>> connections;
 
 	Database database;
 
@@ -34,11 +43,17 @@ public:
 	Instance();
 	~Instance();
 
+	const RootLogger &GetLogger() const {
+		return logger;
+	}
+
 	EventLoop &GetEventLoop() {
 		return event_loop;
 	}
 
 	void AddReceiver(const SocketConfig &config);
+	void AddListener(const SocketConfig &config);
+	void AddConnection(UniqueSocketDescriptor &&fd);
 
 	void Dispatch() {
 		event_loop.Dispatch();

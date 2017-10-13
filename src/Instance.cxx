@@ -3,8 +3,11 @@
  */
 
 #include "Instance.hxx"
+#include "Listener.hxx"
+#include "Connection.hxx"
 #include "event/net/UdpListener.hxx"
 #include "net/SocketConfig.hxx"
+#include "util/DeleteDisposer.hxx"
 
 #include <signal.h>
 #include <unistd.h>
@@ -31,6 +34,20 @@ Instance::AddReceiver(const SocketConfig &config)
 }
 
 void
+Instance::AddListener(const SocketConfig &config)
+{
+	listeners.emplace_front(*this,
+				config.Create(SOCK_STREAM));
+}
+
+void
+Instance::AddConnection(UniqueSocketDescriptor &&fd)
+{
+	auto *c = new Connection(*this, std::move(fd));
+	connections.push_front(*c);
+}
+
+void
 Instance::OnExit()
 {
 	if (should_exit)
@@ -42,6 +59,10 @@ Instance::OnExit()
 	sighup_event.Disable();
 
 	receivers.clear();
+
+	connections.clear_and_dispose(DeleteDisposer());
+
+	listeners.clear();
 }
 
 void
