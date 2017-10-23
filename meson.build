@@ -148,7 +148,6 @@ event = static_library('event',
 event_dep = declare_dependency(link_with: event)
 
 net = static_library('net',
-  'libcommon/src/net/UdpListener.cxx',
   'libcommon/src/net/SocketAddress.cxx',
   'libcommon/src/net/StaticSocketAddress.cxx',
   'libcommon/src/net/AllocatedSocketAddress.cxx',
@@ -176,6 +175,17 @@ net = static_library('net',
   ])
 net_dep = declare_dependency(link_with: net)
 
+event_net = static_library('event_net',
+  'libcommon/src/event/net/UdpListener.cxx',
+  include_directories: inc,
+  dependencies: [
+    libevent,
+    event_dep,
+    net_dep,
+    util_dep,
+  ])
+event_net_dep = declare_dependency(link_with: event_net)
+
 executable('cm4all-pond',
   'src/Main.cxx',
   'src/Instance.cxx',
@@ -185,10 +195,9 @@ executable('cm4all-pond',
   include_directories: inc,
   dependencies: [
     libsystemd,
-    event_dep,
+    event_net_dep,
     system_dep,
     io_dep,
-    net_dep,
     http_dep,
   ],
   install: true,

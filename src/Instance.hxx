@@ -8,7 +8,7 @@
 #include "event/Loop.hxx"
 #include "event/ShutdownListener.hxx"
 #include "event/SignalEvent.hxx"
-#include "net/UdpHandler.hxx"
+#include "event/net/UdpHandler.hxx"
 #include "io/Logger.hxx"
 
 #include <forward_list>
