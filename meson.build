@@ -177,6 +177,8 @@ net_dep = declare_dependency(link_with: net)
 
 event_net = static_library('event_net',
   'libcommon/src/event/net/UdpListener.cxx',
+  'libcommon/src/event/net/SocketWrapper.cxx',
+  'libcommon/src/event/net/BufferedSocket.cxx',
   include_directories: inc,
   dependencies: [
     libevent,
