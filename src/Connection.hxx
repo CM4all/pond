@@ -9,8 +9,12 @@
 
 #include <boost/intrusive/list_hook.hpp>
 
+#include <stdint.h>
+
+enum class PondCommand : uint16_t;
 class Instance;
 class RootLogger;
+template<typename t> struct ConstBuffer;
 
 class Connection final
 	: public boost::intrusive::list_base_hook<boost::intrusive::link_mode<boost::intrusive::auto_unlink>>,
@@ -30,6 +34,9 @@ public:
 	}
 
 private:
+	BufferedResult OnPacket(uint16_t id, PondCommand cmd,
+				ConstBuffer<void> payload);
+
 	/* virtual methods from class BufferedSocketHandler */
 	BufferedResult OnBufferedData(const void *buffer, size_t size) override;
 	bool OnBufferedClosed() override;

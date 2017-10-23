@@ -3,8 +3,10 @@
  */
 
 #include "Connection.hxx"
+#include "Protocol.hxx"
 #include "Instance.hxx"
 #include "event/Duration.hxx"
+#include "util/ByteOrder.hxx"
 
 Connection::Connection(Instance &_instance, UniqueSocketDescriptor &&_fd)
 	:instance(_instance), logger(instance.GetLogger()),
@@ -25,11 +27,36 @@ Connection::~Connection()
 	socket.Destroy();
 }
 
+inline BufferedResult
+Connection::OnPacket(uint16_t id, PondCommand cmd, ConstBuffer<void> payload)
+{
+	fprintf(stderr, "id=0x%04x cmd=%d payload=%zu\n", id, unsigned(cmd), payload.size);
+
+	return BufferedResult::OK;
+}
+
 BufferedResult
 Connection::OnBufferedData(const void *buffer, size_t size)
 {
-	fprintf(stderr, "data: '%.*s'\n", int(size), (const char *)buffer);
-	socket.Consumed(size);
+	if (size < sizeof(PondHeader))
+		return BufferedResult::MORE;
+
+	const auto *be_header = (const PondHeader *)buffer;
+
+	const size_t payload_size = FromBE16(be_header->size);
+	if (size < sizeof(PondHeader) + payload_size)
+		return BufferedResult::MORE;
+
+	const uint16_t id = FromBE16(be_header->id);
+	const auto command = PondCommand(FromBE16(be_header->command));
+
+	size_t consumed = sizeof(*be_header) + payload_size;
+	socket.Consumed(consumed);
+
+	auto result = OnPacket(id, command, {be_header + 1, payload_size});
+	if (result == BufferedResult::OK && consumed < size)
+		result = BufferedResult::PARTIAL;
+
 	return BufferedResult::OK;
 }
 
