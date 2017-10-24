@@ -4,6 +4,8 @@
 
 #pragma once
 
+#include <stdint.h>
+
 enum class PondCommand : uint16_t {
 	NOP,
 
