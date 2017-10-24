@@ -23,6 +23,10 @@ struct PondDatagram {
 	struct {
 		std::unique_ptr<uint8_t[]> data;
 		size_t size;
+
+		std::string ToString() const {
+			return std::string((const char *)data.get(), size);
+		}
 	} payload;
 };
 
@@ -149,6 +153,9 @@ Query(const char *server, ConstBuffer<const char *> args)
 		switch (d.command) {
 		case PondResponseCommand::NOP:
 			break;
+
+		case PondResponseCommand::ERROR:
+			throw std::runtime_error(d.payload.ToString());
 
 		case PondResponseCommand::END:
 			return;

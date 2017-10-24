@@ -36,6 +36,12 @@ enum class PondResponseCommand : uint16_t {
 	NOP,
 
 	/**
+	 * An error has occurred.  Payload is a human-readable error
+	 * message.
+	 */
+	ERROR,
+
+	/**
 	 * End of the current response.  Needed for some types of
 	 * responses.
 	 */

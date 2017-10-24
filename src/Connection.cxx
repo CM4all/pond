@@ -8,6 +8,7 @@
 #include "event/Duration.hxx"
 #include "system/Error.hxx"
 #include "util/ByteOrder.hxx"
+#include "util/StringView.hxx"
 
 Connection::Connection(Instance &_instance, UniqueSocketDescriptor &&_fd)
 	:instance(_instance), logger(instance.GetLogger()),
@@ -65,7 +66,8 @@ Connection::OnPacket(uint16_t id, PondRequestCommand cmd,
 {
 	fprintf(stderr, "id=0x%04x cmd=%d payload=%zu\n", id, unsigned(cmd), payload.size);
 
-	Send(id, PondResponseCommand::END, nullptr);
+	Send(id, PondResponseCommand::ERROR,
+	     StringView("Command not implemented").ToVoid());
 
 	return BufferedResult::OK;
 }
