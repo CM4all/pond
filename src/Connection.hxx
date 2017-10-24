@@ -11,7 +11,7 @@
 
 #include <stdint.h>
 
-enum class PondCommand : uint16_t;
+enum class PondRequestCommand : uint16_t;
 class Instance;
 class RootLogger;
 template<typename t> struct ConstBuffer;
@@ -34,7 +34,7 @@ public:
 	}
 
 private:
-	BufferedResult OnPacket(uint16_t id, PondCommand cmd,
+	BufferedResult OnPacket(uint16_t id, PondRequestCommand cmd,
 				ConstBuffer<void> payload);
 
 	/* virtual methods from class BufferedSocketHandler */

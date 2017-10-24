@@ -28,7 +28,8 @@ Connection::~Connection()
 }
 
 inline BufferedResult
-Connection::OnPacket(uint16_t id, PondCommand cmd, ConstBuffer<void> payload)
+Connection::OnPacket(uint16_t id, PondRequestCommand cmd,
+		     ConstBuffer<void> payload)
 {
 	fprintf(stderr, "id=0x%04x cmd=%d payload=%zu\n", id, unsigned(cmd), payload.size);
 
@@ -48,7 +49,7 @@ Connection::OnBufferedData(const void *buffer, size_t size)
 		return BufferedResult::MORE;
 
 	const uint16_t id = FromBE16(be_header->id);
-	const auto command = PondCommand(FromBE16(be_header->command));
+	const auto command = PondRequestCommand(FromBE16(be_header->command));
 
 	size_t consumed = sizeof(*be_header) + payload_size;
 	socket.Consumed(consumed);

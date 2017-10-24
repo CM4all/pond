@@ -18,7 +18,7 @@
 
 struct PondDatagram {
 	uint16_t id;
-	PondCommand command;
+	PondResponseCommand command;
 
 	struct {
 		std::unique_ptr<uint8_t[]> data;
@@ -41,14 +41,15 @@ public:
 		return ++last_id;
 	}
 
-	void Send(uint16_t id, PondCommand command,
+	void Send(uint16_t id, PondRequestCommand command,
 		  ConstBuffer<void> payload=nullptr);
 
 	PondDatagram Receive();
 };
 
 void
-PondClient::Send(uint16_t id, PondCommand command, ConstBuffer<void> payload)
+PondClient::Send(uint16_t id, PondRequestCommand command,
+		 ConstBuffer<void> payload)
 {
 	PondHeader header;
 	if (payload.size >= std::numeric_limits<decltype(header.size)>::max())
@@ -119,7 +120,7 @@ PondClient::Receive()
 
 	PondDatagram d;
 	d.id = FromBE16(header.id);
-	d.command = PondCommand(FromBE16(header.command));
+	d.command = PondResponseCommand(FromBE16(header.command));
 	d.payload.size = FromBE16(header.size);
 
 	if (d.payload.size > 0) {
@@ -138,7 +139,7 @@ Query(const char *server, ConstBuffer<const char *> args)
 
 	PondClient client(server);
 	const auto id = client.MakeId();
-	client.Send(id, PondCommand::QUERY);
+	client.Send(id, PondRequestCommand::QUERY);
 
 	while (true) {
 		const auto d = client.Receive();
@@ -146,15 +147,10 @@ Query(const char *server, ConstBuffer<const char *> args)
 			continue;
 
 		switch (d.command) {
-		case PondCommand::NOP:
+		case PondResponseCommand::NOP:
 			break;
 
-		case PondCommand::COMMIT:
-		case PondCommand::QUERY:
-		case PondCommand::FILTER_SITE:
-			throw std::runtime_error("Unexpected command");
-
-		case PondCommand::CANCEL:
+		case PondResponseCommand::END:
 			return;
 		}
 	}

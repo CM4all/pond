@@ -6,7 +6,7 @@
 
 #include <stdint.h>
 
-enum class PondCommand : uint16_t {
+enum class PondRequestCommand : uint16_t {
 	NOP,
 
 	/**
@@ -30,6 +30,16 @@ enum class PondCommand : uint16_t {
 	 * exact string to compare with.
 	 */
 	FILTER_SITE,
+};
+
+enum class PondResponseCommand : uint16_t {
+	NOP,
+
+	/**
+	 * End of the current response.  Needed for some types of
+	 * responses.
+	 */
+	END,
 };
 
 /**
