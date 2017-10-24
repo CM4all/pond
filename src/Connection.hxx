@@ -39,7 +39,7 @@ private:
 
 	/* virtual methods from class BufferedSocketHandler */
 	BufferedResult OnBufferedData(const void *buffer, size_t size) override;
-	bool OnBufferedClosed() override;
+	bool OnBufferedClosed() noexcept override;
 	bool OnBufferedWrite() override;
-	void OnBufferedError(std::exception_ptr e) override;
+	void OnBufferedError(std::exception_ptr e) noexcept override;
 };

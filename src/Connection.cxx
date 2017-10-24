@@ -61,7 +61,7 @@ Connection::OnBufferedData(const void *buffer, size_t size)
 }
 
 bool
-Connection::OnBufferedClosed()
+Connection::OnBufferedClosed() noexcept
 {
 	Destroy();
 	return false;
@@ -75,7 +75,7 @@ Connection::OnBufferedWrite()
 }
 
 void
-Connection::OnBufferedError(std::exception_ptr e)
+Connection::OnBufferedError(std::exception_ptr e) noexcept
 {
 	logger(2, e);
 	Destroy();
