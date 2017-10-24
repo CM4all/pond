@@ -12,6 +12,7 @@
 #include <stdint.h>
 
 enum class PondRequestCommand : uint16_t;
+enum class PondResponseCommand : uint16_t;
 class Instance;
 class RootLogger;
 template<typename t> struct ConstBuffer;
@@ -34,6 +35,9 @@ public:
 	}
 
 private:
+	void Send(uint16_t id, PondResponseCommand command,
+		  ConstBuffer<void> payload);
+
 	BufferedResult OnPacket(uint16_t id, PondRequestCommand cmd,
 				ConstBuffer<void> payload);
 

@@ -6,6 +6,7 @@
 #include "Protocol.hxx"
 #include "Instance.hxx"
 #include "event/Duration.hxx"
+#include "system/Error.hxx"
 #include "util/ByteOrder.hxx"
 
 Connection::Connection(Instance &_instance, UniqueSocketDescriptor &&_fd)
@@ -27,11 +28,44 @@ Connection::~Connection()
 	socket.Destroy();
 }
 
+void
+Connection::Send(uint16_t id, PondResponseCommand command,
+		 ConstBuffer<void> payload)
+{
+	PondHeader header;
+	if (payload.size >= std::numeric_limits<decltype(header.size)>::max())
+		throw std::runtime_error("Payload is too large");
+
+	header.id = ToBE16(id);
+	header.command = ToBE16(uint16_t(command));
+	header.size = ToBE16(payload.size);
+
+	struct iovec vec[] = {
+		{
+			.iov_base = &header,
+			.iov_len = sizeof(header),
+		},
+		{
+			.iov_base = const_cast<void *>(payload.data),
+			.iov_len = payload.size,
+		},
+	};
+
+	ssize_t nbytes = socket.WriteV(vec, 1u + !payload.empty());
+	if (nbytes < 0)
+		throw MakeErrno("Failed to send");
+
+	if (size_t(nbytes) != sizeof(header) + payload.size)
+		throw std::runtime_error("Short send");
+}
+
 inline BufferedResult
 Connection::OnPacket(uint16_t id, PondRequestCommand cmd,
 		     ConstBuffer<void> payload)
 {
 	fprintf(stderr, "id=0x%04x cmd=%d payload=%zu\n", id, unsigned(cmd), payload.size);
+
+	Send(id, PondResponseCommand::END, nullptr);
 
 	return BufferedResult::OK;
 }
