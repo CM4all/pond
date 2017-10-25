@@ -160,6 +160,11 @@ Query(const char *server, ConstBuffer<const char *> args)
 
 		case PondResponseCommand::END:
 			return;
+
+		case PondResponseCommand::LOG_RECORD:
+			// TODO: deserialize and dump
+			printf("log_record\n");
+			break;
 		}
 	}
 }

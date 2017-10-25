@@ -82,6 +82,11 @@ Connection::OnPacket(uint16_t id, PondRequestCommand cmd,
 
 		switch (current.command) {
 		case PondRequestCommand::QUERY:
+			// TODO: move to OnBufferedWrite()
+			for (const auto &i : instance.GetDatabase())
+				Send(id, PondResponseCommand::LOG_RECORD,
+				     i.GetRaw());
+
 			Send(id, PondResponseCommand::END, nullptr);
 			return BufferedResult::AGAIN_OPTIONAL;
 

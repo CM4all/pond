@@ -46,6 +46,11 @@ enum class PondResponseCommand : uint16_t {
 	 * responses.
 	 */
 	END,
+
+	/**
+	 * A serialized log record according to net/log/Protocol.hxx
+	 */
+	LOG_RECORD,
 };
 
 /**
