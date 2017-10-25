@@ -89,6 +89,7 @@ try {
 				     i.GetRaw());
 
 			Send(id, PondResponseCommand::END, nullptr);
+			current.Clear();
 			return BufferedResult::AGAIN_OPTIONAL;
 
 		default:
@@ -103,6 +104,7 @@ try {
 	throw SimplePondError{"Command not implemented"};
 } catch (SimplePondError e) {
 	Send(id, PondResponseCommand::ERROR, e.message.ToVoid());
+	current.Clear();
 	return BufferedResult::AGAIN_OPTIONAL;
 }
 
