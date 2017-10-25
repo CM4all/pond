@@ -4,6 +4,9 @@
 
 #include "Protocol.hxx"
 #include "system/Error.hxx"
+#include "net/log/Parser.hxx"
+#include "net/log/Datagram.hxx"
+#include "net/log/OneLine.hxx"
 #include "net/RConnectSocket.hxx"
 #include "net/UniqueSocketDescriptor.hxx"
 #include "util/ConstBuffer.hxx"
@@ -193,8 +196,14 @@ Query(const char *server, ConstBuffer<const char *> args)
 			return;
 
 		case PondResponseCommand::LOG_RECORD:
-			// TODO: deserialize and dump
-			printf("log_record\n");
+			try {
+				LogOneLine(FileDescriptor(STDOUT_FILENO),
+					   Net::Log::ParseDatagram(d.payload.data.get(),
+								   d.payload.data.get() + d.payload.size));
+			} catch (Net::Log::ProtocolError) {
+				fprintf(stderr, "Failed to parse log record\n");
+			}
+
 			break;
 		}
 	}
