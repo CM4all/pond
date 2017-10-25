@@ -59,10 +59,14 @@ Connection::Send(uint16_t id, PondResponseCommand command,
 		throw std::runtime_error("Short send");
 }
 
+struct SimplePondError {
+	StringView message;
+};
+
 inline BufferedResult
 Connection::OnPacket(uint16_t id, PondRequestCommand cmd,
 		     ConstBuffer<void> payload)
-{
+try {
 	fprintf(stderr, "id=0x%04x cmd=%d payload=%zu\n", id, unsigned(cmd), payload.size);
 
 	switch (cmd) {
@@ -74,11 +78,8 @@ Connection::OnPacket(uint16_t id, PondRequestCommand cmd,
 		return BufferedResult::AGAIN_EXPECT;
 
 	case PondRequestCommand::COMMIT:
-		if (!current.IsDefined() || current.id != id) {
-			Send(id, PondResponseCommand::ERROR,
-			     StringView("Misplaced COMMIT").ToVoid());
-			return BufferedResult::AGAIN_OPTIONAL;
-		}
+		if (!current.IsDefined() || current.id != id)
+			throw SimplePondError{"Misplaced COMMIT"};
 
 		switch (current.command) {
 		case PondRequestCommand::QUERY:
@@ -91,9 +92,7 @@ Connection::OnPacket(uint16_t id, PondRequestCommand cmd,
 			return BufferedResult::AGAIN_OPTIONAL;
 
 		default:
-			Send(id, PondResponseCommand::ERROR,
-			     StringView("Misplaced COMMIT").ToVoid());
-			return BufferedResult::AGAIN_OPTIONAL;
+			throw SimplePondError{"Misplaced COMMIT"};
 		}
 
 	case PondRequestCommand::CANCEL:
@@ -101,8 +100,9 @@ Connection::OnPacket(uint16_t id, PondRequestCommand cmd,
 		break;
 	}
 
-	Send(id, PondResponseCommand::ERROR,
-	     StringView("Command not implemented").ToVoid());
+	throw SimplePondError{"Command not implemented"};
+} catch (SimplePondError e) {
+	Send(id, PondResponseCommand::ERROR, e.message.ToVoid());
 	return BufferedResult::AGAIN_OPTIONAL;
 }
 
