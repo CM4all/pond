@@ -35,9 +35,18 @@ public:
 };
 
 class Database {
-	std::list<Record> records;
+	typedef std::list<Record> RecordList;
+	RecordList records;
 
 public:
+	RecordList::const_iterator begin() const {
+			return records.begin();
+	}
+
+	RecordList::const_iterator end() const {
+			return records.end();
+	}
+
 	const Record &Emplace(ConstBuffer<uint8_t> raw) {
 		records.emplace_back(raw);
 		return records.back();
