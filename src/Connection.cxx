@@ -69,7 +69,7 @@ Connection::OnPacket(uint16_t id, PondRequestCommand cmd,
 	Send(id, PondResponseCommand::ERROR,
 	     StringView("Command not implemented").ToVoid());
 
-	return BufferedResult::OK;
+	return BufferedResult::AGAIN_OPTIONAL;
 }
 
 BufferedResult
