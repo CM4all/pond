@@ -26,7 +26,7 @@ class Connection final
 	BufferedSocket socket;
 
 	struct Request {
-		uint16_t id;
+		uint16_t id = 0;
 		PondRequestCommand command = PondRequestCommand::NOP;
 
 		bool IsDefined() const {
@@ -39,6 +39,16 @@ class Connection final
 		 */
 		bool MatchId(uint16_t other_id) const {
 			return IsDefined() && id == other_id;
+		}
+
+		/**
+		 * Shall this request id be ignored, because it has
+		 * already aborted?  This can happen if one request
+		 * command fails, but more incremental request packets
+		 * are still in the socket buffer.
+		 */
+		bool IgnoreId(uint16_t other_id) const {
+			return !IsDefined() && id == other_id;
 		}
 
 		void Clear() {
