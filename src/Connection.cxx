@@ -63,6 +63,42 @@ struct SimplePondError {
 	StringView message;
 };
 
+gcc_pure
+static bool
+HasNullByte(ConstBuffer<char> b) noexcept
+{
+	return std::find(b.begin(), b.end(), '\0') != b.end();
+}
+
+gcc_pure
+static bool
+IsNonEmptyString(ConstBuffer<char> b) noexcept
+{
+	return !b.empty() && !HasNullByte(b);
+}
+
+gcc_pure
+static bool
+IsNonEmptyString(ConstBuffer<void> b) noexcept
+{
+	return IsNonEmptyString(ConstBuffer<char>::FromVoid(b));
+}
+
+gcc_pure
+static bool
+MatchFilter(const char *value, const std::string &filter) noexcept
+{
+	return filter.empty() || (value != nullptr && filter == value);
+}
+
+gcc_pure
+static bool
+MatchFilter(const Net::Log::Datagram &d,
+	    const std::string &filter_site) noexcept
+{
+	return MatchFilter(d.site, filter_site);
+}
+
 inline BufferedResult
 Connection::OnPacket(uint16_t id, PondRequestCommand cmd,
 		     ConstBuffer<void> payload)
@@ -88,8 +124,10 @@ try {
 		case PondRequestCommand::QUERY:
 			// TODO: move to OnBufferedWrite()
 			for (const auto &i : instance.GetDatabase())
-				Send(id, PondResponseCommand::LOG_RECORD,
-				     i.GetRaw());
+				if (MatchFilter(i.GetParsed(),
+						current.filter_site))
+					Send(id, PondResponseCommand::LOG_RECORD,
+					     i.GetRaw());
 
 			Send(id, PondResponseCommand::END, nullptr);
 			current.Clear();
@@ -100,8 +138,23 @@ try {
 		}
 
 	case PondRequestCommand::CANCEL:
-	case PondRequestCommand::FILTER_SITE:
 		break;
+
+	case PondRequestCommand::FILTER_SITE:
+		if (!current.MatchId(id) ||
+		    current.command != PondRequestCommand::QUERY ||
+		    !current.filter_site.empty())
+			throw SimplePondError{"Misplaced FILTER_SITE"};
+
+		if (!current.filter_site.empty())
+			throw SimplePondError{"Duplicate FILTER_SITE"};
+
+		if (!IsNonEmptyString(payload))
+			throw SimplePondError{"Malformed FILTER_SITE"};
+
+		current.filter_site.assign((const char *)payload.data,
+					   payload.size);
+		return BufferedResult::AGAIN_EXPECT;
 	}
 
 	throw SimplePondError{"Command not implemented"};

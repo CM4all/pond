@@ -10,6 +10,8 @@
 
 #include <boost/intrusive/list_hook.hpp>
 
+#include <string>
+
 #include <stdint.h>
 
 class Instance;
@@ -28,6 +30,7 @@ class Connection final
 	struct Request {
 		uint16_t id = 0;
 		PondRequestCommand command = PondRequestCommand::NOP;
+		std::string filter_site;
 
 		bool IsDefined() const {
 			return command != PondRequestCommand::NOP;
@@ -53,12 +56,14 @@ class Connection final
 
 		void Clear() {
 			command = PondRequestCommand::NOP;
+			filter_site.clear();
 		}
 
 		void Set(uint16_t _id,
 			 PondRequestCommand _command) {
 			id = _id;
 			command = _command;
+			filter_site.clear();
 		}
 	} current;
 

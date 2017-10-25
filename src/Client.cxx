@@ -9,6 +9,7 @@
 #include "util/ConstBuffer.hxx"
 #include "util/PrintException.hxx"
 #include "util/StringAPI.hxx"
+#include "util/StringCompare.hxx"
 #include "util/ByteOrder.hxx"
 
 #include <memory>
@@ -47,6 +48,16 @@ public:
 
 	void Send(uint16_t id, PondRequestCommand command,
 		  ConstBuffer<void> payload=nullptr);
+
+	void Send(uint16_t id, PondRequestCommand command,
+		  StringView payload) {
+		Send(id, command, payload.ToVoid());
+	}
+
+	void Send(uint16_t id, PondRequestCommand command,
+		  const char *payload) {
+		Send(id, command, StringView(payload));
+	}
 
 	PondDatagram Receive();
 };
@@ -135,15 +146,35 @@ PondClient::Receive()
 	return d;
 }
 
+gcc_pure
+static const char *
+IsFilter(const char *arg, StringView name) noexcept
+{
+	return StringStartsWith(arg, name) && arg[name.size] == '='
+		? arg + name.size + 1
+		: nullptr;
+}
+
 static void
 Query(const char *server, ConstBuffer<const char *> args)
 {
-	if (!args.empty())
-		throw "Too many arguments";
+	const char *filter_site = nullptr;
+
+	while (!args.empty()) {
+		const char *p = args.shift();
+		if (auto value = IsFilter(p, "site"))
+			filter_site = value;
+		else
+			throw "Unrecognized query argument";
+	}
 
 	PondClient client(server);
 	const auto id = client.MakeId();
 	client.Send(id, PondRequestCommand::QUERY);
+
+	if (filter_site != nullptr)
+		client.Send(id, PondRequestCommand::FILTER_SITE, filter_site);
+
 	client.Send(id, PondRequestCommand::COMMIT);
 
 	while (true) {
@@ -177,7 +208,7 @@ try {
 		fprintf(stderr, "Usage: %s SERVER[:PORT] COMMAND ...\n"
 			"\n"
 			"Commands:\n"
-			"  query\n", argv[0]);
+			"  query [site=VALUE]\n", argv[0]);
 		return EXIT_FAILURE;
 	}
 
