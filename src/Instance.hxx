@@ -51,6 +51,10 @@ public:
 		return event_loop;
 	}
 
+	const Database &GetDatabase() const {
+		return database;
+	}
+
 	void AddReceiver(const SocketConfig &config);
 	void AddListener(const SocketConfig &config);
 	void AddConnection(UniqueSocketDescriptor &&fd);
