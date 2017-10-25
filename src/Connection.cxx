@@ -66,8 +66,18 @@ Connection::OnPacket(uint16_t id, PondRequestCommand cmd,
 {
 	fprintf(stderr, "id=0x%04x cmd=%d payload=%zu\n", id, unsigned(cmd), payload.size);
 
-	Send(id, PondResponseCommand::ERROR,
-	     StringView("Command not implemented").ToVoid());
+	switch (cmd) {
+	case PondRequestCommand::NOP:
+		break;
+
+	case PondRequestCommand::COMMIT:
+	case PondRequestCommand::CANCEL:
+	case PondRequestCommand::QUERY:
+	case PondRequestCommand::FILTER_SITE:
+		Send(id, PondResponseCommand::ERROR,
+		     StringView("Command not implemented").ToVoid());
+		break;
+	}
 
 	return BufferedResult::AGAIN_OPTIONAL;
 }
