@@ -4,6 +4,7 @@
 
 #pragma once
 
+#include "Protocol.hxx"
 #include "net/UniqueSocketDescriptor.hxx"
 #include "event/net/BufferedSocket.hxx"
 
@@ -11,8 +12,6 @@
 
 #include <stdint.h>
 
-enum class PondRequestCommand : uint16_t;
-enum class PondResponseCommand : uint16_t;
 class Instance;
 class RootLogger;
 template<typename t> struct ConstBuffer;
@@ -25,6 +24,25 @@ class Connection final
 	const RootLogger &logger;
 
 	BufferedSocket socket;
+
+	struct Request {
+		uint16_t id;
+		PondRequestCommand command = PondRequestCommand::NOP;
+
+		bool IsDefined() const {
+			return command != PondRequestCommand::NOP;
+		}
+
+		void Clear() {
+			command = PondRequestCommand::NOP;
+		}
+
+		void Set(uint16_t _id,
+			 PondRequestCommand _command) {
+			id = _id;
+			command = _command;
+		}
+	} current;
 
 public:
 	Connection(Instance &_instance, UniqueSocketDescriptor &&fd);

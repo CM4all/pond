@@ -3,7 +3,6 @@
  */
 
 #include "Connection.hxx"
-#include "Protocol.hxx"
 #include "Instance.hxx"
 #include "event/Duration.hxx"
 #include "system/Error.hxx"
@@ -70,15 +69,35 @@ Connection::OnPacket(uint16_t id, PondRequestCommand cmd,
 	case PondRequestCommand::NOP:
 		break;
 
-	case PondRequestCommand::COMMIT:
-	case PondRequestCommand::CANCEL:
 	case PondRequestCommand::QUERY:
+		current.Set(id, cmd);
+		return BufferedResult::AGAIN_EXPECT;
+
+	case PondRequestCommand::COMMIT:
+		if (!current.IsDefined() || current.id != id) {
+			Send(id, PondResponseCommand::ERROR,
+			     StringView("Misplaced COMMIT").ToVoid());
+			return BufferedResult::AGAIN_OPTIONAL;
+		}
+
+		switch (current.command) {
+		case PondRequestCommand::QUERY:
+			Send(id, PondResponseCommand::END, nullptr);
+			return BufferedResult::AGAIN_OPTIONAL;
+
+		default:
+			Send(id, PondResponseCommand::ERROR,
+			     StringView("Misplaced COMMIT").ToVoid());
+			return BufferedResult::AGAIN_OPTIONAL;
+		}
+
+	case PondRequestCommand::CANCEL:
 	case PondRequestCommand::FILTER_SITE:
-		Send(id, PondResponseCommand::ERROR,
-		     StringView("Command not implemented").ToVoid());
 		break;
 	}
 
+	Send(id, PondResponseCommand::ERROR,
+	     StringView("Command not implemented").ToVoid());
 	return BufferedResult::AGAIN_OPTIONAL;
 }
 
