@@ -21,6 +21,7 @@ Duplicate(ConstBuffer<T> src)
 
 Record::Record(ConstBuffer<uint8_t> _raw)
 	:raw(Duplicate(_raw)),
+	 raw_size(_raw.size),
 	 parsed(Net::Log::ParseDatagram(raw.get(), raw.get() + _raw.size))
 {
 }

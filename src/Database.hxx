@@ -12,6 +12,7 @@
 
 class Record {
 	std::unique_ptr<uint8_t[]> raw;
+	size_t raw_size;
 
 	Net::Log::Datagram parsed;
 
@@ -23,6 +24,10 @@ public:
 
 	Record(const Record &) = delete;
 	Record &operator=(const Record &) = delete;
+
+	ConstBuffer<void> GetRaw() const {
+		return {raw.get(), raw_size};
+	}
 
 	const Net::Log::Datagram &GetParsed() const {
 		return parsed;
