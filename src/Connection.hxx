@@ -33,6 +33,14 @@ class Connection final
 			return command != PondRequestCommand::NOP;
 		}
 
+		/**
+		 * Does the given request id belong to this
+		 * uncommitted request?
+		 */
+		bool MatchId(uint16_t other_id) const {
+			return IsDefined() && id == other_id;
+		}
+
 		void Clear() {
 			command = PondRequestCommand::NOP;
 		}

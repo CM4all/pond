@@ -78,7 +78,7 @@ try {
 		return BufferedResult::AGAIN_EXPECT;
 
 	case PondRequestCommand::COMMIT:
-		if (!current.IsDefined() || current.id != id)
+		if (!current.MatchId(id))
 			throw SimplePondError{"Misplaced COMMIT"};
 
 		switch (current.command) {
