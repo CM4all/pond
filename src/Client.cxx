@@ -144,6 +144,7 @@ Query(const char *server, ConstBuffer<const char *> args)
 	PondClient client(server);
 	const auto id = client.MakeId();
 	client.Send(id, PondRequestCommand::QUERY);
+	client.Send(id, PondRequestCommand::COMMIT);
 
 	while (true) {
 		const auto d = client.Receive();
