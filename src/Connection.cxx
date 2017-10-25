@@ -94,7 +94,7 @@ Connection::OnBufferedData(const void *buffer, size_t size)
 	if (result == BufferedResult::OK && consumed < size)
 		result = BufferedResult::PARTIAL;
 
-	return BufferedResult::OK;
+	return result;
 }
 
 bool
