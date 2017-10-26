@@ -4,6 +4,7 @@
 
 #include "Database.hxx"
 #include "net/log/Parser.hxx"
+#include "util/DeleteDisposer.hxx"
 
 #include <algorithm>
 
@@ -24,4 +25,9 @@ Record::Record(ConstBuffer<uint8_t> _raw)
 	 raw_size(_raw.size),
 	 parsed(Net::Log::ParseDatagram(raw.get(), raw.get() + _raw.size))
 {
+}
+
+Database::~Database()
+{
+	records.clear_and_dispose(DeleteDisposer());
 }

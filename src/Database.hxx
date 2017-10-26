@@ -7,10 +7,13 @@
 #include "net/log/Datagram.hxx"
 #include "util/ConstBuffer.hxx"
 
-#include <memory>
-#include <list>
+#include <boost/intrusive/list.hpp>
 
-class Record {
+#include <memory>
+
+class Record final
+	: public boost::intrusive::list_base_hook<boost::intrusive::link_mode<boost::intrusive::normal_link>> {
+
 	std::unique_ptr<uint8_t[]> raw;
 	size_t raw_size;
 
@@ -35,10 +38,18 @@ public:
 };
 
 class Database {
-	typedef std::list<Record> RecordList;
+	typedef boost::intrusive::list<Record,
+				       boost::intrusive::constant_time_size<false>> RecordList;
+
 	RecordList records;
 
 public:
+	Database() = default;
+	~Database();
+
+	Database(const Database &) = delete;
+	Database &operator=(const Database &) = delete;
+
 	RecordList::const_iterator begin() const {
 			return records.begin();
 	}
@@ -48,7 +59,8 @@ public:
 	}
 
 	const Record &Emplace(ConstBuffer<uint8_t> raw) {
-		records.emplace_back(raw);
-		return records.back();
+		auto *record = new Record(raw);
+		records.push_back(*record);
+		return *record;
 	}
 };
