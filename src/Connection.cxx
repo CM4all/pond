@@ -138,6 +138,7 @@ try {
 		}
 
 	case PondRequestCommand::CANCEL:
+		current.Clear();
 		break;
 
 	case PondRequestCommand::FILTER_SITE:
