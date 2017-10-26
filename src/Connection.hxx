@@ -5,6 +5,7 @@
 #pragma once
 
 #include "Protocol.hxx"
+#include "Cursor.hxx"
 #include "net/UniqueSocketDescriptor.hxx"
 #include "event/net/BufferedSocket.hxx"
 
@@ -32,6 +33,11 @@ class Connection final
 		PondRequestCommand command = PondRequestCommand::NOP;
 		std::string filter_site;
 
+		Cursor cursor;
+
+		explicit Request(const Database &database)
+			:cursor(database) {}
+
 		bool IsDefined() const {
 			return command != PondRequestCommand::NOP;
 		}
@@ -57,6 +63,7 @@ class Connection final
 		void Clear() {
 			command = PondRequestCommand::NOP;
 			filter_site.clear();
+			cursor.clear();
 		}
 
 		void Set(uint16_t _id,
@@ -64,6 +71,7 @@ class Connection final
 			id = _id;
 			command = _command;
 			filter_site.clear();
+			cursor.clear();
 		}
 	} current;
 

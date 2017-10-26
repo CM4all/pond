@@ -11,7 +11,8 @@
 
 Connection::Connection(Instance &_instance, UniqueSocketDescriptor &&_fd)
 	:instance(_instance), logger(instance.GetLogger()),
-	 socket(_instance.GetEventLoop())
+	 socket(_instance.GetEventLoop()),
+	 current(_instance.GetDatabase())
 {
 	socket.Init(_fd.Release(), FD_TCP,
 		    nullptr,
@@ -113,6 +114,7 @@ try {
 		break;
 
 	case PondRequestCommand::QUERY:
+		socket.UnscheduleWrite();
 		current.Set(id, cmd);
 		return BufferedResult::AGAIN_EXPECT;
 
@@ -122,15 +124,10 @@ try {
 
 		switch (current.command) {
 		case PondRequestCommand::QUERY:
-			// TODO: move to OnBufferedWrite()
-			for (const auto &i : instance.GetDatabase())
-				if (MatchFilter(i.GetParsed(),
-						current.filter_site))
-					Send(id, PondResponseCommand::LOG_RECORD,
-					     i.GetRaw());
-
-			Send(id, PondResponseCommand::END, nullptr);
-			current.Clear();
+			current.cursor.Rewind();
+			socket.ScheduleWrite();
+			/* the response will be assembled by
+			   OnBufferedWrite() */
 			return BufferedResult::AGAIN_OPTIONAL;
 
 		default:
@@ -139,6 +136,7 @@ try {
 
 	case PondRequestCommand::CANCEL:
 		current.Clear();
+		socket.UnscheduleWrite();
 		break;
 
 	case PondRequestCommand::FILTER_SITE:
@@ -162,6 +160,7 @@ try {
 } catch (SimplePondError e) {
 	Send(id, PondResponseCommand::ERROR, e.message.ToVoid());
 	current.Clear();
+	socket.UnscheduleWrite();
 	return BufferedResult::AGAIN_OPTIONAL;
 }
 
@@ -200,7 +199,22 @@ Connection::OnBufferedClosed() noexcept
 bool
 Connection::OnBufferedWrite()
 {
-	// TODO
+	assert(current.command == PondRequestCommand::QUERY);
+
+	while (current.cursor &&
+	       !MatchFilter(current.cursor->GetParsed(), current.filter_site))
+		++current.cursor;
+
+	if (current.cursor) {
+		Send(current.id, PondResponseCommand::LOG_RECORD,
+		     current.cursor->GetRaw());
+		++current.cursor;
+	} else {
+		Send(current.id, PondResponseCommand::END, nullptr);
+		current.Clear();
+		socket.UnscheduleWrite();
+	}
+
 	return true;
 }
 
