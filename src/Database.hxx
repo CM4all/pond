@@ -4,6 +4,7 @@
 
 #pragma once
 
+#include "Cursor.hxx"
 #include "net/log/Datagram.hxx"
 #include "util/ConstBuffer.hxx"
 
@@ -62,5 +63,17 @@ public:
 		auto *record = new Record(raw);
 		records.push_back(*record);
 		return *record;
+	}
+
+	const Record *First() const {
+		return records.empty() ? nullptr : &records.front();
+	}
+
+	const Record *Next(const Record &current) const {
+		auto i = records.iterator_to(current);
+		++i;
+		return i == records.end()
+			? nullptr
+			: &*i;
 	}
 };
