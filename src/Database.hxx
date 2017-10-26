@@ -59,11 +59,7 @@ public:
 			return records.end();
 	}
 
-	const Record &Emplace(ConstBuffer<uint8_t> raw) {
-		auto *record = new Record(raw);
-		records.push_back(*record);
-		return *record;
-	}
+	const Record &Emplace(ConstBuffer<uint8_t> raw);
 
 	const Record *First() const {
 		return records.empty() ? nullptr : &records.front();

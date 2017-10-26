@@ -31,3 +31,11 @@ Database::~Database()
 {
 	records.clear_and_dispose(DeleteDisposer());
 }
+
+const Record &
+Database::Emplace(ConstBuffer<uint8_t> raw)
+{
+	auto *record = new Record(raw);
+	records.push_back(*record);
+	return *record;
+}
