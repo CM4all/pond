@@ -35,8 +35,8 @@ class Connection final
 
 		Cursor cursor;
 
-		explicit Request(Database &database)
-			:cursor(database) {}
+		Request(Database &database, BoundMethod<void()> push_callback)
+			:cursor(database, push_callback) {}
 
 		bool IsDefined() const {
 			return command != PondRequestCommand::NOP;
@@ -89,6 +89,8 @@ private:
 
 	BufferedResult OnPacket(uint16_t id, PondRequestCommand cmd,
 				ConstBuffer<void> payload);
+
+	void OnAppend();
 
 	/* virtual methods from class BufferedSocketHandler */
 	BufferedResult OnBufferedData(const void *buffer, size_t size) override;

@@ -15,6 +15,8 @@ Cursor::Rewind()
 void
 Cursor::Follow()
 {
+	assert(append_callback);
+
 	if (next == nullptr && !is_linked())
 		database.Follow(*this);
 }

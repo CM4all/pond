@@ -12,7 +12,7 @@
 Connection::Connection(Instance &_instance, UniqueSocketDescriptor &&_fd)
 	:instance(_instance), logger(instance.GetLogger()),
 	 socket(_instance.GetEventLoop()),
-	 current(_instance.GetDatabase())
+	 current(_instance.GetDatabase(), BIND_THIS_METHOD(OnAppend))
 {
 	socket.Init(_fd.Release(), FD_TCP,
 		    nullptr,
@@ -161,6 +161,11 @@ try {
 	current.Clear();
 	socket.UnscheduleWrite();
 	return BufferedResult::AGAIN_OPTIONAL;
+}
+
+void
+Connection::OnAppend()
+{
 }
 
 BufferedResult

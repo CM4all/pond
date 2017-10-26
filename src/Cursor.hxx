@@ -4,6 +4,8 @@
 
 #pragma once
 
+#include "util/BindMethod.hxx"
+
 #include <boost/intrusive/list_hook.hpp>
 
 #include <assert.h>
@@ -17,9 +19,11 @@ class Cursor final
 	Database &database;
 	const Record *next = nullptr;
 
+	BoundMethod<void()> append_callback;
+
 public:
-	explicit Cursor(Database &_database)
-		:database(_database) {}
+	Cursor(Database &_database, BoundMethod<void()> _append_callback)
+		:database(_database), append_callback(_append_callback) {}
 
 	void Rewind();
 
@@ -30,6 +34,7 @@ public:
 		assert(next == nullptr);
 
 		next = &record;
+		append_callback();
 	}
 
 	void clear() {
