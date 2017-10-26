@@ -124,8 +124,12 @@ try {
 
 		switch (current.command) {
 		case PondRequestCommand::QUERY:
-			current.cursor.Rewind();
-			socket.ScheduleWrite();
+			if (current.follow) {
+				current.cursor.Follow();
+			} else {
+				current.cursor.Rewind();
+				socket.ScheduleWrite();
+			}
 			/* the response will be assembled by
 			   OnBufferedWrite() */
 			return BufferedResult::AGAIN_OPTIONAL;
@@ -153,6 +157,20 @@ try {
 		current.filter_site.assign((const char *)payload.data,
 					   payload.size);
 		return BufferedResult::AGAIN_EXPECT;
+
+	case PondRequestCommand::FOLLOW:
+		if (!current.MatchId(id) ||
+		    current.command != PondRequestCommand::QUERY)
+			throw SimplePondError{"Misplaced FOLLOW"};
+
+		if (current.follow)
+			throw SimplePondError{"Duplicate FOLLOW"};
+
+		if (!payload.empty())
+			throw SimplePondError{"Malformed FOLLOW"};
+
+		current.follow = true;
+		return BufferedResult::AGAIN_EXPECT;
 	}
 
 	throw SimplePondError{"Command not implemented"};
@@ -166,6 +184,7 @@ try {
 void
 Connection::OnAppend()
 {
+	socket.ScheduleWrite();
 }
 
 BufferedResult
@@ -213,6 +232,9 @@ Connection::OnBufferedWrite()
 		Send(current.id, PondResponseCommand::LOG_RECORD,
 		     current.cursor->GetRaw());
 		++current.cursor;
+	} else if (current.follow) {
+		socket.UnscheduleWrite();
+		current.cursor.Follow();
 	} else {
 		Send(current.id, PondResponseCommand::END, nullptr);
 		current.Clear();

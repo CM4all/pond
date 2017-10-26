@@ -162,11 +162,14 @@ static void
 Query(const char *server, ConstBuffer<const char *> args)
 {
 	const char *filter_site = nullptr;
+	bool follow = false;
 
 	while (!args.empty()) {
 		const char *p = args.shift();
 		if (auto value = IsFilter(p, "site"))
 			filter_site = value;
+		else if (StringIsEqual(p, "--follow"))
+			follow = true;
 		else
 			throw "Unrecognized query argument";
 	}
@@ -177,6 +180,9 @@ Query(const char *server, ConstBuffer<const char *> args)
 
 	if (filter_site != nullptr)
 		client.Send(id, PondRequestCommand::FILTER_SITE, filter_site);
+
+	if (follow)
+		client.Send(id, PondRequestCommand::FOLLOW);
 
 	client.Send(id, PondRequestCommand::COMMIT);
 
@@ -217,7 +223,7 @@ try {
 		fprintf(stderr, "Usage: %s SERVER[:PORT] COMMAND ...\n"
 			"\n"
 			"Commands:\n"
-			"  query [site=VALUE]\n", argv[0]);
+			"  query [--follow] [site=VALUE]\n", argv[0]);
 		return EXIT_FAILURE;
 	}
 

@@ -30,6 +30,13 @@ enum class PondRequestCommand : uint16_t {
 	 * exact string to compare with.
 	 */
 	FILTER_SITE,
+
+	/**
+	 * Option for #QUERY which follows incoming new records
+	 * instead of printing past ones.  The response never ends
+	 * until the client sends #CANCEL (or closes the connection).
+	 */
+	FOLLOW,
 };
 
 enum class PondResponseCommand : uint16_t {

@@ -30,6 +30,7 @@ class Connection final
 
 	struct Request {
 		uint16_t id = 0;
+		bool follow = false;
 		PondRequestCommand command = PondRequestCommand::NOP;
 		std::string filter_site;
 
@@ -63,6 +64,7 @@ class Connection final
 		void Clear() {
 			command = PondRequestCommand::NOP;
 			filter_site.clear();
+			follow = false;
 			cursor.clear();
 		}
 
@@ -71,6 +73,7 @@ class Connection final
 			id = _id;
 			command = _command;
 			filter_site.clear();
+			follow = false;
 			cursor.clear();
 		}
 	} current;
