@@ -141,8 +141,7 @@ try {
 
 	case PondRequestCommand::FILTER_SITE:
 		if (!current.MatchId(id) ||
-		    current.command != PondRequestCommand::QUERY ||
-		    !current.filter_site.empty())
+		    current.command != PondRequestCommand::QUERY)
 			throw SimplePondError{"Misplaced FILTER_SITE"};
 
 		if (!current.filter_site.empty())
