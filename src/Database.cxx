@@ -8,6 +8,8 @@
 
 #include <algorithm>
 
+#include <assert.h>
+
 template<typename T>
 static std::unique_ptr<T[]>
 Duplicate(ConstBuffer<T> src)
@@ -29,6 +31,8 @@ Record::Record(ConstBuffer<uint8_t> _raw)
 
 Database::~Database()
 {
+	assert(follow_cursors.empty());
+
 	records.clear_and_dispose(DeleteDisposer());
 }
 
@@ -37,5 +41,10 @@ Database::Emplace(ConstBuffer<uint8_t> raw)
 {
 	auto *record = new Record(raw);
 	records.push_back(*record);
+
+	follow_cursors.clear_and_dispose([record](Cursor *cursor){
+			cursor->OnAppend(*record);
+		});
+
 	return *record;
 }

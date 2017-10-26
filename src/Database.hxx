@@ -12,6 +12,9 @@
 
 #include <memory>
 
+typedef boost::intrusive::list<Cursor,
+			       boost::intrusive::constant_time_size<false>> CursorList;
+
 class Record final
 	: public boost::intrusive::list_base_hook<boost::intrusive::link_mode<boost::intrusive::normal_link>> {
 
@@ -44,6 +47,8 @@ class Database {
 
 	RecordList records;
 
+	CursorList follow_cursors;
+
 public:
 	Database() = default;
 	~Database();
@@ -71,5 +76,9 @@ public:
 		return i == records.end()
 			? nullptr
 			: &*i;
+	}
+
+	void Follow(Cursor &cursor) {
+		follow_cursors.push_back(cursor);
 	}
 };

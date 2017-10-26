@@ -51,6 +51,10 @@ public:
 		return event_loop;
 	}
 
+	Database &GetDatabase() {
+		return database;
+	}
+
 	const Database &GetDatabase() const {
 		return database;
 	}

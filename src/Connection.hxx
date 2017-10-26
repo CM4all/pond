@@ -35,7 +35,7 @@ class Connection final
 
 		Cursor cursor;
 
-		explicit Request(const Database &database)
+		explicit Request(Database &database)
 			:cursor(database) {}
 
 		bool IsDefined() const {
