@@ -46,4 +46,9 @@ public:
 	void AddCursor(Cursor &cursor) const {
 		cursors.push_back(cursor);
 	}
+
+	void DisplaceCursors() {
+		while (!cursors.empty())
+			++cursors.front();
+	}
 };

@@ -36,6 +36,11 @@ public:
 
 	const Record &Emplace(ConstBuffer<uint8_t> raw);
 
+	/**
+	 * Remove and free the given record.
+	 */
+	void Dispose(Record *record);
+
 	const Record *First() const {
 		return records.empty() ? nullptr : &records.front();
 	}

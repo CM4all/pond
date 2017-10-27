@@ -26,3 +26,11 @@ Database::Emplace(ConstBuffer<uint8_t> raw)
 
 	return *record;
 }
+
+void
+Database::Dispose(Record *record)
+{
+	record->DisplaceCursors();
+	records.erase(records.iterator_to(*record));
+	delete record;
+}
