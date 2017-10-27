@@ -220,3 +220,4 @@ executable('cm4all-pond-client',
   install: true)
 
 subdir('libcommon/test/util')
+subdir('doc')
