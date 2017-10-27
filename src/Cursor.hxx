@@ -29,13 +29,7 @@ public:
 
 	void Follow();
 
-	void OnAppend(const Record &record) {
-		assert(!is_linked());
-		assert(next == nullptr);
-
-		next = &record;
-		append_callback();
-	}
+	void OnAppend(const Record &record);
 
 	void clear() {
 		unlink();

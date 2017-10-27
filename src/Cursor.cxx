@@ -21,6 +21,16 @@ Cursor::Follow()
 		database.Follow(*this);
 }
 
+void
+Cursor::OnAppend(const Record &record)
+{
+	assert(!is_linked());
+	assert(next == nullptr);
+
+	next = &record;
+	append_callback();
+}
+
 Cursor &
 Cursor::operator++()
 {
