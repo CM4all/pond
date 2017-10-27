@@ -1,0 +1,38 @@
+Source: cm4all-pond
+Section: non-free/admin
+Priority: extra
+Maintainer: Max Kellermann <mk@cm4all.com>
+Build-Depends: debhelper (>= 10), dh-systemd,
+ meson (>= 0.37),
+ g++ (>= 4:6),
+ libc6-dev (>= 2.13),
+ libboost-dev (>= 1.54),
+ libboost-system-dev (>= 1.54),
+ libboost-filesystem-dev (>= 1.54),
+ libevent-dev (>= 2.0.19),
+ libsystemd-dev,
+ python3-sphinx
+Standards-Version: 4.0.0
+Vcs-git: git@dev.intern.cm-ag:max/pond.git
+
+Package: cm4all-pond
+Architecture: any
+Depends: ${shlibs:Depends}, systemd-sysv, adduser
+Description: Pond log database server
+ Pond is a volatile round-robin database for log messages.
+
+Package: cm4all-pond-client
+Architecture: any
+Depends: ${shlibs:Depends}
+Description: Pond log database client
+ Pond is a volatile round-robin database for log messages.
+ .
+ This package contains a simple and generic client.
+
+Package: cm4all-pond-doc
+Section: non-free/doc
+Architecture: all
+Description: Documentation for cm4all-pond
+ Pond is a volatile round-robin database for log messages.
+ .
+ This package contains documentation.

@@ -1,0 +1,27 @@
+#!/usr/bin/make -f
+# -*- mode: makefile; coding: utf-8 -*-
+
+MESON_BUILDTYPE = debug
+
+MESON_OPTIONS = \
+	--buildtype $(MESON_BUILDTYPE) \
+	--prefix=/usr \
+	--werror
+
+%:
+	dh $@
+
+override_dh_auto_clean:
+	rm -rf debian/build
+
+override_dh_auto_configure:
+	meson . debian/build $(MESON_OPTIONS)
+
+override_dh_auto_build:
+	ninja -v -C debian/build
+
+override_dh_auto_test:
+	ninja -v -C debian/build test
+
+override_dh_auto_install:
+	DESTDIR=${CURDIR}/debian/tmp ninja -v -C debian/build install

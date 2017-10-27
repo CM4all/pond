@@ -1,0 +1,15 @@
+#! /bin/sh -e
+# Author: Max Kellermann <mk@cm4all.com>
+
+if [ "$1" = "configure" ]; then
+    if ! getent passwd cm4all-pond >/dev/null; then
+	adduser --quiet \
+            --system --ingroup nogroup \
+            --no-create-home \
+            --home /var/lib/cm4all/pond \
+            --shell /usr/sbin/nologin \
+            cm4all-pond
+    fi
+fi
+
+#DEBHELPER#

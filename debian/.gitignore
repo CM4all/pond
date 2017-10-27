@@ -1,0 +1,10 @@
+/*.debhelper
+/*.substvars
+/*-stamp
+/files
+
+/build/
+/tmp/
+/cm4all-pond/
+/cm4all-pond-client/
+/cm4all-pond-doc/
