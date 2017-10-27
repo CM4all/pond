@@ -6,7 +6,7 @@
 
 #include "util/BindMethod.hxx"
 
-#include <boost/intrusive/list_hook.hpp>
+#include <boost/intrusive/list.hpp>
 
 #include <assert.h>
 
@@ -56,3 +56,6 @@ public:
 
 	Cursor &operator++();
 };
+
+typedef boost::intrusive::list<Cursor,
+			       boost::intrusive::constant_time_size<false>> CursorList;

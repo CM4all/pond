@@ -11,9 +11,6 @@
 
 template<typename T> struct ConstBuffer;
 
-typedef boost::intrusive::list<Cursor,
-			       boost::intrusive::constant_time_size<false>> CursorList;
-
 class Database {
 	typedef boost::intrusive::list<Record,
 				       boost::intrusive::constant_time_size<false>> RecordList;
