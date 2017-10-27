@@ -17,6 +17,9 @@ Database::~Database()
 const Record &
 Database::Emplace(ConstBuffer<uint8_t> raw)
 {
+	if (records.size() >= max_records)
+		Dispose(&records.front());
+
 	auto *record = new Record(raw);
 	records.push_back(*record);
 
