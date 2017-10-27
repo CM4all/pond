@@ -198,6 +198,7 @@ executable('cm4all-pond',
   'src/Connection.cxx',
   'src/Config.cxx',
   'src/Database.cxx',
+  'src/Record.cxx',
   'src/Cursor.cxx',
   include_directories: inc,
   dependencies: [
