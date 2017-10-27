@@ -42,14 +42,14 @@ public:
 
 	const Record &operator*() const {
 		assert(next != nullptr);
-		assert(!is_linked());
+		assert(is_linked());
 
 		return *next;
 	}
 
 	const Record *operator->() const {
 		assert(next != nullptr);
-		assert(!is_linked());
+		assert(is_linked());
 
 		return next;
 	}

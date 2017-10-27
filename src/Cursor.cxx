@@ -10,6 +10,8 @@ Cursor::Rewind()
 {
 	unlink();
 	next = database.First();
+	if (next != nullptr)
+		next->AddCursor(*this);
 }
 
 void
@@ -28,6 +30,8 @@ Cursor::OnAppend(const Record &record)
 	assert(next == nullptr);
 
 	next = &record;
+	next->AddCursor(*this);
+
 	append_callback();
 }
 
@@ -35,8 +39,12 @@ Cursor &
 Cursor::operator++()
 {
 	assert(next != nullptr);
-	assert(!is_linked());
+	assert(is_linked());
 
+	unlink();
 	next = database.Next(*next);
+	if (next != nullptr)
+		next->AddCursor(*this);
+
 	return *this;
 }
