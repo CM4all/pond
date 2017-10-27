@@ -1,0 +1,22 @@
+[Unit]
+Description=CM4all Pond
+Wants=network-online.target
+After=network-online.target
+
+[Service]
+Type=notify
+User=cm4all-pond
+ExecStart=/usr/sbin/cm4all-pond
+
+CPUSchedulingPolicy=batch
+
+LimitNPROC=1
+LimitDATA=32G
+LimitRSS=32G
+
+ProtectSystem=full
+NoNewPrivileges=true
+RestrictAddressFamilies=AF_UNIX AF_INET AF_INET6
+
+[Install]
+WantedBy=multi-user.target
