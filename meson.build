@@ -221,4 +221,7 @@ executable('cm4all-pond-client',
   install: true)
 
 subdir('libcommon/test/util')
+subdir('libcommon/test/http')
+subdir('libcommon/test/io')
+subdir('libcommon/test/net')
 subdir('doc')
