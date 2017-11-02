@@ -12,8 +12,11 @@
 
 #include <memory>
 
-class Record final
-	: public boost::intrusive::list_base_hook<boost::intrusive::link_mode<boost::intrusive::normal_link>> {
+class Record final {
+	friend class Database;
+
+	typedef boost::intrusive::list_member_hook<boost::intrusive::link_mode<boost::intrusive::normal_link>> ListHook;
+	ListHook list_hook;
 
 	std::unique_ptr<uint8_t[]> raw;
 	size_t raw_size;

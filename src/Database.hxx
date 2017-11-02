@@ -13,6 +13,9 @@ template<typename T> struct ConstBuffer;
 
 class Database {
 	typedef boost::intrusive::list<Record,
+				       boost::intrusive::member_hook<Record,
+								     Record::ListHook,
+								     &Record::list_hook>,
 				       boost::intrusive::constant_time_size<true>> RecordList;
 
 	static constexpr size_t max_records = 1024 * 1024;
