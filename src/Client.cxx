@@ -14,6 +14,7 @@
 #include "util/StringAPI.hxx"
 #include "util/StringCompare.hxx"
 #include "util/ByteOrder.hxx"
+#include "util/Macros.hxx"
 
 #include <memory>
 
@@ -27,6 +28,10 @@ struct PondDatagram {
 	struct {
 		std::unique_ptr<uint8_t[]> data;
 		size_t size;
+
+		operator ConstBuffer<void>() const noexcept {
+			return {data.get(), size};
+		}
 
 		std::string ToString() const {
 			return std::string((const char *)data.get(), size);
@@ -158,11 +163,63 @@ IsFilter(const char *arg, StringView name) noexcept
 		: nullptr;
 }
 
+/**
+ * Cast this #FileDescriptor to a #SocketDescriptor if it specifies a
+ * socket.
+ */
+gcc_pure
+static SocketDescriptor
+CheckSocket(FileDescriptor fd)
+{
+	return fd.IsSocket()
+		? SocketDescriptor::FromFileDescriptor(fd)
+		: SocketDescriptor::Undefined();
+}
+
+/**
+ * Cast this #FileDescriptor to a #SocketDescriptor if it specifies a
+ * packet socket (SOCK_DGRAM or SOCK_SEQPACKET).
+ */
+gcc_pure
+static SocketDescriptor
+CheckPacketSocket(FileDescriptor fd)
+{
+	auto s = CheckSocket(fd);
+	if (s.IsDefined() && s.IsStream())
+		s.SetUndefined();
+	return s;
+}
+
+static void
+SendPacket(SocketDescriptor s, ConstBuffer<void> payload)
+{
+	struct iovec vec[] = {
+		{
+			.iov_base = const_cast<void *>(payload.data),
+			.iov_len = payload.size,
+		},
+	};
+
+	struct msghdr m = {
+		.msg_name = nullptr,
+		.msg_namelen = 0,
+		.msg_iov = vec,
+		.msg_iovlen = ARRAY_SIZE(vec),
+		.msg_control = nullptr,
+		.msg_controllen = 0,
+		.msg_flags = 0,
+	};
+
+	sendmsg(s.Get(), &m, 0);
+}
+
 static void
 Query(const char *server, ConstBuffer<const char *> args)
 {
 	const char *filter_site = nullptr;
 	bool follow = false;
+
+	auto socket = CheckPacketSocket(FileDescriptor(STDOUT_FILENO));
 
 	while (!args.empty()) {
 		const char *p = args.shift();
@@ -202,6 +259,13 @@ Query(const char *server, ConstBuffer<const char *> args)
 			return;
 
 		case PondResponseCommand::LOG_RECORD:
+			if (socket.IsDefined()) {
+				/* if fd2 is a packet socket, send raw
+				   datagrams to it */
+				SendPacket(socket, d.payload);
+				continue;
+			}
+
 			try {
 				LogOneLine(FileDescriptor(STDOUT_FILENO),
 					   Net::Log::ParseDatagram(d.payload.data.get(),
