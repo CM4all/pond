@@ -15,7 +15,7 @@
 class Record final {
 public:
 	typedef boost::intrusive::list_member_hook<boost::intrusive::link_mode<boost::intrusive::normal_link>> ListHook;
-	ListHook list_hook;
+	ListHook list_hook, per_site_list_hook;
 
 private:
 	std::unique_ptr<uint8_t[]> raw;

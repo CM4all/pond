@@ -10,20 +10,25 @@
 
 #include <assert.h>
 
+struct Filter;
 class Database;
 class FullRecordList;
+class PerSiteRecordList;
 class Record;
 
 class Cursor final
 	: public boost::intrusive::list_base_hook<boost::intrusive::link_mode<boost::intrusive::auto_unlink>> {
 
-	FullRecordList &all_records;
+	FullRecordList *const all_records = nullptr;
+	PerSiteRecordList *const per_site_records = nullptr;
+
 	const Record *next = nullptr;
 
 	BoundMethod<void()> append_callback;
 
 public:
-	Cursor(Database &_database, BoundMethod<void()> _append_callback);
+	Cursor(Database &_database, const Filter &filter,
+	       BoundMethod<void()> _append_callback);
 
 	void Rewind();
 

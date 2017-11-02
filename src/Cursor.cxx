@@ -4,9 +4,16 @@
 
 #include "Cursor.hxx"
 #include "Database.hxx"
+#include "Filter.hxx"
 
-Cursor::Cursor(Database &_database, BoundMethod<void()> _append_callback)
-	:all_records(_database.GetAllRecords()),
+Cursor::Cursor(Database &_database, const Filter &filter,
+	       BoundMethod<void()> _append_callback)
+	:all_records(filter.site.empty()
+		     ? &_database.GetAllRecords()
+		     : nullptr),
+	 per_site_records(filter.site.empty()
+			  ? nullptr
+			  : &_database.GetPerSiteRecords(filter.site)),
 	 append_callback(_append_callback)
 {
 }
@@ -15,7 +22,9 @@ void
 Cursor::Rewind()
 {
 	unlink();
-	next = all_records.First();
+	next = all_records != nullptr
+		? all_records->First()
+		: per_site_records->First();
 	if (next != nullptr)
 		next->AddCursor(*this);
 }
@@ -25,8 +34,12 @@ Cursor::Follow()
 {
 	assert(append_callback);
 
-	if (next == nullptr && !is_linked())
-		all_records.Follow(*this);
+	if (next == nullptr && !is_linked()) {
+		if (all_records != nullptr)
+			all_records->Follow(*this);
+		else
+			per_site_records->Follow(*this);
+	}
 }
 
 void
@@ -48,7 +61,10 @@ Cursor::operator++()
 	assert(is_linked());
 
 	unlink();
-	next = all_records.Next(*next);
+
+	next = all_records != nullptr
+		? all_records->Next(*next)
+		: per_site_records->Next(*next);
 	if (next != nullptr)
 		next->AddCursor(*this);
 

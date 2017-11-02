@@ -116,6 +116,7 @@ try {
 		switch (current.command) {
 		case PondRequestCommand::QUERY:
 			current.cursor.reset(new Cursor(instance.GetDatabase(),
+							current.filter,
 							BIND_THIS_METHOD(OnAppend)));
 			if (current.follow) {
 				current.cursor->Follow();

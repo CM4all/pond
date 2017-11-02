@@ -91,3 +91,4 @@ public:
 };
 
 class FullRecordList : public RecordList<&Record::list_hook> {};
+class PerSiteRecordList : public RecordList<&Record::per_site_list_hook> {};
