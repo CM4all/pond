@@ -104,8 +104,6 @@ inline BufferedResult
 Connection::OnPacket(uint16_t id, PondRequestCommand cmd,
 		     ConstBuffer<void> payload)
 try {
-	fprintf(stderr, "id=0x%04x cmd=%d payload=%zu\n", id, unsigned(cmd), payload.size);
-
 	if (current.IgnoreId(id))
 		return BufferedResult::AGAIN_OPTIONAL;
 
