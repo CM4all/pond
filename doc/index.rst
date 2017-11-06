@@ -11,7 +11,7 @@ clients to query them.
 Configuration
 -------------
 
-The file :file:`/etc/cm4all/pond/pong.conf` configures two aspects of
+The file :file:`/etc/cm4all/pond/pond.conf` configures two aspects of
 this software: receivers and listeners.
 
 * a *receiver* is a datagram socket which binds to an address,
