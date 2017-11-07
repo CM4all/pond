@@ -72,11 +72,9 @@ class Connection final
 
 		void Set(uint16_t _id,
 			 PondRequestCommand _command) {
+			Clear();
 			id = _id;
 			command = _command;
-			filter = Filter();
-			follow = false;
-			cursor.clear();
 		}
 	} current;
 
