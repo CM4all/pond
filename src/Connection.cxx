@@ -9,6 +9,8 @@
 #include "util/ByteOrder.hxx"
 #include "util/StringView.hxx"
 
+#include <array>
+
 void
 Connection::Request::Clear()
 {
@@ -37,34 +39,54 @@ Connection::~Connection()
 	socket.Destroy();
 }
 
-void
-Connection::Send(uint16_t id, PondResponseCommand command,
-		 ConstBuffer<void> payload)
+static PondHeader
+MakeHeader(uint16_t id, PondResponseCommand command, size_t size)
 {
 	PondHeader header;
-	if (payload.size >= std::numeric_limits<decltype(header.size)>::max())
+	if (size >= std::numeric_limits<decltype(header.size)>::max())
 		throw std::runtime_error("Payload is too large");
 
 	header.id = ToBE16(id);
 	header.command = ToBE16(uint16_t(command));
-	header.size = ToBE16(payload.size);
+	header.size = ToBE16(size);
 
-	struct iovec vec[] = {
-		{
-			.iov_base = &header,
-			.iov_len = sizeof(header),
-		},
-		{
-			.iov_base = const_cast<void *>(payload.data),
-			.iov_len = payload.size,
-		},
-	};
+	return header;
+}
 
-	ssize_t nbytes = socket.WriteV(vec, 1u + !payload.empty());
+struct PondIovec {
+	PondHeader header;
+	std::array<struct iovec, 2> vec;
+
+	constexpr size_t GetTotalSize() const {
+		return vec[0].iov_len + vec[1].iov_len;
+	}
+};
+
+static unsigned
+MakeIovec(PondIovec &pi,
+	  uint16_t id, PondResponseCommand command,
+	  ConstBuffer<void> payload)
+{
+	pi.header = MakeHeader(id, command, payload.size);
+	pi.vec[0].iov_base = const_cast<void *>((const void *)&pi.header);
+	pi.vec[0].iov_len = sizeof(pi.header);
+	pi.vec[1].iov_base = const_cast<void *>(payload.data);
+	pi.vec[1].iov_len = payload.size;
+	return 1u + !payload.empty();
+}
+
+void
+Connection::Send(uint16_t id, PondResponseCommand command,
+		 ConstBuffer<void> payload)
+{
+	PondIovec pi;
+	const auto n = MakeIovec(pi, id, command, payload);
+
+	ssize_t nbytes = socket.WriteV(&pi.vec.front(), n);
 	if (nbytes < 0)
 		throw MakeErrno("Failed to send");
 
-	if (size_t(nbytes) != sizeof(header) + payload.size)
+	if (size_t(nbytes) != pi.GetTotalSize())
 		throw std::runtime_error("Short send");
 }
 
