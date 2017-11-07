@@ -174,6 +174,38 @@ try {
 					   payload.size);
 		return BufferedResult::AGAIN_EXPECT;
 
+	case PondRequestCommand::FILTER_SINCE:
+		if (!current.MatchId(id) ||
+		    current.command != PondRequestCommand::QUERY)
+			throw SimplePondError{"Misplaced FILTER_SINCE"};
+
+		if (current.filter.since != 0)
+			throw SimplePondError{"Duplicate FILTER_SINCE"};
+
+		if (payload.size != sizeof(uint64_t))
+			throw SimplePondError{"Malformed FILTER_SITE"};
+
+		current.filter.since = FromBE64(*(const uint64_t *)payload.data);
+		if (current.filter.since == 0)
+			throw SimplePondError{"Malformed FILTER_SINCE"};
+		return BufferedResult::AGAIN_EXPECT;
+
+	case PondRequestCommand::FILTER_UNTIL:
+		if (!current.MatchId(id) ||
+		    current.command != PondRequestCommand::QUERY)
+			throw SimplePondError{"Misplaced FILTER_UNTIL"};
+
+		if (current.filter.until != 0)
+			throw SimplePondError{"Duplicate FILTER_UNTIL"};
+
+		if (payload.size != sizeof(uint64_t))
+			throw SimplePondError{"Malformed FILTER_SITE"};
+
+		current.filter.until = FromBE64(*(const uint64_t *)payload.data);
+		if (current.filter.until == 0)
+			throw SimplePondError{"Malformed FILTER_UNTIL"};
+		return BufferedResult::AGAIN_EXPECT;
+
 	case PondRequestCommand::FOLLOW:
 		if (!current.MatchId(id) ||
 		    current.command != PondRequestCommand::QUERY)

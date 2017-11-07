@@ -52,6 +52,8 @@ The following filters are available:
 
 - :samp:`site=NAME` shows only records of the specified site.  There
   is currently no way to filter records with no site at all.
+- :samp:`since=ISO8601` shows only records since the given time stamp.
+- :samp:`until=ISO8601` shows only records until the given time stamp.
 
 The client displays records in the standard one-line format by
 default.  If standard output is connected to a datagram or seqpacket

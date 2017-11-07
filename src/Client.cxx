@@ -10,6 +10,7 @@
 #include "net/log/OneLine.hxx"
 #include "net/RConnectSocket.hxx"
 #include "net/UniqueSocketDescriptor.hxx"
+#include "time/ISO8601.hxx"
 #include "util/ConstBuffer.hxx"
 #include "util/PrintException.hxx"
 #include "util/StringAPI.hxx"
@@ -76,6 +77,12 @@ public:
 	void Send(uint16_t id, PondRequestCommand command,
 		  const char *payload) {
 		Send(id, command, StringView(payload));
+	}
+
+	void Send(uint16_t id, PondRequestCommand command,
+		  uint64_t payload) {
+		uint64_t be = ToBE64(payload);
+		Send(id, command, ConstBuffer<void>(&be, sizeof(be)));
 	}
 
 	PondDatagram Receive();
@@ -238,6 +245,10 @@ Query(const char *server, ConstBuffer<const char *> args)
 		if (auto value = IsFilter(p, "site"))
 			// TODO disallow empty value
 			filter.site = value;
+		else if (auto since = IsFilter(p, "since"))
+			filter.since = Net::Log::Datagram::ExportTimestamp(ParseISO8601(since));
+		else if (auto until = IsFilter(p, "until"))
+			filter.until = Net::Log::Datagram::ExportTimestamp(ParseISO8601(until));
 		else if (StringIsEqual(p, "--follow"))
 			follow = true;
 		else
@@ -250,6 +261,12 @@ Query(const char *server, ConstBuffer<const char *> args)
 
 	if (!filter.site.empty())
 		client.Send(id, PondRequestCommand::FILTER_SITE, filter.site);
+
+	if (filter.since != 0)
+		client.Send(id, PondRequestCommand::FILTER_SINCE, filter.since);
+
+	if (filter.until != 0)
+		client.Send(id, PondRequestCommand::FILTER_UNTIL, filter.until);
 
 	if (follow)
 		client.Send(id, PondRequestCommand::FOLLOW);
@@ -326,7 +343,7 @@ try {
 		fprintf(stderr, "Usage: %s SERVER[:PORT] COMMAND ...\n"
 			"\n"
 			"Commands:\n"
-			"  query [--follow] [site=VALUE]\n", argv[0]);
+			"  query [--follow] [site=VALUE] [since=ISO8601] [until=ISO8601]\n", argv[0]);
 		return EXIT_FAILURE;
 	}
 

@@ -37,6 +37,18 @@ enum class PondRequestCommand : uint16_t {
 	 * until the client sends #CANCEL (or closes the connection).
 	 */
 	FOLLOW,
+
+	/**
+	 * Specify a filter on the "timestamp" attribute.  Payload is
+	 * a 64 bit time stamp (microseconds since epoch).
+	 */
+	FILTER_SINCE,
+
+	/**
+	 * Specify a filter on the "timestamp" attribute.  Payload is
+	 * a 64 bit time stamp (microseconds since epoch).
+	 */
+	FILTER_UNTIL,
 };
 
 enum class PondResponseCommand : uint16_t {

@@ -3,6 +3,7 @@ cm4all-pond (0.2) unstable; urgency=low
   * optimize the site filter
   * use sendmmsg() to optimize sending bulk data
   * client: detect broken output pipe
+  * protocol: add timestamp filter
 
  --   
 
