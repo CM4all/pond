@@ -9,23 +9,17 @@
 
 Database::~Database()
 {
-	assert(follow_cursors.empty());
-
-	records.clear_and_dispose(DeleteDisposer());
+	all_records.clear_and_dispose(DeleteDisposer());
 }
 
 const Record &
 Database::Emplace(ConstBuffer<uint8_t> raw)
 {
-	if (records.size() >= max_records)
-		Dispose(&records.front());
+	if (all_records.size() >= max_records)
+		Dispose(&all_records.front());
 
 	auto *record = new Record(raw);
-	records.push_back(*record);
-
-	follow_cursors.clear_and_dispose([record](Cursor *cursor){
-			cursor->OnAppend(*record);
-		});
+	all_records.push_back(*record);
 
 	return *record;
 }
@@ -34,6 +28,6 @@ void
 Database::Dispose(Record *record)
 {
 	record->DisplaceCursors();
-	records.erase(records.iterator_to(*record));
+	all_records.remove(*record);
 	delete record;
 }

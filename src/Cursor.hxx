@@ -11,12 +11,13 @@
 #include <assert.h>
 
 class Database;
+class RecordList;
 class Record;
 
 class Cursor final
 	: public boost::intrusive::list_base_hook<boost::intrusive::link_mode<boost::intrusive::auto_unlink>> {
 
-	Database &database;
+	RecordList &all_records;
 	const Record *next = nullptr;
 
 	BoundMethod<void()> append_callback;

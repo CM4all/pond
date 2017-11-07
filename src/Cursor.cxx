@@ -6,7 +6,8 @@
 #include "Database.hxx"
 
 Cursor::Cursor(Database &_database, BoundMethod<void()> _append_callback)
-	:database(_database), append_callback(_append_callback)
+	:all_records(_database.GetAllRecords()),
+	 append_callback(_append_callback)
 {
 }
 
@@ -14,7 +15,7 @@ void
 Cursor::Rewind()
 {
 	unlink();
-	next = database.First();
+	next = all_records.First();
 	if (next != nullptr)
 		next->AddCursor(*this);
 }
@@ -25,7 +26,7 @@ Cursor::Follow()
 	assert(append_callback);
 
 	if (next == nullptr && !is_linked())
-		database.Follow(*this);
+		all_records.Follow(*this);
 }
 
 void
@@ -47,7 +48,7 @@ Cursor::operator++()
 	assert(is_linked());
 
 	unlink();
-	next = database.Next(*next);
+	next = all_records.Next(*next);
 	if (next != nullptr)
 		next->AddCursor(*this);
 
