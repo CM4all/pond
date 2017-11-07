@@ -219,7 +219,8 @@ Query(const char *server, ConstBuffer<const char *> args)
 	const char *filter_site = nullptr;
 	bool follow = false;
 
-	auto socket = CheckPacketSocket(FileDescriptor(STDOUT_FILENO));
+	const FileDescriptor out_fd(STDOUT_FILENO);
+	auto socket = CheckPacketSocket(out_fd);
 
 	while (!args.empty()) {
 		const char *p = args.shift();
@@ -267,7 +268,7 @@ Query(const char *server, ConstBuffer<const char *> args)
 			}
 
 			try {
-				LogOneLine(FileDescriptor(STDOUT_FILENO),
+				LogOneLine(out_fd,
 					   Net::Log::ParseDatagram(d.payload.data.get(),
 								   d.payload.data.get() + d.payload.size));
 			} catch (Net::Log::ProtocolError) {
