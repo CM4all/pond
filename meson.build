@@ -201,6 +201,7 @@ executable('cm4all-pond',
   'src/RList.cxx',
   'src/Record.cxx',
   'src/Filter.cxx',
+  'src/LightCursor.cxx',
   'src/Cursor.cxx',
   include_directories: inc,
   dependencies: [

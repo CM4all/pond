@@ -6,27 +6,14 @@
 #include "Database.hxx"
 #include "Filter.hxx"
 
-Cursor::Cursor(Database &_database, const Filter &filter,
-	       BoundMethod<void()> _append_callback)
-	:all_records(filter.site.empty()
-		     ? &_database.GetAllRecords()
-		     : nullptr),
-	 per_site_records(filter.site.empty()
-			  ? nullptr
-			  : &_database.GetPerSiteRecords(filter.site)),
-	 append_callback(_append_callback)
-{
-}
-
 void
 Cursor::Rewind()
 {
 	unlink();
-	next = all_records != nullptr
-		? all_records->First()
-		: per_site_records->First();
-	if (next != nullptr)
-		next->AddCursor(*this);
+	LightCursor::Rewind();
+
+	if (*this)
+		LightCursor::operator*().AddCursor(*this);
 }
 
 void
@@ -34,22 +21,18 @@ Cursor::Follow()
 {
 	assert(append_callback);
 
-	if (next == nullptr && !is_linked()) {
-		if (all_records != nullptr)
-			all_records->Follow(*this);
-		else
-			per_site_records->Follow(*this);
-	}
+	if (!*this && !is_linked())
+		LightCursor::Follow(*this);
 }
 
 void
 Cursor::OnAppend(const Record &record)
 {
 	assert(!is_linked());
-	assert(next == nullptr);
+	assert(!*this);
 
-	next = &record;
-	next->AddCursor(*this);
+	SetNext(record);
+	record.AddCursor(*this);
 
 	append_callback();
 }
@@ -57,16 +40,14 @@ Cursor::OnAppend(const Record &record)
 Cursor &
 Cursor::operator++()
 {
-	assert(next != nullptr);
+	assert(*this);
 	assert(is_linked());
 
 	unlink();
 
-	next = all_records != nullptr
-		? all_records->Next(*next)
-		: per_site_records->Next(*next);
-	if (next != nullptr)
-		next->AddCursor(*this);
+	LightCursor::operator++();
+	if (*this)
+		LightCursor::operator*().AddCursor(*this);
 
 	return *this;
 }

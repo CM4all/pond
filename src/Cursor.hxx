@@ -4,17 +4,12 @@
 
 #pragma once
 
+#include "LightCursor.hxx"
 #include "util/BindMethod.hxx"
 
 #include <boost/intrusive/list.hpp>
 
 #include <assert.h>
-
-struct Filter;
-class Database;
-class FullRecordList;
-class PerSiteRecordList;
-class Record;
 
 /**
  * An iterator for records in the #Database.  While an instance
@@ -23,18 +18,20 @@ class Record;
  * soon-to-be-invalid pointers.
  */
 class Cursor final
-	: public boost::intrusive::list_base_hook<boost::intrusive::link_mode<boost::intrusive::auto_unlink>> {
-
-	FullRecordList *const all_records = nullptr;
-	PerSiteRecordList *const per_site_records = nullptr;
-
-	const Record *next = nullptr;
+	: public boost::intrusive::list_base_hook<boost::intrusive::link_mode<boost::intrusive::auto_unlink>>,
+	  LightCursor {
 
 	BoundMethod<void()> append_callback;
 
 public:
 	Cursor(Database &_database, const Filter &filter,
-	       BoundMethod<void()> _append_callback);
+	       BoundMethod<void()> _append_callback)
+		:LightCursor(_database, filter),
+		 append_callback(_append_callback) {}
+
+	LightCursor ToLightCursor() const {
+		return *this;
+	}
 
 	/**
 	 * Rewind to the first record.
@@ -55,22 +52,18 @@ public:
 	/**
 	 * Does this instance point to a valid record?
 	 */
-	operator bool() const {
-		return next != nullptr;
-	}
+	using LightCursor::operator bool;
 
 	const Record &operator*() const {
-		assert(next != nullptr);
 		assert(is_linked());
 
-		return *next;
+		return LightCursor::operator*();
 	}
 
 	const Record *operator->() const {
-		assert(next != nullptr);
 		assert(is_linked());
 
-		return next;
+		return LightCursor::operator->();
 	}
 
 	/**
