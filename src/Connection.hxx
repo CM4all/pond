@@ -6,17 +6,18 @@
 
 #include "Protocol.hxx"
 #include "Filter.hxx"
-#include "Cursor.hxx"
 #include "net/UniqueSocketDescriptor.hxx"
 #include "event/net/BufferedSocket.hxx"
 
 #include <boost/intrusive/list_hook.hpp>
 
+#include <memory>
 #include <string>
 
 #include <stdint.h>
 
 class Instance;
+class Cursor;
 class RootLogger;
 template<typename t> struct ConstBuffer;
 
@@ -36,10 +37,7 @@ class Connection final
 
 		Filter filter;
 
-		Cursor cursor;
-
-		Request(Database &database, BoundMethod<void()> push_callback)
-			:cursor(database, push_callback) {}
+		std::unique_ptr<Cursor> cursor;
 
 		bool IsDefined() const {
 			return command != PondRequestCommand::NOP;

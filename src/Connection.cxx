@@ -15,13 +15,12 @@ Connection::Request::Clear()
 	command = PondRequestCommand::NOP;
 	filter = Filter();
 	follow = false;
-	cursor.clear();
+	cursor.reset();
 }
 
 Connection::Connection(Instance &_instance, UniqueSocketDescriptor &&_fd)
 	:instance(_instance), logger(instance.GetLogger()),
-	 socket(_instance.GetEventLoop()),
-	 current(_instance.GetDatabase(), BIND_THIS_METHOD(OnAppend))
+	 socket(_instance.GetEventLoop())
 {
 	socket.Init(_fd.Release(), FD_TCP,
 		    nullptr,
@@ -116,10 +115,12 @@ try {
 
 		switch (current.command) {
 		case PondRequestCommand::QUERY:
+			current.cursor.reset(new Cursor(instance.GetDatabase(),
+							BIND_THIS_METHOD(OnAppend)));
 			if (current.follow) {
-				current.cursor.Follow();
+				current.cursor->Follow();
 			} else {
-				current.cursor.Rewind();
+				current.cursor->Rewind();
 				socket.ScheduleWrite();
 			}
 			/* the response will be assembled by
@@ -215,18 +216,21 @@ bool
 Connection::OnBufferedWrite()
 {
 	assert(current.command == PondRequestCommand::QUERY);
+	assert(current.cursor);
 
-	while (current.cursor &&
-	       !current.filter(current.cursor->GetParsed()))
-		++current.cursor;
+	auto &cursor = *current.cursor;
 
-	if (current.cursor) {
+	while (cursor &&
+	       !current.filter(cursor->GetParsed()))
+		++cursor;
+
+	if (cursor) {
 		Send(current.id, PondResponseCommand::LOG_RECORD,
-		     current.cursor->GetRaw());
-		++current.cursor;
+		     cursor->GetRaw());
+		++cursor;
 	} else if (current.follow) {
 		socket.UnscheduleWrite();
-		current.cursor.Follow();
+		cursor.Follow();
 	} else {
 		Send(current.id, PondResponseCommand::END, nullptr);
 		current.Clear();
