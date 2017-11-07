@@ -3,6 +3,7 @@
  */
 
 #include "Protocol.hxx"
+#include "Filter.hxx"
 #include "system/Error.hxx"
 #include "net/log/Parser.hxx"
 #include "net/log/Datagram.hxx"
@@ -65,6 +66,11 @@ public:
 	void Send(uint16_t id, PondRequestCommand command,
 		  StringView payload) {
 		Send(id, command, payload.ToVoid());
+	}
+
+	void Send(uint16_t id, PondRequestCommand command,
+		  const std::string &payload) {
+		Send(id, command, StringView(payload.data(), payload.size()));
 	}
 
 	void Send(uint16_t id, PondRequestCommand command,
@@ -221,7 +227,7 @@ SendPacket(SocketDescriptor s, ConstBuffer<void> payload)
 static void
 Query(const char *server, ConstBuffer<const char *> args)
 {
-	const char *filter_site = nullptr;
+	Filter filter;
 	bool follow = false;
 
 	const FileDescriptor out_fd(STDOUT_FILENO);
@@ -230,7 +236,8 @@ Query(const char *server, ConstBuffer<const char *> args)
 	while (!args.empty()) {
 		const char *p = args.shift();
 		if (auto value = IsFilter(p, "site"))
-			filter_site = value;
+			// TODO disallow empty value
+			filter.site = value;
 		else if (StringIsEqual(p, "--follow"))
 			follow = true;
 		else
@@ -241,8 +248,8 @@ Query(const char *server, ConstBuffer<const char *> args)
 	const auto id = client.MakeId();
 	client.Send(id, PondRequestCommand::QUERY);
 
-	if (filter_site != nullptr)
-		client.Send(id, PondRequestCommand::FILTER_SITE, filter_site);
+	if (!filter.site.empty())
+		client.Send(id, PondRequestCommand::FILTER_SITE, filter.site);
 
 	if (follow)
 		client.Send(id, PondRequestCommand::FOLLOW);
