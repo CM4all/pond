@@ -9,6 +9,15 @@
 #include "util/ByteOrder.hxx"
 #include "util/StringView.hxx"
 
+void
+Connection::Request::Clear()
+{
+	command = PondRequestCommand::NOP;
+	filter = Filter();
+	follow = false;
+	cursor.clear();
+}
+
 Connection::Connection(Instance &_instance, UniqueSocketDescriptor &&_fd)
 	:instance(_instance), logger(instance.GetLogger()),
 	 socket(_instance.GetEventLoop()),

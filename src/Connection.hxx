@@ -63,12 +63,7 @@ class Connection final
 			return !IsDefined() && id == other_id;
 		}
 
-		void Clear() {
-			command = PondRequestCommand::NOP;
-			filter = Filter();
-			follow = false;
-			cursor.clear();
-		}
+		void Clear();
 
 		void Set(uint16_t _id,
 			 PondRequestCommand _command) {
