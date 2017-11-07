@@ -11,11 +11,12 @@
 
 #include <assert.h>
 
+template<Record::ListHook Record::*list_hook>
 class RecordList {
 	typedef boost::intrusive::list<Record,
 				       boost::intrusive::member_hook<Record,
 								     Record::ListHook,
-								     &Record::list_hook>,
+								     list_hook>,
 				       boost::intrusive::constant_time_size<true>> List;
 
 	List list;
@@ -88,3 +89,5 @@ public:
 		follow_cursors.push_back(cursor);
 	}
 };
+
+class FullRecordList : public RecordList<&Record::list_hook> {};

@@ -12,7 +12,7 @@ template<typename T> struct ConstBuffer;
 class Database {
 	static constexpr size_t max_records = 1024 * 1024;
 
-	RecordList all_records;
+	FullRecordList all_records;
 
 public:
 	Database() = default;
@@ -21,7 +21,7 @@ public:
 	Database(const Database &) = delete;
 	Database &operator=(const Database &) = delete;
 
-	RecordList &GetAllRecords() {
+	FullRecordList &GetAllRecords() {
 		return all_records;
 	}
 
