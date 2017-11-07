@@ -5,6 +5,11 @@
 #include "Cursor.hxx"
 #include "Database.hxx"
 
+Cursor::Cursor(Database &_database, BoundMethod<void()> _append_callback)
+	:database(_database), append_callback(_append_callback)
+{
+}
+
 void
 Cursor::Rewind()
 {

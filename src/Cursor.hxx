@@ -22,8 +22,7 @@ class Cursor final
 	BoundMethod<void()> append_callback;
 
 public:
-	Cursor(Database &_database, BoundMethod<void()> _append_callback)
-		:database(_database), append_callback(_append_callback) {}
+	Cursor(Database &_database, BoundMethod<void()> _append_callback);
 
 	void Rewind();
 
