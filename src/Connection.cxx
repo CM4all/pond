@@ -235,6 +235,75 @@ Connection::OnBufferedClosed() noexcept
 	return false;
 }
 
+static bool
+FilteredIncrement(LightCursor &cursor, const Filter &filter)
+{
+	assert(cursor);
+
+	while (true) {
+		++cursor;
+		if (!cursor)
+			return false;
+		if (filter(cursor->GetParsed()))
+			return true;
+	}
+}
+
+static void
+Skip(Cursor &cursor, const Filter &filter, unsigned n)
+{
+	while (n > 0) {
+		assert(cursor);
+
+		if (filter(cursor->GetParsed()))
+			--n;
+		++cursor;
+	}
+}
+
+static unsigned
+SendMulti(SocketDescriptor s, uint16_t id,
+	  LightCursor cursor, const Filter &filter)
+{
+	constexpr unsigned CAPACITY = 16;
+
+	std::array<PondIovec, CAPACITY> vecs;
+	std::array<struct mmsghdr, CAPACITY> msgs;
+
+	unsigned n = 0;
+	do {
+		const auto &record = *cursor;
+		auto &m = msgs[n].msg_hdr;
+		auto &v = vecs[n];
+
+		m.msg_name = nullptr;
+		m.msg_namelen = 0;
+		m.msg_iovlen = MakeIovec(v, id,
+					 PondResponseCommand::LOG_RECORD,
+					 record.GetRaw());
+		m.msg_iov = &v.vec.front();
+		m.msg_control = nullptr;
+		m.msg_controllen = 0;
+		m.msg_flags = 0;
+
+		++n;
+
+		if (!FilteredIncrement(cursor, filter))
+			break;
+	} while (n < CAPACITY);
+
+	int result = sendmmsg(s.Get(), &msgs.front(), n,
+			      MSG_DONTWAIT|MSG_NOSIGNAL);
+	if (result < 0) {
+		if (errno == EAGAIN)
+			return 0;
+		throw MakeErrno("Failed to send");
+	}
+
+	// TODO: check for short send in each msg?
+	return result;
+}
+
 bool
 Connection::OnBufferedWrite()
 {
@@ -248,9 +317,9 @@ Connection::OnBufferedWrite()
 		++cursor;
 
 	if (cursor) {
-		Send(current.id, PondResponseCommand::LOG_RECORD,
-		     cursor->GetRaw());
-		++cursor;
+		unsigned n = SendMulti(socket.GetSocket(), current.id,
+				       cursor.ToLightCursor(), current.filter);
+		Skip(cursor, current.filter, n);
 	} else if (current.follow) {
 		socket.UnscheduleWrite();
 		cursor.Follow();
