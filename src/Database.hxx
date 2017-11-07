@@ -32,11 +32,11 @@ public:
 	Database &operator=(const Database &) = delete;
 
 	RecordList::const_iterator begin() const {
-			return records.begin();
+		return records.begin();
 	}
 
 	RecordList::const_iterator end() const {
-			return records.end();
+		return records.end();
 	}
 
 	const Record &Emplace(ConstBuffer<uint8_t> raw);
