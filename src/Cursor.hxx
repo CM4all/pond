@@ -36,11 +36,6 @@ public:
 
 	void OnAppend(const Record &record);
 
-	void clear() {
-		unlink();
-		next = nullptr;
-	}
-
 	operator bool() const {
 		return next != nullptr;
 	}
