@@ -20,6 +20,7 @@
 
 #include <sys/socket.h>
 #include <stdlib.h>
+#include <poll.h>
 
 struct PondDatagram {
 	uint16_t id;
@@ -48,6 +49,10 @@ public:
 	explicit PondClient(const char *server)
 		:fd(ResolveConnectStreamSocket(server, 5480)) {
 		fd.SetBlocking();
+	}
+
+	SocketDescriptor GetSocket() {
+		return fd;
 	}
 
 	uint16_t MakeId() {
@@ -244,7 +249,33 @@ Query(const char *server, ConstBuffer<const char *> args)
 
 	client.Send(id, PondRequestCommand::COMMIT);
 
+	struct pollfd pfds[] = {
+		{
+			/* waiting for messages from the Pond
+			   server */
+			.fd = client.GetSocket().Get(),
+			.events = POLLIN,
+			.revents = 0,
+		},
+		{
+			.fd = out_fd.Get(),
+			/* only waiting for POLLERR, which is an
+			   output-only flag */
+			.events = 0,
+			.revents = 0,
+		},
+	};
+
 	while (true) {
+		if (poll(pfds, ARRAY_SIZE(pfds), -1) < 0)
+			throw MakeErrno("poll() failed");
+
+		if (pfds[1].revents)
+			/* the output pipe/socket was closed (probably
+			   POLLERR), and there's no point in waiting
+			   for more data from the Pond server */
+			break;
+
 		const auto d = client.Receive();
 		if (d.id != id)
 			continue;
