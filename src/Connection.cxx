@@ -85,21 +85,6 @@ IsNonEmptyString(ConstBuffer<void> b) noexcept
 	return IsNonEmptyString(ConstBuffer<char>::FromVoid(b));
 }
 
-gcc_pure
-static bool
-MatchFilter(const char *value, const std::string &filter) noexcept
-{
-	return filter.empty() || (value != nullptr && filter == value);
-}
-
-gcc_pure
-static bool
-MatchFilter(const Net::Log::Datagram &d,
-	    const std::string &filter_site) noexcept
-{
-	return MatchFilter(d.site, filter_site);
-}
-
 inline BufferedResult
 Connection::OnPacket(uint16_t id, PondRequestCommand cmd,
 		     ConstBuffer<void> payload)
@@ -146,13 +131,13 @@ try {
 		    current.command != PondRequestCommand::QUERY)
 			throw SimplePondError{"Misplaced FILTER_SITE"};
 
-		if (!current.filter_site.empty())
+		if (!current.filter.site.empty())
 			throw SimplePondError{"Duplicate FILTER_SITE"};
 
 		if (!IsNonEmptyString(payload))
 			throw SimplePondError{"Malformed FILTER_SITE"};
 
-		current.filter_site.assign((const char *)payload.data,
+		current.filter.site.assign((const char *)payload.data,
 					   payload.size);
 		return BufferedResult::AGAIN_EXPECT;
 
@@ -223,7 +208,7 @@ Connection::OnBufferedWrite()
 	assert(current.command == PondRequestCommand::QUERY);
 
 	while (current.cursor &&
-	       !MatchFilter(current.cursor->GetParsed(), current.filter_site))
+	       !current.filter(current.cursor->GetParsed()))
 		++current.cursor;
 
 	if (current.cursor) {

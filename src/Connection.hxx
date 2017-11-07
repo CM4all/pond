@@ -5,6 +5,7 @@
 #pragma once
 
 #include "Protocol.hxx"
+#include "Filter.hxx"
 #include "Cursor.hxx"
 #include "net/UniqueSocketDescriptor.hxx"
 #include "event/net/BufferedSocket.hxx"
@@ -32,7 +33,8 @@ class Connection final
 		uint16_t id = 0;
 		bool follow = false;
 		PondRequestCommand command = PondRequestCommand::NOP;
-		std::string filter_site;
+
+		Filter filter;
 
 		Cursor cursor;
 
@@ -63,7 +65,7 @@ class Connection final
 
 		void Clear() {
 			command = PondRequestCommand::NOP;
-			filter_site.clear();
+			filter = Filter();
 			follow = false;
 			cursor.clear();
 		}
@@ -72,7 +74,7 @@ class Connection final
 			 PondRequestCommand _command) {
 			id = _id;
 			command = _command;
-			filter_site.clear();
+			filter = Filter();
 			follow = false;
 			cursor.clear();
 		}
