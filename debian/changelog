@@ -5,7 +5,7 @@ cm4all-pond (0.2) unstable; urgency=low
   * client: detect broken output pipe
   * protocol: add timestamp filter
 
- --   
+ -- Max Kellermann <mk@cm4all.com>  Tue, 07 Nov 2017 22:18:36 -0000
 
 cm4all-pond (0.1) unstable; urgency=low
 
