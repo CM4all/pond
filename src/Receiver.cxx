@@ -9,7 +9,7 @@
 #include "net/log/Parser.hxx"
 #include "util/PrintException.hxx"
 
-void
+bool
 Instance::OnUdpDatagram(const void *data, size_t length,
 			SocketAddress address, int uid)
 {
@@ -20,6 +20,8 @@ Instance::OnUdpDatagram(const void *data, size_t length,
 		database.Emplace({(const uint8_t *)data, length});
 	} catch (Net::Log::ProtocolError) {
 	}
+
+	return true;
 }
 
 void
