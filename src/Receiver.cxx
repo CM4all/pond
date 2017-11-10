@@ -23,7 +23,7 @@ Instance::OnUdpDatagram(const void *data, size_t length,
 }
 
 void
-Instance::OnUdpError(std::exception_ptr ep)
+Instance::OnUdpError(std::exception_ptr ep) noexcept
 {
 	logger(1, "UDP receiver error: ", ep);
 }
