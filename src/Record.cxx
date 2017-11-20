@@ -19,8 +19,9 @@ Duplicate(ConstBuffer<T> src)
 	return dest;
 }
 
-Record::Record(ConstBuffer<uint8_t> _raw)
-	:raw(Duplicate(_raw)),
+Record::Record(uint64_t _id, ConstBuffer<uint8_t> _raw)
+	:id(_id),
+	 raw(Duplicate(_raw)),
 	 raw_size(_raw.size),
 	 parsed(Net::Log::ParseDatagram(raw.get(), raw.get() + _raw.size))
 {

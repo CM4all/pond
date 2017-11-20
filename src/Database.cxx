@@ -21,7 +21,7 @@ Database::Emplace(ConstBuffer<uint8_t> raw)
 	if (all_records.size() >= max_records)
 		Dispose(&all_records.front());
 
-	auto *record = new Record(raw);
+	auto *record = new Record(++last_id, raw);
 	all_records.push_back(*record);
 
 	if (record->GetParsed().site != nullptr)

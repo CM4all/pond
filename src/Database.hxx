@@ -14,6 +14,8 @@ template<typename T> struct ConstBuffer;
 class Database {
 	static constexpr size_t max_records = 1024 * 1024;
 
+	uint64_t last_id = 0;
+
 	/**
 	 * A chronological list of all records.  This list "owns" the
 	 * allocated #Record instances.
