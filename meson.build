@@ -114,6 +114,7 @@ system = static_library('system',
   'src/system/SetupProcess.cxx',
   'libcommon/src/system/ProcessName.cxx',
   'libcommon/src/system/BindMount.cxx',
+  'libcommon/src/system/LargeAllocation.cxx',
   include_directories: inc,
   dependencies: [
   ])
