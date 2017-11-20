@@ -13,6 +13,8 @@ Cursor::Rewind()
 	LightCursor::Rewind();
 
 	if (*this)
+		id = LightCursor::operator*().GetId();
+	if (*this)
 		LightCursor::operator*().AddCursor(*this);
 }
 
@@ -32,6 +34,7 @@ Cursor::OnAppend(const Record &record)
 	assert(!*this);
 
 	SetNext(record);
+	id = record.GetId();
 	record.AddCursor(*this);
 
 	append_callback();
@@ -46,6 +49,8 @@ Cursor::operator++()
 	unlink();
 
 	LightCursor::operator++();
+	if (*this)
+		id = LightCursor::operator*().GetId();
 	if (*this)
 		LightCursor::operator*().AddCursor(*this);
 

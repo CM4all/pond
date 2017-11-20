@@ -23,6 +23,8 @@ class Cursor final
 
 	BoundMethod<void()> append_callback;
 
+	uint64_t id;
+
 public:
 	Cursor(Database &_database, const Filter &filter,
 	       BoundMethod<void()> _append_callback)
