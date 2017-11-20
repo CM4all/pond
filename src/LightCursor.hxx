@@ -5,6 +5,7 @@
 #pragma once
 
 #include <assert.h>
+#include <stdint.h>
 
 struct Filter;
 class Database;
@@ -30,6 +31,15 @@ public:
 	 * Rewind to the first record.
 	 */
 	void Rewind();
+
+	/**
+	 * If the pointed-to #Record has been deleted, rewind to the
+	 * first record.
+	 *
+	 * @return true if the #Record has been deleted, false if the
+	 * call was a no-op
+	 */
+	bool FixDeleted(uint64_t expected_id) noexcept;
 
 	/**
 	 * Does this instance point to a valid record?

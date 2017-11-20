@@ -4,7 +4,6 @@
 
 #pragma once
 
-#include "Cursor.hxx"
 #include "net/log/Datagram.hxx"
 #include "util/ConstBuffer.hxx"
 
@@ -25,12 +24,6 @@ private:
 
 	Net::Log::Datagram parsed;
 
-	/**
-	 * A list of cursors pointing to this record.  This is
-	 * necessary to update pointers when removing this record.
-	 */
-	mutable CursorList cursors;
-
 public:
 	/**
 	 * Throws Net::Log::ProtocolError on error.
@@ -50,14 +43,5 @@ public:
 
 	const Net::Log::Datagram &GetParsed() const {
 		return parsed;
-	}
-
-	void AddCursor(Cursor &cursor) const {
-		cursors.push_back(cursor);
-	}
-
-	void DisplaceCursors() {
-		while (!cursors.empty())
-			++cursors.front();
 	}
 };

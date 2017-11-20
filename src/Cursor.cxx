@@ -7,6 +7,15 @@
 #include "Filter.hxx"
 
 void
+Cursor::FixDeleted()
+{
+	if (LightCursor::FixDeleted(id)) {
+		assert(!is_linked());
+		id = LightCursor::operator*().GetId();
+	}
+}
+
+void
 Cursor::Rewind()
 {
 	unlink();
@@ -14,8 +23,6 @@ Cursor::Rewind()
 
 	if (*this)
 		id = LightCursor::operator*().GetId();
-	if (*this)
-		LightCursor::operator*().AddCursor(*this);
 }
 
 void
@@ -35,7 +42,6 @@ Cursor::OnAppend(const Record &record)
 
 	SetNext(record);
 	id = record.GetId();
-	record.AddCursor(*this);
 
 	append_callback();
 }
@@ -44,15 +50,10 @@ Cursor &
 Cursor::operator++()
 {
 	assert(*this);
-	assert(is_linked());
-
-	unlink();
 
 	LightCursor::operator++();
 	if (*this)
 		id = LightCursor::operator*().GetId();
-	if (*this)
-		LightCursor::operator*().AddCursor(*this);
 
 	return *this;
 }

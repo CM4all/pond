@@ -24,6 +24,20 @@ LightCursor::First() const noexcept
 		: per_site_records->First();
 }
 
+bool
+LightCursor::FixDeleted(uint64_t expected_id) noexcept
+{
+	if (next == nullptr)
+		return false;
+
+	const auto *first = First();
+	if (first != next && expected_id < first->GetId()) {
+		next = first;
+		return true;
+	} else
+		return false;
+}
+
 void
 LightCursor::Rewind()
 {

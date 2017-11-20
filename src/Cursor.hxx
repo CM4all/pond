@@ -13,9 +13,8 @@
 
 /**
  * An iterator for records in the #Database.  While an instance
- * exists, the database may be modified, because
- * #Record::DisplaceCursors() will take care for cleaning up
- * soon-to-be-invalid pointers.
+ * exists, the database may be modified, because FixDeleted() will
+ * take care for cleaning up invalid pointers.
  */
 class Cursor final
 	: public boost::intrusive::list_base_hook<boost::intrusive::link_mode<boost::intrusive::auto_unlink>>,
@@ -34,6 +33,12 @@ public:
 	LightCursor ToLightCursor() const {
 		return *this;
 	}
+
+	/**
+	 * If the pointed-to #Record has been deleted, rewind to the
+	 * first record.
+	 */
+	void FixDeleted();
 
 	/**
 	 * Rewind to the first record.
@@ -55,18 +60,8 @@ public:
 	 * Does this instance point to a valid record?
 	 */
 	using LightCursor::operator bool;
-
-	const Record &operator*() const {
-		assert(is_linked());
-
-		return LightCursor::operator*();
-	}
-
-	const Record *operator->() const {
-		assert(is_linked());
-
-		return LightCursor::operator->();
-	}
+	using LightCursor::operator*;
+	using LightCursor::operator->;
 
 	/**
 	 * Skip to the next record.

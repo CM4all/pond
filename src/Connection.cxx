@@ -343,6 +343,7 @@ Connection::OnBufferedWrite()
 	assert(current.cursor);
 
 	auto &cursor = *current.cursor;
+	cursor.FixDeleted();
 
 	while (cursor &&
 	       !current.filter(cursor->GetParsed()))

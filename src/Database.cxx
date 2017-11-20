@@ -33,7 +33,6 @@ Database::Emplace(ConstBuffer<uint8_t> raw)
 void
 Database::Dispose(Record *record)
 {
-	record->DisplaceCursors();
 	all_records.remove(*record);
 
 	if (record->GetParsed().site != nullptr)
