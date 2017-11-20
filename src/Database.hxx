@@ -6,13 +6,14 @@
 
 #include "RList.hxx"
 #include "Cursor.hxx"
+#include "system/LargeAllocation.hxx"
 
 #include <unordered_map>
 
 template<typename T> struct ConstBuffer;
 
 class Database {
-	static constexpr size_t max_records = 1024 * 1024;
+	LargeAllocation allocation;
 
 	uint64_t last_id = 0;
 
@@ -31,7 +32,7 @@ class Database {
 	std::unordered_map<std::string, PerSiteRecordList> per_site_records;
 
 public:
-	Database() = default;
+	explicit Database(size_t max_size);
 	~Database();
 
 	Database(const Database &) = delete;
@@ -46,9 +47,4 @@ public:
 	}
 
 	const Record &Emplace(ConstBuffer<uint8_t> raw);
-
-	/**
-	 * Remove and free the given record.
-	 */
-	void Dispose(Record *record);
 };

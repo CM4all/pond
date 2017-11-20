@@ -3,40 +3,34 @@
  */
 
 #include "Database.hxx"
-#include "util/DeleteDisposer.hxx"
+#include "system/HugePage.hxx"
 
 #include <assert.h>
+#include <sys/mman.h>
+
+Database::Database(size_t max_size)
+	:allocation(AlignHugePageUp(max_size)),
+	 all_records({allocation.get(), allocation.size()})
+{
+	madvise(allocation.get(), allocation.size(), MADV_HUGEPAGE);
+}
 
 Database::~Database()
 {
 	for (auto &i : per_site_records)
 		i.second.clear();
 
-	all_records.clear_and_dispose(DeleteDisposer());
+	all_records.clear();
 }
 
 const Record &
 Database::Emplace(ConstBuffer<uint8_t> raw)
 {
-	if (all_records.size() >= max_records)
-		Dispose(&all_records.front());
+	auto &record = all_records.emplace_back(sizeof(Record) + raw.size,
+						++last_id, raw);
 
-	auto *record = new Record(++last_id, raw);
-	all_records.push_back(*record);
+	if (record.GetParsed().site != nullptr)
+		GetPerSiteRecords(record.GetParsed().site).push_back(record);
 
-	if (record->GetParsed().site != nullptr)
-		GetPerSiteRecords(record->GetParsed().site).push_back(*record);
-
-	return *record;
-}
-
-void
-Database::Dispose(Record *record)
-{
-	all_records.remove(*record);
-
-	if (record->GetParsed().site != nullptr)
-		GetPerSiteRecords(record->GetParsed().site).remove(*record);
-
-	delete record;
+	return record;
 }

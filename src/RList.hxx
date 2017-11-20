@@ -6,6 +6,7 @@
 
 #include "Record.hxx"
 #include "Cursor.hxx"
+#include "util/VCircularBuffer.hxx"
 
 #include <boost/intrusive/list.hpp>
 
@@ -17,7 +18,7 @@ class RecordList {
 				       boost::intrusive::member_hook<Record,
 								     Record::ListHook,
 								     list_hook>,
-				       boost::intrusive::constant_time_size<true>> List;
+				       boost::intrusive::constant_time_size<false>> List;
 
 	List list;
 
@@ -48,10 +49,6 @@ public:
 		return list.front();
 	}
 
-	size_t size() const {
-		return list.size();
-	}
-
 	void clear() {
 		list.clear();
 	}
@@ -67,10 +64,6 @@ public:
 		follow_cursors.clear_and_dispose([&record](Cursor *cursor){
 				cursor->OnAppend(record);
 			});
-	}
-
-	void remove(Record &record) {
-		list.erase(list.iterator_to(record));
 	}
 
 	const Record *First() const {
@@ -90,5 +83,27 @@ public:
 	}
 };
 
-class FullRecordList : public RecordList<&Record::list_hook> {};
+class FullRecordList : public VCircularBuffer<Record> {
+	CursorList follow_cursors;
+
+public:
+	using VCircularBuffer::VCircularBuffer;
+
+	const Record *First() const {
+		return empty() ? nullptr : &front();
+	}
+
+	const Record *Next(const Record &current) const {
+		auto i = iterator_to(current);
+		++i;
+		return i == end()
+			? nullptr
+			: &*i;
+	}
+
+	void Follow(Cursor &cursor) {
+		follow_cursors.push_back(cursor);
+	}
+};
+
 class PerSiteRecordList : public RecordList<&Record::per_site_list_hook> {};

@@ -9,18 +9,15 @@
 
 #include <boost/intrusive/list_hook.hpp>
 
-#include <memory>
-
 class Record final {
 public:
-	typedef boost::intrusive::list_member_hook<boost::intrusive::link_mode<boost::intrusive::normal_link>> ListHook;
-	ListHook list_hook, per_site_list_hook;
+	typedef boost::intrusive::list_member_hook<boost::intrusive::link_mode<boost::intrusive::auto_unlink>> ListHook;
+	ListHook per_site_list_hook;
 
 private:
 	uint64_t id;
 
-	std::unique_ptr<uint8_t[]> raw;
-	size_t raw_size;
+	const size_t raw_size;
 
 	Net::Log::Datagram parsed;
 
@@ -38,7 +35,7 @@ public:
 	}
 
 	ConstBuffer<void> GetRaw() const {
-		return {raw.get(), raw_size};
+		return {this + 1, raw_size};
 	}
 
 	const Net::Log::Datagram &GetParsed() const {
