@@ -56,6 +56,8 @@ public:
 	LightCursor &operator++();
 
 protected:
+	const Record *First() const noexcept;
+
 	void SetNext(const Record &record) {
 		next = &record;
 	}

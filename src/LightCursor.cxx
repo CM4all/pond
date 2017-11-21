@@ -16,12 +16,18 @@ LightCursor::LightCursor(Database &_database, const Filter &filter)
 {
 }
 
+const Record *
+LightCursor::First() const noexcept
+{
+	return all_records != nullptr
+		? all_records->First()
+		: per_site_records->First();
+}
+
 void
 LightCursor::Rewind()
 {
-	next = all_records != nullptr
-		? all_records->First()
-		: per_site_records->First();
+	next = First();
 }
 
 void
