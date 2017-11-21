@@ -235,6 +235,7 @@ static void
 Query(const char *server, ConstBuffer<const char *> args)
 {
 	Filter filter;
+	PondGroupSitePayload group_site{0, 0};
 	bool follow = false;
 
 	const FileDescriptor out_fd(STDOUT_FILENO);
@@ -243,12 +244,40 @@ Query(const char *server, ConstBuffer<const char *> args)
 	while (!args.empty()) {
 		const char *p = args.shift();
 		if (auto value = IsFilter(p, "site")) {
+			if (group_site.max_sites != 0)
+				throw "site and group_site are mutually exclusive";
+
 			if (*value == 0)
 				throw "Site name must not be empty";
 
 			auto e = filter.sites.emplace(value);
 			if (!e.second)
 				throw "Duplicate site name";
+		} else if (auto group_value = IsFilter(p, "group_site")) {
+			if (!filter.sites.empty())
+				throw "site and group_site are mutually exclusive";
+
+			if (group_site.max_sites != 0)
+				throw "Duplicate group_site";
+
+			char *endptr;
+			auto max = strtoul(group_value, &endptr, 10);
+			if (endptr == group_value)
+				throw "Number expected after group_site=";
+			if (max == 0)
+				throw "group_site max must be positive";
+
+			if (*endptr == '@') {
+				group_value = endptr + 1;
+				auto skip = strtoul(group_value, &endptr, 10);
+				if (endptr == group_value)
+					throw "Number expected after group_site=...@";
+
+				group_site.skip_sites = ToBE32(skip);
+			} else if (*endptr != 0)
+				throw "Garbage after group_site max";
+
+			group_site.max_sites = ToBE32(max);
 		} else if (auto since = IsFilter(p, "since"))
 			filter.since = Net::Log::Datagram::ExportTimestamp(ParseISO8601(since));
 		else if (auto until = IsFilter(p, "until"))
@@ -271,6 +300,10 @@ Query(const char *server, ConstBuffer<const char *> args)
 
 	if (filter.until != 0)
 		client.Send(id, PondRequestCommand::FILTER_UNTIL, filter.until);
+
+	if (group_site.max_sites != 0)
+		client.Send(id, PondRequestCommand::GROUP_SITE,
+			    ConstBuffer<void>(&group_site, sizeof(group_site)));
 
 	if (follow)
 		client.Send(id, PondRequestCommand::FOLLOW);
@@ -347,7 +380,7 @@ try {
 		fprintf(stderr, "Usage: %s SERVER[:PORT] COMMAND ...\n"
 			"\n"
 			"Commands:\n"
-			"  query [--follow] [site=VALUE] [since=ISO8601] [until=ISO8601]\n", argv[0]);
+			"  query [--follow] [site=VALUE] [group_site=MAX[@SKIP]] [since=ISO8601] [until=ISO8601]\n", argv[0]);
 		return EXIT_FAILURE;
 	}
 

@@ -8,6 +8,8 @@
 #include "AnyList.hxx"
 #include "system/HugePage.hxx"
 
+#include <unordered_set>
+
 #include <assert.h>
 #include <sys/mman.h>
 
@@ -76,4 +78,25 @@ Database::Follow(const Filter &filter, AppendListener &l) noexcept
 	auto selection = MakeSelection(filter);
 	selection.AddAppendListener(l);
 	return selection;
+}
+
+std::vector<std::string>
+Database::CollectSites(const Filter &filter) noexcept
+{
+	std::unordered_set<std::string> s;
+	std::vector<std::string> v;
+
+	for (auto i = Select(filter); i; ++i) {
+		const char *site = i->GetParsed().site;
+		if (site == nullptr)
+			continue;
+
+		auto e = s.emplace(site);
+		if (!e.second)
+			continue;
+
+		v.emplace_back(*e.first);
+	}
+
+	return v;
 }

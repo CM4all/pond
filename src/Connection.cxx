@@ -17,6 +17,7 @@ Connection::Request::Clear()
 {
 	command = PondRequestCommand::NOP;
 	filter = Filter();
+	group_site.max_sites = 0;
 	follow = false;
 	selection.reset();
 }
@@ -91,6 +92,31 @@ Connection::Send(uint16_t id, PondResponseCommand command,
 		throw std::runtime_error("Short send");
 }
 
+template<typename T, typename I>
+static inline void
+EmplaceMove(std::set<T> &dest, const I begin, const I end)
+{
+	for (auto i = begin; i != end; ++i)
+		dest.emplace(std::move(*i));
+}
+
+template<typename T>
+static inline std::set<T>
+VectorWindow(std::vector<T> &&v, size_t offset, size_t count) noexcept
+{
+	std::set<T> result;
+	if (offset < v.size()) {
+		size_t end_offset = offset + count;
+		if (end_offset > v.size())
+			end_offset = v.size();
+
+		EmplaceMove(result, std::next(v.begin(), offset),
+			    std::next(v.begin(), end_offset));
+	}
+
+	return result;
+}
+
 inline void
 Connection::CommitQuery()
 {
@@ -98,6 +124,16 @@ Connection::CommitQuery()
 
 	if (current.follow) {
 		current.selection.reset(new Selection(db.Follow(current.filter, *this)));
+	} else if (current.HasGroupSite()) {
+		// TODO: cache the CollectSites() result, because it's expensive
+		current.filter.sites = VectorWindow(db.CollectSites(current.filter),
+						    current.group_site.skip_sites,
+						    current.group_site.max_sites);
+
+		current.selection.reset(current.filter.sites.empty()
+					? new Selection(AnyRecordList(), Filter())
+					: new Selection(db.Select(current.filter)));
+		socket.ScheduleWrite();
 	} else {
 		current.selection.reset(new Selection(db.Select(current.filter)));
 		socket.ScheduleWrite();
@@ -173,6 +209,9 @@ try {
 		    current.command != PondRequestCommand::QUERY)
 			throw SimplePondError{"Misplaced FILTER_SITE"};
 
+		if (current.HasGroupSite())
+			throw SimplePondError{"FILTER_SITE and GROUP_SITE are mutually exclusive"};
+
 		if (!IsNonEmptyString(payload))
 			throw SimplePondError{"Malformed FILTER_SITE"};
 
@@ -225,10 +264,42 @@ try {
 		if (current.follow)
 			throw SimplePondError{"Duplicate FOLLOW"};
 
+		if (current.HasGroupSite())
+			throw SimplePondError{"FOLLOW and GROUP_SITE are mutually exclusive"};
+
 		if (!payload.empty())
 			throw SimplePondError{"Malformed FOLLOW"};
 
 		current.follow = true;
+		return BufferedResult::AGAIN_EXPECT;
+
+	case PondRequestCommand::GROUP_SITE:
+		if (!current.MatchId(id) ||
+		    current.command != PondRequestCommand::QUERY)
+			throw SimplePondError{"Misplaced GROUP_SITE"};
+
+		if (!current.filter.sites.empty())
+			throw SimplePondError{"FILTER_SITE and GROUP_SITE are mutually exclusive"};
+
+		if (current.follow)
+			throw SimplePondError{"FOLLOW and GROUP_SITE are mutually exclusive"};
+
+		if (current.group_site.max_sites > 0)
+			throw SimplePondError{"Duplicate GROUP_SITE"};
+
+		if (payload.size != sizeof(current.group_site))
+			throw SimplePondError{"Malformed GROUP_SITE"};
+
+		{
+			const auto &src =
+				*(const PondGroupSitePayload *)payload.data;
+			current.group_site.max_sites = FromBE32(src.max_sites);
+			current.group_site.skip_sites = FromBE32(src.skip_sites);
+
+			if (current.group_site.max_sites <= 0)
+				throw SimplePondError{"Malformed GROUP_SITE"};
+		}
+
 		return BufferedResult::AGAIN_EXPECT;
 	}
 

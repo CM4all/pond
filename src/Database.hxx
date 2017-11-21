@@ -8,6 +8,8 @@
 #include "system/LargeAllocation.hxx"
 
 #include <unordered_map>
+#include <vector>
+#include <string>
 
 template<typename T> struct ConstBuffer;
 struct Filter;
@@ -53,6 +55,13 @@ public:
 
 	Selection Select(const Filter &filter) noexcept;
 	Selection Follow(const Filter &filter, AppendListener &l) noexcept;
+
+	/**
+	 * Collect a list of site names matching the given filter.
+	 * They appear in the returned array in the order of
+	 * appearance.
+	 */
+	std::vector<std::string> CollectSites(const Filter &filter) noexcept;
 
 private:
 	AnyRecordList GetList(Filter &filter) noexcept;

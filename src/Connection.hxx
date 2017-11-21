@@ -38,6 +38,8 @@ class Connection final
 
 		Filter filter;
 
+		PondGroupSitePayload group_site;
+
 		std::unique_ptr<Selection> selection;
 
 		bool IsDefined() const {
@@ -60,6 +62,10 @@ class Connection final
 		 */
 		bool IgnoreId(uint16_t other_id) const {
 			return !IsDefined() && id == other_id;
+		}
+
+		bool HasGroupSite() const noexcept {
+			return group_site.max_sites > 0;
 		}
 
 		void Clear();

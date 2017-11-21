@@ -49,6 +49,14 @@ enum class PondRequestCommand : uint16_t {
 	 * a 64 bit time stamp (microseconds since epoch).
 	 */
 	FILTER_UNTIL,
+
+	/**
+	 * Option for #QUERY which limits the number of distinct sites
+	 * in the response.  This is useful to write site-specific log
+	 * files while keeping only a certain number of files open.
+	 * Payload is #PondGroupSitePayload.
+	 */
+	GROUP_SITE,
 };
 
 enum class PondResponseCommand : uint16_t {
@@ -79,6 +87,21 @@ struct PondHeader {
 	uint16_t id;
 	uint16_t command;
 	uint16_t size;
+};
+
+/**
+ * Payload for PondRequestCommand::GROUP_SITE.
+ */
+struct PondGroupSitePayload {
+	/**
+	 * How many sites will be sent with this query?
+	 */
+	uint32_t max_sites;
+
+	/**
+	 * How many sites will be skipped with this query?
+	 */
+	uint32_t skip_sites;
 };
 
 static_assert(sizeof(PondHeader) == 6, "Wrong size");
