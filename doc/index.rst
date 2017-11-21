@@ -11,11 +11,13 @@ clients to query them.
 Configuration
 -------------
 
-The file :file:`/etc/cm4all/pond/pond.conf` configures two aspects of
-this software: receivers and listeners.
+The file :file:`/etc/cm4all/pond/pond.conf` configures several aspects
+of this software:
 
 * a *receiver* is a datagram socket which binds to an address,
   optionally joins a multicast group, and receives log datagrams
+
+* the *database* stores these datagrams
 
 * a *listener* is a stream socket which binds to an address and
   accepts connections from clients, allowing them to query database
@@ -23,6 +25,10 @@ this software: receivers and listeners.
 
 Example::
 
+  database {
+    size "1G"
+  }
+  
   receiver {
     bind "*"
     #multicast_group "ff02::dead:beef%br0"
@@ -33,6 +39,11 @@ Example::
     bind "*"
     #interface "eth0"
   }
+
+The database section can specify how much memory is allocated in total
+(in bytes; the suffixes `k`, `M`, `G` are supported).  Internally, the
+database implements a circular buffer which evicts the oldest items if
+there is no more room for another item.
 
 Client
 ------

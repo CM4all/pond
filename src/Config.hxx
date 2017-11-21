@@ -8,7 +8,13 @@
 
 #include <forward_list>
 
+struct DatabaseConfig {
+	size_t size = 16 * 1024 * 1024;
+};
+
 struct Config {
+	DatabaseConfig database;
+
 	std::forward_list<SocketConfig> receivers;
 
 	std::forward_list<SocketConfig> listeners;

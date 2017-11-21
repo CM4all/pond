@@ -3,6 +3,7 @@
  */
 
 #include "Instance.hxx"
+#include "Config.hxx"
 #include "Listener.hxx"
 #include "Connection.hxx"
 #include "event/net/UdpListener.hxx"
@@ -12,10 +13,10 @@
 #include <signal.h>
 #include <unistd.h>
 
-Instance::Instance()
+Instance::Instance(const Config &config)
 	:shutdown_listener(event_loop, BIND_THIS_METHOD(OnExit)),
 	 sighup_event(event_loop, SIGHUP, BIND_THIS_METHOD(OnReload)),
-	 database(16 * 1024 * 1024) // TODO: make max_size configurable
+	 database(config.database.size)
 {
 	shutdown_listener.Enable();
 	sighup_event.Enable();

@@ -17,7 +17,7 @@ Run(const Config &config)
 {
 	SetupProcess();
 
-	Instance instance;
+	Instance instance(config);
 
 	for (const auto &i : config.receivers)
 		instance.AddReceiver(i);

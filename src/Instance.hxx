@@ -16,6 +16,7 @@
 
 #include <forward_list>
 
+struct Config;
 struct SocketConfig;
 class UniqueSocketDescriptor;
 class UdpListener;
@@ -40,7 +41,7 @@ class Instance final : UdpHandler {
 	Database database;
 
 public:
-	Instance();
+	explicit Instance(const Config &config);
 	~Instance();
 
 	const RootLogger &GetLogger() const {

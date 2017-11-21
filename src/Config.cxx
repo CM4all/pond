@@ -6,6 +6,7 @@
 #include "net/Parser.hxx"
 #include "io/FileLineParser.hxx"
 #include "io/ConfigParser.hxx"
+#include "util/StringParser.hxx"
 
 void
 Config::Check()
@@ -16,6 +17,17 @@ Config::Check()
 
 class PondConfigParser final : public NestedConfigParser {
 	Config &config;
+
+	class Database final : public ConfigParser {
+		DatabaseConfig &config;
+
+	public:
+		explicit Database(DatabaseConfig &_config):config(_config) {}
+
+	protected:
+		/* virtual methods from class ConfigParser */
+		void ParseLine(FileLineParser &line) override;
+	};
 
 	class Receiver final : public ConfigParser {
 		Config &parent;
@@ -54,6 +66,19 @@ protected:
 	/* virtual methods from class NestedConfigParser */
 	void ParseLine2(FileLineParser &line) override;
 };
+
+void
+PondConfigParser::Database::ParseLine(FileLineParser &line)
+{
+	const char *word = line.ExpectWord();
+
+	if (strcmp(word, "size") == 0) {
+		config.size = ParseSize(line.ExpectValueAndEnd());
+		if (config.size < 64 * 1024)
+			throw LineParser::Error("Database size is too small");
+	} else
+		throw LineParser::Error("Unknown option");
+}
 
 void
 PondConfigParser::Receiver::ParseLine(FileLineParser &line)
@@ -119,6 +144,9 @@ PondConfigParser::ParseLine2(FileLineParser &line)
 	} else if (strcmp(word, "listener") == 0) {
 		line.ExpectSymbolAndEol('{');
 		SetChild(std::make_unique<Listener>(config));
+	} else if (strcmp(word, "database") == 0) {
+		line.ExpectSymbolAndEol('{');
+		SetChild(std::make_unique<Database>(config.database));
 	} else
 		throw LineParser::Error("Unknown option");
 }
