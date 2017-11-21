@@ -26,11 +26,11 @@ class Cursor final
 
 public:
 	Cursor(Database &_database, const Filter &filter,
-	       BoundMethod<void()> _append_callback)
+	       BoundMethod<void()> _append_callback) noexcept
 		:LightCursor(_database, filter),
 		 append_callback(_append_callback) {}
 
-	LightCursor ToLightCursor() const {
+	LightCursor ToLightCursor() const noexcept {
 		return *this;
 	}
 
@@ -38,23 +38,23 @@ public:
 	 * If the pointed-to #Record has been deleted, rewind to the
 	 * first record.
 	 */
-	void FixDeleted();
+	void FixDeleted() noexcept;
 
 	/**
 	 * Rewind to the first record.
 	 */
-	void Rewind();
+	void Rewind() noexcept;
 
 	/**
 	 * Enable "follow" mode: the #Database will call OnAppend() as
 	 * soon as a new record gets added.
 	 */
-	void Follow();
+	void Follow() noexcept;
 
 	/**
 	 * Callback invoked by the #Database.
 	 */
-	void OnAppend(const Record &record);
+	void OnAppend(const Record &record) noexcept;
 
 	/**
 	 * Does this instance point to a valid record?
@@ -66,7 +66,7 @@ public:
 	/**
 	 * Skip to the next record.
 	 */
-	Cursor &operator++();
+	Cursor &operator++() noexcept;
 };
 
 typedef boost::intrusive::list<Cursor,

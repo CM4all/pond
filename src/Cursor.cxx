@@ -7,7 +7,7 @@
 #include "Filter.hxx"
 
 void
-Cursor::FixDeleted()
+Cursor::FixDeleted() noexcept
 {
 	if (LightCursor::FixDeleted(id)) {
 		assert(!is_linked());
@@ -16,7 +16,7 @@ Cursor::FixDeleted()
 }
 
 void
-Cursor::Rewind()
+Cursor::Rewind() noexcept
 {
 	unlink();
 	LightCursor::Rewind();
@@ -26,7 +26,7 @@ Cursor::Rewind()
 }
 
 void
-Cursor::Follow()
+Cursor::Follow() noexcept
 {
 	assert(append_callback);
 
@@ -35,7 +35,7 @@ Cursor::Follow()
 }
 
 void
-Cursor::OnAppend(const Record &record)
+Cursor::OnAppend(const Record &record) noexcept
 {
 	assert(!is_linked());
 	assert(!*this);
@@ -47,7 +47,7 @@ Cursor::OnAppend(const Record &record)
 }
 
 Cursor &
-Cursor::operator++()
+Cursor::operator++() noexcept
 {
 	assert(*this);
 
