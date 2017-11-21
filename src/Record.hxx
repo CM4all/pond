@@ -30,15 +30,15 @@ public:
 	Record(const Record &) = delete;
 	Record &operator=(const Record &) = delete;
 
-	uint64_t GetId() const {
+	uint64_t GetId() const noexcept {
 		return id;
 	}
 
-	ConstBuffer<void> GetRaw() const {
+	ConstBuffer<void> GetRaw() const noexcept {
 		return {this + 1, raw_size};
 	}
 
-	const Net::Log::Datagram &GetParsed() const {
+	const Net::Log::Datagram &GetParsed() const noexcept {
 		return parsed;
 	}
 };
