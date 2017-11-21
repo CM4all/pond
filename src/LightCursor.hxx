@@ -25,12 +25,12 @@ class LightCursor {
 	const Record *next = nullptr;
 
 public:
-	LightCursor(Database &_database, const Filter &filter);
+	LightCursor(Database &_database, const Filter &filter) noexcept;
 
 	/**
 	 * Rewind to the first record.
 	 */
-	void Rewind();
+	void Rewind() noexcept;
 
 	/**
 	 * If the pointed-to #Record has been deleted, rewind to the
@@ -44,17 +44,17 @@ public:
 	/**
 	 * Does this instance point to a valid record?
 	 */
-	operator bool() const {
+	operator bool() const noexcept {
 		return next != nullptr;
 	}
 
-	const Record &operator*() const {
+	const Record &operator*() const noexcept {
 		assert(next != nullptr);
 
 		return *next;
 	}
 
-	const Record *operator->() const {
+	const Record *operator->() const noexcept {
 		assert(next != nullptr);
 
 		return next;
@@ -63,14 +63,14 @@ public:
 	/**
 	 * Skip to the next record.
 	 */
-	LightCursor &operator++();
+	LightCursor &operator++() noexcept;
 
 protected:
 	const Record *First() const noexcept;
 
-	void SetNext(const Record &record) {
+	void SetNext(const Record &record) noexcept {
 		next = &record;
 	}
 
-	void Follow(Cursor &cursor);
+	void Follow(Cursor &cursor) noexcept;
 };

@@ -6,7 +6,7 @@
 #include "Database.hxx"
 #include "Filter.hxx"
 
-LightCursor::LightCursor(Database &_database, const Filter &filter)
+LightCursor::LightCursor(Database &_database, const Filter &filter) noexcept
 	:all_records(filter.site.empty()
 		     ? &_database.GetAllRecords()
 		     : nullptr),
@@ -39,13 +39,13 @@ LightCursor::FixDeleted(uint64_t expected_id) noexcept
 }
 
 void
-LightCursor::Rewind()
+LightCursor::Rewind() noexcept
 {
 	next = First();
 }
 
 void
-LightCursor::Follow(Cursor &cursor)
+LightCursor::Follow(Cursor &cursor) noexcept
 {
 	if (all_records != nullptr)
 		all_records->Follow(cursor);
@@ -54,7 +54,7 @@ LightCursor::Follow(Cursor &cursor)
 }
 
 LightCursor &
-LightCursor::operator++()
+LightCursor::operator++() noexcept
 {
 	assert(next != nullptr);
 
