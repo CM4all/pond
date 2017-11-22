@@ -5,6 +5,7 @@
 #pragma once
 
 #include <cstddef>
+#include <utility>
 
 #include <assert.h>
 #include <stdint.h>
@@ -44,6 +45,9 @@ public:
 	 * call was a no-op
 	 */
 	bool FixDeleted(uint64_t expected_id) noexcept;
+
+	std::pair<const Record *, const Record *> TimeRange(uint64_t since,
+							    uint64_t until) const noexcept;
 
 	void AddAppendListener(AppendListener &l) noexcept;
 

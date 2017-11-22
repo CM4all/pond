@@ -14,7 +14,7 @@ class Selection {
 
 	const Filter &filter;
 
-	const uint64_t end_id = UINT64_MAX;
+	uint64_t end_id = UINT64_MAX;
 
 public:
 	Selection(Database &_database, const Filter &_filter) noexcept

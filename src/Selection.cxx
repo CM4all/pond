@@ -26,7 +26,21 @@ Selection::FixDeleted() noexcept
 void
 Selection::Rewind() noexcept
 {
-	cursor.Rewind();
+	assert(!cursor);
+	assert(end_id == UINT64_MAX);
+
+	if (filter.since > 0 || filter.until > 0) {
+		const auto tr = cursor.TimeRange(filter.since, filter.until);
+		if (tr.first == nullptr)
+			return;
+
+		cursor.SetNext(*tr.first);
+
+		if (tr.second != nullptr)
+			end_id = tr.second->GetId();
+	} else
+		cursor.Rewind();
+
 	SkipMismatches();
 }
 

@@ -1,6 +1,7 @@
 cm4all-pond (0.3) unstable; urgency=low
 
   * database: use a circular buffer
+  * database: index on time
 
  --   
 

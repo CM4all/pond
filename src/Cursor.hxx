@@ -38,6 +38,7 @@ public:
 	 */
 	bool FixDeleted() noexcept;
 
+	using LightCursor::TimeRange;
 	using LightCursor::AddAppendListener;
 
 	void SetNext(const Record &record) noexcept;
