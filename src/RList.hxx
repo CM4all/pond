@@ -89,6 +89,18 @@ class FullRecordList : public VCircularBuffer<Record> {
 public:
 	using VCircularBuffer::VCircularBuffer;
 
+	template<typename... Args>
+	reference emplace_back(Args... args) {
+		auto &record =
+			VCircularBuffer::emplace_back(std::forward<Args>(args)...);
+
+		follow_cursors.clear_and_dispose([&record](Cursor *cursor){
+				cursor->OnAppend(record);
+			});
+
+		return record;
+	}
+
 	const Record *First() const {
 		return empty() ? nullptr : &front();
 	}
