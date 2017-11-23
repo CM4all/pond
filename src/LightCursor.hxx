@@ -4,6 +4,8 @@
 
 #pragma once
 
+#include <cstddef>
+
 #include <assert.h>
 #include <stdint.h>
 
@@ -25,6 +27,8 @@ class LightCursor {
 	const Record *next = nullptr;
 
 public:
+	explicit LightCursor(std::nullptr_t) noexcept {}
+
 	LightCursor(Database &_database, const Filter &filter) noexcept;
 
 	/**

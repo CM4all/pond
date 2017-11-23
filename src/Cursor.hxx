@@ -25,6 +25,9 @@ class Cursor final
 	uint64_t id;
 
 public:
+	explicit Cursor(std::nullptr_t n) noexcept
+		:LightCursor(n) {}
+
 	Cursor(Database &_database, const Filter &filter,
 	       BoundMethod<void() noexcept> _append_callback) noexcept
 		:LightCursor(_database, filter),
