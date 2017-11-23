@@ -6,13 +6,15 @@
 #include "Database.hxx"
 #include "Filter.hxx"
 
-void
+bool
 Cursor::FixDeleted() noexcept
 {
 	if (LightCursor::FixDeleted(id)) {
 		assert(!is_linked());
 		id = LightCursor::operator*().GetId();
-	}
+		return true;
+	} else
+		return false;
 }
 
 void

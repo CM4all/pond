@@ -40,8 +40,11 @@ public:
 	/**
 	 * If the pointed-to #Record has been deleted, rewind to the
 	 * first record.
+	 *
+	 * @return true if the #Record has been deleted, false if the
+	 * call was a no-op
 	 */
-	void FixDeleted() noexcept;
+	bool FixDeleted() noexcept;
 
 	/**
 	 * Rewind to the first record.
