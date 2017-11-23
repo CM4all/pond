@@ -268,20 +268,6 @@ Connection::OnBufferedClosed() noexcept
 	return false;
 }
 
-static bool
-FilteredIncrement(LightCursor &cursor, const Filter &filter)
-{
-	assert(cursor);
-
-	while (true) {
-		++cursor;
-		if (!cursor)
-			return false;
-		if (filter(cursor->GetParsed()))
-			return true;
-	}
-}
-
 static void
 Skip(FilteredCursor &cursor, unsigned n)
 {
@@ -295,7 +281,7 @@ Skip(FilteredCursor &cursor, unsigned n)
 
 static unsigned
 SendMulti(SocketDescriptor s, uint16_t id,
-	  LightCursor cursor, const Filter &filter)
+	  FilteredCursor cursor)
 {
 	constexpr unsigned CAPACITY = 16;
 
@@ -319,10 +305,8 @@ SendMulti(SocketDescriptor s, uint16_t id,
 		m.msg_flags = 0;
 
 		++n;
-
-		if (!FilteredIncrement(cursor, filter))
-			break;
-	} while (n < CAPACITY);
+		++cursor;
+	} while (cursor && n < CAPACITY);
 
 	int result = sendmmsg(s.Get(), &msgs.front(), n,
 			      MSG_DONTWAIT|MSG_NOSIGNAL);
@@ -346,8 +330,7 @@ Connection::OnBufferedWrite()
 	cursor.FixDeleted();
 
 	if (cursor) {
-		unsigned n = SendMulti(socket.GetSocket(), current.id,
-				       cursor.ToLightCursor(), current.filter);
+		unsigned n = SendMulti(socket.GetSocket(), current.id, cursor);
 		Skip(cursor, n);
 	} else if (current.follow) {
 		socket.UnscheduleWrite();
