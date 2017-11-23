@@ -61,9 +61,7 @@ public:
 	void push_back(Record &record) {
 		list.push_back(record);
 
-		append_listeners.clear_and_dispose([&record](AppendListener *l){
-				l->OnAppend(record);
-			});
+		append_listeners.OnAppend(record);
 	}
 
 	const Record *First() const {
@@ -79,7 +77,7 @@ public:
 	}
 
 	void AddAppendListener(AppendListener &l) {
-		append_listeners.push_back(l);
+		append_listeners.Add(l);
 	}
 };
 
@@ -98,9 +96,7 @@ public:
 		auto &record =
 			VCircularBuffer::emplace_back(std::forward<Args>(args)...);
 
-		append_listeners.clear_and_dispose([&record](AppendListener *l){
-				l->OnAppend(record);
-			});
+		append_listeners.OnAppend(record);
 
 		return record;
 	}
@@ -118,7 +114,7 @@ public:
 	}
 
 	void AddAppendListener(AppendListener &l) {
-		append_listeners.push_back(l);
+		append_listeners.Add(l);
 	}
 };
 

@@ -20,5 +20,22 @@ public:
 	virtual void OnAppend(const Record &record) noexcept = 0;
 };
 
-typedef boost::intrusive::list<AppendListener,
-			       boost::intrusive::constant_time_size<false>> AppendListenerList;
+class AppendListenerList {
+	boost::intrusive::list<AppendListener,
+			       boost::intrusive::constant_time_size<false>> list;
+
+public:
+	bool empty() const noexcept {
+		return list.empty();
+	}
+
+	void Add(AppendListener &l) {
+		list.push_back(l);
+	}
+
+	void OnAppend(const Record &record) noexcept {
+		list.clear_and_dispose([&record](AppendListener *l){
+				l->OnAppend(record);
+			});
+	}
+};
