@@ -14,7 +14,7 @@ class Database;
 class FullRecordList;
 class PerSiteRecordList;
 class Record;
-class Cursor;
+class AppendListener;
 
 /**
  * An iterator for records in the #Database.  While an instance
@@ -84,5 +84,5 @@ protected:
 		next = &record;
 	}
 
-	void Follow(Cursor &cursor) noexcept;
+	void AddAppendListener(AppendListener &l) noexcept;
 };

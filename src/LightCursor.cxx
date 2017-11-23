@@ -45,12 +45,12 @@ LightCursor::Rewind() noexcept
 }
 
 void
-LightCursor::Follow(Cursor &cursor) noexcept
+LightCursor::AddAppendListener(AppendListener &l) noexcept
 {
 	if (all_records != nullptr)
-		all_records->Follow(cursor);
+		all_records->AddAppendListener(l);
 	else
-		per_site_records->Follow(cursor);
+		per_site_records->AddAppendListener(l);
 }
 
 LightCursor &

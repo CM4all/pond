@@ -5,6 +5,7 @@
 #pragma once
 
 #include "LightCursor.hxx"
+#include "AppendListener.hxx"
 #include "util/BindMethod.hxx"
 
 #include <boost/intrusive/list.hpp>
@@ -17,7 +18,7 @@
  * take care for cleaning up invalid pointers.
  */
 class Cursor
-	: public boost::intrusive::list_base_hook<boost::intrusive::link_mode<boost::intrusive::auto_unlink>>,
+	: AppendListener,
 	  LightCursor {
 
 	BoundMethod<void() noexcept> append_callback;
@@ -60,7 +61,7 @@ public:
 	/**
 	 * Callback invoked by the #Database.
 	 */
-	void OnAppend(const Record &record) noexcept;
+	void OnAppend(const Record &record) noexcept final;
 
 	bool operator==(const Cursor &other) const noexcept {
 		return LightCursor::operator==(other);

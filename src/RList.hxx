@@ -5,7 +5,7 @@
 #pragma once
 
 #include "Record.hxx"
-#include "Cursor.hxx"
+#include "AppendListener.hxx"
 #include "util/VCircularBuffer.hxx"
 
 #include <boost/intrusive/list.hpp>
@@ -22,14 +22,14 @@ class RecordList {
 
 	List list;
 
-	CursorList follow_cursors;
+	AppendListenerList append_listeners;
 
 public:
 	RecordList() = default;
 
 	~RecordList() {
 		assert(list.empty());
-		assert(follow_cursors.empty());
+		assert(append_listeners.empty());
 	}
 
 	RecordList(const RecordList &) = delete;
@@ -61,8 +61,8 @@ public:
 	void push_back(Record &record) {
 		list.push_back(record);
 
-		follow_cursors.clear_and_dispose([&record](Cursor *cursor){
-				cursor->OnAppend(record);
+		append_listeners.clear_and_dispose([&record](AppendListener *l){
+				l->OnAppend(record);
 			});
 	}
 
@@ -78,24 +78,28 @@ public:
 			: &*i;
 	}
 
-	void Follow(Cursor &cursor) {
-		follow_cursors.push_back(cursor);
+	void AddAppendListener(AppendListener &l) {
+		append_listeners.push_back(l);
 	}
 };
 
 class FullRecordList : public VCircularBuffer<Record> {
-	CursorList follow_cursors;
+	AppendListenerList append_listeners;
 
 public:
 	using VCircularBuffer::VCircularBuffer;
+
+	~FullRecordList() noexcept {
+		assert(append_listeners.empty());
+	}
 
 	template<typename... Args>
 	reference emplace_back(Args... args) {
 		auto &record =
 			VCircularBuffer::emplace_back(std::forward<Args>(args)...);
 
-		follow_cursors.clear_and_dispose([&record](Cursor *cursor){
-				cursor->OnAppend(record);
+		append_listeners.clear_and_dispose([&record](AppendListener *l){
+				l->OnAppend(record);
 			});
 
 		return record;
@@ -113,8 +117,8 @@ public:
 			: &*i;
 	}
 
-	void Follow(Cursor &cursor) {
-		follow_cursors.push_back(cursor);
+	void AddAppendListener(AppendListener &l) {
+		append_listeners.push_back(l);
 	}
 };
 

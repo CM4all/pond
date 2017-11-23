@@ -33,7 +33,7 @@ Cursor::Follow() noexcept
 	assert(append_callback);
 
 	if (!*this && !is_linked())
-		LightCursor::Follow(*this);
+		LightCursor::AddAppendListener(*this);
 }
 
 void
