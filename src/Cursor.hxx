@@ -61,7 +61,7 @@ public:
 	/**
 	 * Callback invoked by the #Database.
 	 */
-	void OnAppend(const Record &record) noexcept final;
+	bool OnAppend(const Record &record) noexcept final;
 
 	bool operator==(const Cursor &other) const noexcept {
 		return LightCursor::operator==(other);

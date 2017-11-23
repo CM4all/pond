@@ -36,16 +36,17 @@ Cursor::Follow() noexcept
 		LightCursor::AddAppendListener(*this);
 }
 
-void
+bool
 Cursor::OnAppend(const Record &record) noexcept
 {
-	assert(!is_linked());
 	assert(!*this);
 
 	SetNext(record);
 	id = record.GetId();
 
 	append_callback();
+
+	return false;
 }
 
 Cursor &
