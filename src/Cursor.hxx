@@ -16,7 +16,7 @@
  * exists, the database may be modified, because FixDeleted() will
  * take care for cleaning up invalid pointers.
  */
-class Cursor final
+class Cursor
 	: public boost::intrusive::list_base_hook<boost::intrusive::link_mode<boost::intrusive::auto_unlink>>,
 	  LightCursor {
 

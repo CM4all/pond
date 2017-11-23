@@ -4,6 +4,7 @@
 
 #include "Connection.hxx"
 #include "Instance.hxx"
+#include "FCursor.hxx"
 #include "event/Duration.hxx"
 #include "system/Error.hxx"
 #include "util/ByteOrder.hxx"
@@ -137,9 +138,9 @@ try {
 
 		switch (current.command) {
 		case PondRequestCommand::QUERY:
-			current.cursor.reset(new Cursor(instance.GetDatabase(),
-							current.filter,
-							BIND_THIS_METHOD(OnAppend)));
+			current.cursor.reset(new FilteredCursor(instance.GetDatabase(),
+								current.filter,
+								BIND_THIS_METHOD(OnAppend)));
 			if (current.follow) {
 				current.cursor->Follow();
 			} else {
@@ -282,13 +283,12 @@ FilteredIncrement(LightCursor &cursor, const Filter &filter)
 }
 
 static void
-Skip(Cursor &cursor, const Filter &filter, unsigned n)
+Skip(FilteredCursor &cursor, unsigned n)
 {
 	while (n > 0) {
 		assert(cursor);
 
-		if (filter(cursor->GetParsed()))
-			--n;
+		--n;
 		++cursor;
 	}
 }
@@ -345,14 +345,10 @@ Connection::OnBufferedWrite()
 	auto &cursor = *current.cursor;
 	cursor.FixDeleted();
 
-	while (cursor &&
-	       !current.filter(cursor->GetParsed()))
-		++cursor;
-
 	if (cursor) {
 		unsigned n = SendMulti(socket.GetSocket(), current.id,
 				       cursor.ToLightCursor(), current.filter);
-		Skip(cursor, current.filter, n);
+		Skip(cursor, n);
 	} else if (current.follow) {
 		socket.UnscheduleWrite();
 		cursor.Follow();
