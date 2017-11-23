@@ -56,6 +56,14 @@ public:
 	 */
 	void OnAppend(const Record &record) noexcept;
 
+	bool operator==(const Cursor &other) const noexcept {
+		return LightCursor::operator==(other);
+	}
+
+	bool operator!=(const Cursor &other) const noexcept {
+		return !(*this == other);
+	}
+
 	/**
 	 * Does this instance point to a valid record?
 	 */

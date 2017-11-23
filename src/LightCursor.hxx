@@ -41,6 +41,14 @@ public:
 	 */
 	bool FixDeleted(uint64_t expected_id) noexcept;
 
+	bool operator==(const LightCursor &other) const noexcept {
+		return next == other.next;
+	}
+
+	bool operator!=(const LightCursor &other) const noexcept {
+		return !(*this == other);
+	}
+
 	/**
 	 * Does this instance point to a valid record?
 	 */
