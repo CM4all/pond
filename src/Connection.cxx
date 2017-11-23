@@ -230,7 +230,7 @@ try {
 }
 
 void
-Connection::OnAppend()
+Connection::OnAppend() noexcept
 {
 	socket.ScheduleWrite();
 }

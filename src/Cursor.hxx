@@ -20,13 +20,13 @@ class Cursor final
 	: public boost::intrusive::list_base_hook<boost::intrusive::link_mode<boost::intrusive::auto_unlink>>,
 	  LightCursor {
 
-	BoundMethod<void()> append_callback;
+	BoundMethod<void() noexcept> append_callback;
 
 	uint64_t id;
 
 public:
 	Cursor(Database &_database, const Filter &filter,
-	       BoundMethod<void()> _append_callback) noexcept
+	       BoundMethod<void() noexcept> _append_callback) noexcept
 		:LightCursor(_database, filter),
 		 append_callback(_append_callback) {}
 

@@ -86,7 +86,7 @@ private:
 	BufferedResult OnPacket(uint16_t id, PondRequestCommand cmd,
 				ConstBuffer<void> payload);
 
-	void OnAppend();
+	void OnAppend() noexcept;
 
 	/* virtual methods from class BufferedSocketHandler */
 	BufferedResult OnBufferedData(const void *buffer, size_t size) override;
