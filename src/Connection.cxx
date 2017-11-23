@@ -268,17 +268,6 @@ Connection::OnBufferedClosed() noexcept
 	return false;
 }
 
-static void
-Skip(FilteredCursor &cursor, unsigned n)
-{
-	while (n > 0) {
-		assert(cursor);
-
-		--n;
-		++cursor;
-	}
-}
-
 static unsigned
 SendMulti(SocketDescriptor s, uint16_t id,
 	  FilteredCursor cursor)
@@ -330,8 +319,7 @@ Connection::OnBufferedWrite()
 	cursor.FixDeleted();
 
 	if (cursor) {
-		unsigned n = SendMulti(socket.GetSocket(), current.id, cursor);
-		Skip(cursor, n);
+		cursor += SendMulti(socket.GetSocket(), current.id, cursor);
 	} else if (current.follow) {
 		socket.UnscheduleWrite();
 		cursor.Follow();

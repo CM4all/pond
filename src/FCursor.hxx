@@ -43,6 +43,12 @@ public:
 	 */
 	FilteredCursor &operator++() noexcept;
 
+	FilteredCursor &operator+=(size_t n) noexcept {
+		while (n-- > 0)
+			operator++();
+		return *this;
+	}
+
 private:
 	void SkipMismatches() noexcept;
 	void OnFilteredAppend() noexcept;
