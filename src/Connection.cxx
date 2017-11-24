@@ -262,16 +262,16 @@ Connection::OnBufferedClosed() noexcept
 	return false;
 }
 
-static unsigned
+static size_t
 SendMulti(SocketDescriptor s, uint16_t id,
 	  Selection selection)
 {
-	constexpr unsigned CAPACITY = 16;
+	constexpr size_t CAPACITY = 16;
 
 	std::array<PondIovec, CAPACITY> vecs;
 	std::array<struct mmsghdr, CAPACITY> msgs;
 
-	unsigned n = 0;
+	size_t n = 0;
 	do {
 		const auto &record = *selection;
 		auto &m = msgs[n].msg_hdr;
