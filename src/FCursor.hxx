@@ -16,20 +16,17 @@
 class FilteredCursor : Cursor {
 	const Filter &filter;
 
-	BoundMethod<void() noexcept> filtered_append_callback;
-
 public:
-	FilteredCursor(Database &_database, const Filter &_filter,
-		       BoundMethod<void()> _append_callback) noexcept
-		:Cursor(_database, _filter, BIND_THIS_METHOD(OnFilteredAppend)),
-		 filter(_filter), filtered_append_callback(_append_callback) {}
+	FilteredCursor(Database &_database, const Filter &_filter) noexcept
+		:Cursor(_database, _filter),
+		 filter(_filter) {}
 
 	using Cursor::ToLightCursor;
 
 	bool FixDeleted() noexcept;
 	void Rewind() noexcept;
 
-	using Cursor::Follow;
+	using Cursor::AddAppendListener;
 
 	using Cursor::operator==;
 	using Cursor::operator!=;
@@ -49,9 +46,10 @@ public:
 		return *this;
 	}
 
+	bool OnAppend(const Record &record) noexcept;
+
 private:
 	void SkipMismatches() noexcept;
-	void OnFilteredAppend() noexcept;
 };
 
 typedef boost::intrusive::list<Cursor,

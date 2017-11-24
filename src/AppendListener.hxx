@@ -6,6 +6,8 @@
 
 #include <boost/intrusive/list.hpp>
 
+class Record;
+
 /**
  * An iterator for records in the #Database.  While an instance
  * exists, the database may be modified, because FixDeleted() will

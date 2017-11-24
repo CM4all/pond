@@ -5,8 +5,6 @@
 #pragma once
 
 #include "LightCursor.hxx"
-#include "AppendListener.hxx"
-#include "util/BindMethod.hxx"
 
 #include <boost/intrusive/list.hpp>
 
@@ -18,10 +16,7 @@
  * take care for cleaning up invalid pointers.
  */
 class Cursor
-	: AppendListener,
-	  LightCursor {
-
-	BoundMethod<void() noexcept> append_callback;
+	: LightCursor {
 
 	uint64_t id;
 
@@ -29,10 +24,8 @@ public:
 	explicit Cursor(std::nullptr_t n) noexcept
 		:LightCursor(n) {}
 
-	Cursor(Database &_database, const Filter &filter,
-	       BoundMethod<void() noexcept> _append_callback) noexcept
-		:LightCursor(_database, filter),
-		 append_callback(_append_callback) {}
+	Cursor(Database &_database, const Filter &filter) noexcept
+		:LightCursor(_database, filter) {}
 
 	LightCursor ToLightCursor() const noexcept {
 		return *this;
@@ -47,21 +40,12 @@ public:
 	 */
 	bool FixDeleted() noexcept;
 
+	using LightCursor::AddAppendListener;
+
 	/**
 	 * Rewind to the first record.
 	 */
 	void Rewind() noexcept;
-
-	/**
-	 * Enable "follow" mode: the #Database will call OnAppend() as
-	 * soon as a new record gets added.
-	 */
-	void Follow() noexcept;
-
-	/**
-	 * Callback invoked by the #Database.
-	 */
-	bool OnAppend(const Record &record) noexcept final;
 
 	bool operator==(const Cursor &other) const noexcept {
 		return LightCursor::operator==(other);
@@ -82,6 +66,8 @@ public:
 	 * Skip to the next record.
 	 */
 	Cursor &operator++() noexcept;
+
+	void OnAppend(const Record &record) noexcept;
 };
 
 typedef boost::intrusive::list<Cursor,

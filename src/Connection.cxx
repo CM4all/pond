@@ -129,6 +129,7 @@ try {
 
 	case PondRequestCommand::QUERY:
 		socket.UnscheduleWrite();
+		AppendListener::Unregister();
 		current.Set(id, cmd);
 		return BufferedResult::AGAIN_EXPECT;
 
@@ -139,10 +140,9 @@ try {
 		switch (current.command) {
 		case PondRequestCommand::QUERY:
 			current.cursor.reset(new FilteredCursor(instance.GetDatabase(),
-								current.filter,
-								BIND_THIS_METHOD(OnAppend)));
+								current.filter));
 			if (current.follow) {
-				current.cursor->Follow();
+				current.cursor->AddAppendListener(*this);
 			} else {
 				current.cursor->Rewind();
 				socket.ScheduleWrite();
@@ -156,6 +156,7 @@ try {
 		}
 
 	case PondRequestCommand::CANCEL:
+		AppendListener::Unregister();
 		current.Clear();
 		socket.UnscheduleWrite();
 		break;
@@ -225,15 +226,10 @@ try {
 	throw SimplePondError{"Command not implemented"};
 } catch (SimplePondError e) {
 	Send(id, PondResponseCommand::ERROR, e.message.ToVoid());
+	AppendListener::Unregister();
 	current.Clear();
 	socket.UnscheduleWrite();
 	return BufferedResult::AGAIN_OPTIONAL;
-}
-
-void
-Connection::OnAppend() noexcept
-{
-	socket.ScheduleWrite();
 }
 
 BufferedResult
@@ -325,9 +321,10 @@ Connection::OnBufferedWrite()
 	}
 
 	if (current.follow) {
-		cursor.Follow();
+		current.cursor->AddAppendListener(*this);
 	} else {
 		Send(current.id, PondResponseCommand::END, nullptr);
+		assert(!AppendListener::IsRegistered());
 		current.Clear();
 	}
 
@@ -340,4 +337,23 @@ Connection::OnBufferedError(std::exception_ptr e) noexcept
 {
 	logger(2, e);
 	Destroy();
+}
+
+bool
+Connection::OnAppend(const Record &record) noexcept
+{
+	assert(current.command == PondRequestCommand::QUERY);
+	assert(current.cursor);
+
+	auto &cursor = *current.cursor;
+	assert(!cursor);
+
+	if (!cursor.OnAppend(record)) {
+		assert(!cursor);
+		return true;
+	}
+
+	assert(cursor);
+	socket.ScheduleWrite();
+	return false;
 }

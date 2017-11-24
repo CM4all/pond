@@ -6,6 +6,7 @@
 
 #include "Protocol.hxx"
 #include "Filter.hxx"
+#include "AppendListener.hxx"
 #include "net/UniqueSocketDescriptor.hxx"
 #include "event/net/BufferedSocket.hxx"
 
@@ -23,7 +24,7 @@ template<typename t> struct ConstBuffer;
 
 class Connection final
 	: public boost::intrusive::list_base_hook<boost::intrusive::link_mode<boost::intrusive::auto_unlink>>,
-	  BufferedSocketHandler {
+	BufferedSocketHandler, AppendListener {
 
 	Instance &instance;
 	const RootLogger &logger;
@@ -93,4 +94,7 @@ private:
 	bool OnBufferedClosed() noexcept override;
 	bool OnBufferedWrite() override;
 	void OnBufferedError(std::exception_ptr e) noexcept override;
+
+	/* virtual methods from class AppendListener */
+	bool OnAppend(const Record &record) noexcept override;
 };

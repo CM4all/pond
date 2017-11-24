@@ -30,17 +30,16 @@ FilteredCursor::Rewind() noexcept
 	SkipMismatches();
 }
 
-void
-FilteredCursor::OnFilteredAppend() noexcept
+bool
+FilteredCursor::OnAppend(const Record &record) noexcept
 {
-	assert(filtered_append_callback);
+	assert(!*this);
 
-	SkipMismatches();
+	if (!filter(record.GetParsed()))
+		return false;
 
-	/* only invoke the callback if at least one new record matches
-	   the filter */
-	if (*this)
-		filtered_append_callback();
+	Cursor::OnAppend(record);
+	return true;
 }
 
 FilteredCursor &

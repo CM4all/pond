@@ -45,6 +45,8 @@ public:
 	 */
 	bool FixDeleted(uint64_t expected_id) noexcept;
 
+	void AddAppendListener(AppendListener &l) noexcept;
+
 	bool operator==(const LightCursor &other) const noexcept {
 		return next == other.next;
 	}
@@ -83,6 +85,4 @@ protected:
 	void SetNext(const Record &record) noexcept {
 		next = &record;
 	}
-
-	void AddAppendListener(AppendListener &l) noexcept;
 };

@@ -10,7 +10,6 @@ bool
 Cursor::FixDeleted() noexcept
 {
 	if (LightCursor::FixDeleted(id)) {
-		assert(!IsRegistered());
 		id = LightCursor::operator*().GetId();
 		return true;
 	} else
@@ -20,7 +19,6 @@ Cursor::FixDeleted() noexcept
 void
 Cursor::Rewind() noexcept
 {
-	Unregister();
 	LightCursor::Rewind();
 
 	if (*this)
@@ -28,25 +26,12 @@ Cursor::Rewind() noexcept
 }
 
 void
-Cursor::Follow() noexcept
-{
-	assert(append_callback);
-
-	if (!*this && !IsRegistered())
-		LightCursor::AddAppendListener(*this);
-}
-
-bool
 Cursor::OnAppend(const Record &record) noexcept
 {
 	assert(!*this);
 
 	SetNext(record);
 	id = record.GetId();
-
-	append_callback();
-
-	return false;
 }
 
 Cursor &
