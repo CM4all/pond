@@ -12,6 +12,8 @@
 class Selection : Cursor {
 	const Filter &filter;
 
+	const uint64_t end_id = UINT64_MAX;
+
 public:
 	Selection(Database &_database, const Filter &_filter) noexcept
 		:Cursor(_database, _filter),
@@ -27,7 +29,8 @@ public:
 	using Cursor::operator==;
 	using Cursor::operator!=;
 
-	using Cursor::operator bool;
+	operator bool() const noexcept;
+
 	using Cursor::operator*;
 	using Cursor::operator->;
 

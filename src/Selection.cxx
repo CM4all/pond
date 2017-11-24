@@ -42,6 +42,11 @@ Selection::OnAppend(const Record &record) noexcept
 	return true;
 }
 
+Selection::operator bool() const noexcept
+{
+	return Cursor::operator bool() && (*this)->GetId() <= end_id;
+}
+
 Selection &
 Selection::operator++() noexcept
 {
