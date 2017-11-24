@@ -11,9 +11,20 @@
  * exists, the database may be modified, because FixDeleted() will
  * take care for cleaning up invalid pointers.
  */
-class AppendListener
-	: public boost::intrusive::list_base_hook<boost::intrusive::link_mode<boost::intrusive::auto_unlink>> {
+class AppendListener {
+	friend class AppendListenerList;
+	typedef boost::intrusive::list_member_hook<boost::intrusive::link_mode<boost::intrusive::auto_unlink>> SiblingsHook;
+	SiblingsHook siblings;
+
 public:
+	bool IsRegistered() const noexcept {
+		return siblings.is_linked();
+	}
+
+	void Unregister() noexcept {
+		siblings.unlink();
+	}
+
 	/**
 	 * Callback invoked by the #Database.
 	 *
@@ -25,6 +36,9 @@ public:
 
 class AppendListenerList {
 	boost::intrusive::list<AppendListener,
+			       boost::intrusive::member_hook<AppendListener,
+							     AppendListener::SiblingsHook,
+							     &AppendListener::siblings>,
 			       boost::intrusive::constant_time_size<false>> list;
 
 public:

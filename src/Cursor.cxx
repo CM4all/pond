@@ -10,7 +10,7 @@ bool
 Cursor::FixDeleted() noexcept
 {
 	if (LightCursor::FixDeleted(id)) {
-		assert(!is_linked());
+		assert(!IsRegistered());
 		id = LightCursor::operator*().GetId();
 		return true;
 	} else
@@ -20,7 +20,7 @@ Cursor::FixDeleted() noexcept
 void
 Cursor::Rewind() noexcept
 {
-	unlink();
+	Unregister();
 	LightCursor::Rewind();
 
 	if (*this)
@@ -32,7 +32,7 @@ Cursor::Follow() noexcept
 {
 	assert(append_callback);
 
-	if (!*this && !is_linked())
+	if (!*this && !IsRegistered())
 		LightCursor::AddAppendListener(*this);
 }
 
