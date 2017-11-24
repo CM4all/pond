@@ -139,12 +139,10 @@ try {
 
 		switch (current.command) {
 		case PondRequestCommand::QUERY:
-			current.selection.reset(new Selection(instance.GetDatabase(),
-							      current.filter));
 			if (current.follow) {
-				current.selection->AddAppendListener(*this);
+				current.selection.reset(new Selection(instance.GetDatabase().Follow(current.filter, *this)));
 			} else {
-				current.selection->Rewind();
+				current.selection.reset(new Selection(instance.GetDatabase().Select(current.filter)));
 				socket.ScheduleWrite();
 			}
 			/* the response will be assembled by

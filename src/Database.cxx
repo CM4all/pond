@@ -3,6 +3,7 @@
  */
 
 #include "Database.hxx"
+#include "Selection.hxx"
 #include "system/HugePage.hxx"
 
 #include <assert.h>
@@ -33,4 +34,20 @@ Database::Emplace(ConstBuffer<uint8_t> raw)
 		GetPerSiteRecords(record.GetParsed().site).push_back(record);
 
 	return record;
+}
+
+Selection
+Database::Select(const Filter &filter) noexcept
+{
+	Selection selection(*this, filter);
+	selection.Rewind();
+	return selection;
+}
+
+Selection
+Database::Follow(const Filter &filter, AppendListener &l) noexcept
+{
+	Selection selection(*this, filter);
+	selection.AddAppendListener(l);
+	return selection;
 }

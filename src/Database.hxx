@@ -10,6 +10,9 @@
 #include <unordered_map>
 
 template<typename T> struct ConstBuffer;
+struct Filter;
+class Selection;
+class AppendListener;
 
 class Database {
 	LargeAllocation allocation;
@@ -46,4 +49,7 @@ public:
 	}
 
 	const Record &Emplace(ConstBuffer<uint8_t> raw);
+
+	Selection Select(const Filter &filter) noexcept;
+	Selection Follow(const Filter &filter, AppendListener &l) noexcept;
 };
