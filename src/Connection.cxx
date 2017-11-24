@@ -347,10 +347,15 @@ Connection::OnAppend(const Record &record) noexcept
 	assert(!selection);
 
 	if (!selection.OnAppend(record)) {
+		/* no matching record was appended: keep the
+		   AppendListener registered */
 		assert(!selection);
 		return true;
 	}
 
+	/* a matching record was appended: unregister the
+	   AppendListener and prepare for sending the record to our
+	   client */
 	assert(selection);
 	socket.ScheduleWrite();
 	return false;
