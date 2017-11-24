@@ -9,30 +9,34 @@
 /**
  * A wrapper for #Cursor which applies a #Filter.
  */
-class Selection : Cursor {
+class Selection {
+	Cursor cursor;
+
 	const Filter &filter;
 
 	const uint64_t end_id = UINT64_MAX;
 
 public:
 	Selection(Database &_database, const Filter &_filter) noexcept
-		:Cursor(_database, _filter),
+		:cursor(_database, _filter),
 		 filter(_filter) {}
-
-	using Cursor::ToLightCursor;
 
 	bool FixDeleted() noexcept;
 	void Rewind() noexcept;
 
-	using Cursor::AddAppendListener;
-
-	using Cursor::operator==;
-	using Cursor::operator!=;
+	void AddAppendListener(AppendListener &l) noexcept {
+		cursor.AddAppendListener(l);
+	}
 
 	operator bool() const noexcept;
 
-	using Cursor::operator*;
-	using Cursor::operator->;
+	const Record &operator*() const noexcept {
+		return *cursor;
+	}
+
+	const Record *operator->() const noexcept {
+		return cursor.operator->();
+	}
 
 	/**
 	 * Skip to the next record.

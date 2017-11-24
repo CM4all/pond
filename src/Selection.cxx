@@ -9,14 +9,14 @@
 void
 Selection::SkipMismatches() noexcept
 {
-	while (*this && !filter((*this)->GetParsed()))
-		++*this;
+	while (cursor && !filter(cursor->GetParsed()))
+		++cursor;
 }
 
 bool
 Selection::FixDeleted() noexcept
 {
-	if (!Cursor::FixDeleted())
+	if (!cursor.FixDeleted())
 		return false;
 
 	SkipMismatches();
@@ -26,7 +26,7 @@ Selection::FixDeleted() noexcept
 void
 Selection::Rewind() noexcept
 {
-	Cursor::Rewind();
+	cursor.Rewind();
 	SkipMismatches();
 }
 
@@ -38,19 +38,19 @@ Selection::OnAppend(const Record &record) noexcept
 	if (!filter(record.GetParsed()))
 		return false;
 
-	Cursor::OnAppend(record);
+	cursor.OnAppend(record);
 	return true;
 }
 
 Selection::operator bool() const noexcept
 {
-	return Cursor::operator bool() && (*this)->GetId() <= end_id;
+	return cursor && cursor->GetId() <= end_id;
 }
 
 Selection &
 Selection::operator++() noexcept
 {
-	Cursor::operator++();
+	cursor.operator++();
 	SkipMismatches();
 	return *this;
 }
