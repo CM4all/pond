@@ -204,7 +204,7 @@ executable('cm4all-pond',
   'src/Filter.cxx',
   'src/LightCursor.cxx',
   'src/Cursor.cxx',
-  'src/FCursor.cxx',
+  'src/Selection.cxx',
   include_directories: inc,
   dependencies: [
     libsystemd,

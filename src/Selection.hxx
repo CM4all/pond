@@ -9,11 +9,11 @@
 /**
  * A wrapper for #Cursor which applies a #Filter.
  */
-class FilteredCursor : Cursor {
+class Selection : Cursor {
 	const Filter &filter;
 
 public:
-	FilteredCursor(Database &_database, const Filter &_filter) noexcept
+	Selection(Database &_database, const Filter &_filter) noexcept
 		:Cursor(_database, _filter),
 		 filter(_filter) {}
 
@@ -34,9 +34,9 @@ public:
 	/**
 	 * Skip to the next record.
 	 */
-	FilteredCursor &operator++() noexcept;
+	Selection &operator++() noexcept;
 
-	FilteredCursor &operator+=(size_t n) noexcept {
+	Selection &operator+=(size_t n) noexcept {
 		while (n-- > 0)
 			operator++();
 		return *this;

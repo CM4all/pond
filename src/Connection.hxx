@@ -18,7 +18,7 @@
 #include <stdint.h>
 
 class Instance;
-class FilteredCursor;
+class Selection;
 class RootLogger;
 template<typename t> struct ConstBuffer;
 
@@ -38,7 +38,7 @@ class Connection final
 
 		Filter filter;
 
-		std::unique_ptr<FilteredCursor> cursor;
+		std::unique_ptr<Selection> selection;
 
 		bool IsDefined() const {
 			return command != PondRequestCommand::NOP;

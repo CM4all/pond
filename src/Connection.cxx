@@ -4,7 +4,7 @@
 
 #include "Connection.hxx"
 #include "Instance.hxx"
-#include "FCursor.hxx"
+#include "Selection.hxx"
 #include "event/Duration.hxx"
 #include "system/Error.hxx"
 #include "util/ByteOrder.hxx"
@@ -18,7 +18,7 @@ Connection::Request::Clear()
 	command = PondRequestCommand::NOP;
 	filter = Filter();
 	follow = false;
-	cursor.reset();
+	selection.reset();
 }
 
 Connection::Connection(Instance &_instance, UniqueSocketDescriptor &&_fd)
@@ -139,12 +139,12 @@ try {
 
 		switch (current.command) {
 		case PondRequestCommand::QUERY:
-			current.cursor.reset(new FilteredCursor(instance.GetDatabase(),
-								current.filter));
+			current.selection.reset(new Selection(instance.GetDatabase(),
+							      current.filter));
 			if (current.follow) {
-				current.cursor->AddAppendListener(*this);
+				current.selection->AddAppendListener(*this);
 			} else {
-				current.cursor->Rewind();
+				current.selection->Rewind();
 				socket.ScheduleWrite();
 			}
 			/* the response will be assembled by
@@ -266,7 +266,7 @@ Connection::OnBufferedClosed() noexcept
 
 static unsigned
 SendMulti(SocketDescriptor s, uint16_t id,
-	  FilteredCursor cursor)
+	  Selection selection)
 {
 	constexpr unsigned CAPACITY = 16;
 
@@ -275,7 +275,7 @@ SendMulti(SocketDescriptor s, uint16_t id,
 
 	unsigned n = 0;
 	do {
-		const auto &record = *cursor;
+		const auto &record = *selection;
 		auto &m = msgs[n].msg_hdr;
 		auto &v = vecs[n];
 
@@ -290,8 +290,8 @@ SendMulti(SocketDescriptor s, uint16_t id,
 		m.msg_flags = 0;
 
 		++n;
-		++cursor;
-	} while (cursor && n < CAPACITY);
+		++selection;
+	} while (selection && n < CAPACITY);
 
 	int result = sendmmsg(s.Get(), &msgs.front(), n,
 			      MSG_DONTWAIT|MSG_NOSIGNAL);
@@ -309,19 +309,19 @@ bool
 Connection::OnBufferedWrite()
 {
 	assert(current.command == PondRequestCommand::QUERY);
-	assert(current.cursor);
+	assert(current.selection);
 
-	auto &cursor = *current.cursor;
-	cursor.FixDeleted();
+	auto &selection = *current.selection;
+	selection.FixDeleted();
 
-	if (cursor) {
-		cursor += SendMulti(socket.GetSocket(), current.id, cursor);
-		if (cursor)
+	if (selection) {
+		selection += SendMulti(socket.GetSocket(), current.id, selection);
+		if (selection)
 			return true;
 	}
 
 	if (current.follow) {
-		current.cursor->AddAppendListener(*this);
+		current.selection->AddAppendListener(*this);
 	} else {
 		Send(current.id, PondResponseCommand::END, nullptr);
 		assert(!AppendListener::IsRegistered());
@@ -343,17 +343,17 @@ bool
 Connection::OnAppend(const Record &record) noexcept
 {
 	assert(current.command == PondRequestCommand::QUERY);
-	assert(current.cursor);
+	assert(current.selection);
 
-	auto &cursor = *current.cursor;
-	assert(!cursor);
+	auto &selection = *current.selection;
+	assert(!selection);
 
-	if (!cursor.OnAppend(record)) {
-		assert(!cursor);
+	if (!selection.OnAppend(record)) {
+		assert(!selection);
 		return true;
 	}
 
-	assert(cursor);
+	assert(selection);
 	socket.ScheduleWrite();
 	return false;
 }

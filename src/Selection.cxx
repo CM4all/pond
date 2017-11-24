@@ -2,19 +2,19 @@
  * author: Max Kellermann <mk@cm4all.com>
  */
 
-#include "FCursor.hxx"
+#include "Selection.hxx"
 #include "Filter.hxx"
 #include "Record.hxx"
 
 void
-FilteredCursor::SkipMismatches() noexcept
+Selection::SkipMismatches() noexcept
 {
 	while (*this && !filter((*this)->GetParsed()))
 		++*this;
 }
 
 bool
-FilteredCursor::FixDeleted() noexcept
+Selection::FixDeleted() noexcept
 {
 	if (!Cursor::FixDeleted())
 		return false;
@@ -24,14 +24,14 @@ FilteredCursor::FixDeleted() noexcept
 }
 
 void
-FilteredCursor::Rewind() noexcept
+Selection::Rewind() noexcept
 {
 	Cursor::Rewind();
 	SkipMismatches();
 }
 
 bool
-FilteredCursor::OnAppend(const Record &record) noexcept
+Selection::OnAppend(const Record &record) noexcept
 {
 	assert(!*this);
 
@@ -42,8 +42,8 @@ FilteredCursor::OnAppend(const Record &record) noexcept
 	return true;
 }
 
-FilteredCursor &
-FilteredCursor::operator++() noexcept
+Selection &
+Selection::operator++() noexcept
 {
 	Cursor::operator++();
 	SkipMismatches();
