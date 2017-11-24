@@ -320,15 +320,18 @@ Connection::OnBufferedWrite()
 
 	if (cursor) {
 		cursor += SendMulti(socket.GetSocket(), current.id, cursor);
-	} else if (current.follow) {
-		socket.UnscheduleWrite();
+		if (cursor)
+			return true;
+	}
+
+	if (current.follow) {
 		cursor.Follow();
 	} else {
 		Send(current.id, PondResponseCommand::END, nullptr);
 		current.Clear();
-		socket.UnscheduleWrite();
 	}
 
+	socket.UnscheduleWrite();
 	return true;
 }
 
