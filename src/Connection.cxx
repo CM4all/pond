@@ -266,7 +266,7 @@ static size_t
 SendMulti(SocketDescriptor s, uint16_t id,
 	  Selection selection)
 {
-	constexpr size_t CAPACITY = 16;
+	constexpr size_t CAPACITY = 256;
 
 	std::array<PondIovec, CAPACITY> vecs;
 	std::array<struct mmsghdr, CAPACITY> msgs;
