@@ -6,10 +6,6 @@
 
 #include "Cursor.hxx"
 
-#include <boost/intrusive/list.hpp>
-
-#include <assert.h>
-
 /**
  * A wrapper for #Cursor which applies a #Filter.
  */
@@ -51,6 +47,3 @@ public:
 private:
 	void SkipMismatches() noexcept;
 };
-
-typedef boost::intrusive::list<Cursor,
-			       boost::intrusive::constant_time_size<false>> CursorList;

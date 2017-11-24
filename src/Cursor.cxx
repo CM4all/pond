@@ -3,8 +3,7 @@
  */
 
 #include "Cursor.hxx"
-#include "Database.hxx"
-#include "Filter.hxx"
+#include "Record.hxx"
 
 bool
 Cursor::FixDeleted() noexcept

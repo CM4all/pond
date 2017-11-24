@@ -6,8 +6,6 @@
 
 #include "LightCursor.hxx"
 
-#include <boost/intrusive/list.hpp>
-
 #include <assert.h>
 
 /**
@@ -69,6 +67,3 @@ public:
 
 	void OnAppend(const Record &record) noexcept;
 };
-
-typedef boost::intrusive::list<Cursor,
-			       boost::intrusive::constant_time_size<false>> CursorList;
