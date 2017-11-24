@@ -9,7 +9,7 @@
 bool
 Cursor::FixDeleted() noexcept
 {
-	if (LightCursor::FixDeleted(id)) {
+	if (*this && LightCursor::FixDeleted(id)) {
 		id = LightCursor::operator*().GetId();
 		return true;
 	} else
