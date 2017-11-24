@@ -40,6 +40,8 @@ public:
 
 	using LightCursor::AddAppendListener;
 
+	void SetNext(const Record &record) noexcept;
+
 	/**
 	 * Rewind to the first record.
 	 */

@@ -16,6 +16,13 @@ Cursor::FixDeleted() noexcept
 }
 
 void
+Cursor::SetNext(const Record &record) noexcept
+{
+	LightCursor::SetNext(record);
+	id = record.GetId();
+}
+
+void
 Cursor::Rewind() noexcept
 {
 	LightCursor::Rewind();
