@@ -39,7 +39,7 @@ public:
 	void OnAppend(const Record &record) noexcept {
 		list.remove_if([&record](const AppendListener &_l){
 				auto &l = const_cast<AppendListener &>(_l);
-				return l.OnAppend(record);
+				return !l.OnAppend(record);
 			});
 	}
 };
