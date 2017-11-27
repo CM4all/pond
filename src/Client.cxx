@@ -11,6 +11,7 @@
 #include "net/RConnectSocket.hxx"
 #include "net/UniqueSocketDescriptor.hxx"
 #include "time/ISO8601.hxx"
+#include "time/Convert.hxx"
 #include "util/ConstBuffer.hxx"
 #include "util/PrintException.hxx"
 #include "util/StringAPI.hxx"
@@ -231,6 +232,19 @@ SendPacket(SocketDescriptor s, ConstBuffer<void> payload)
 	sendmsg(s.Get(), &m, 0);
 }
 
+static std::chrono::system_clock::time_point
+ParseLocalDate(const char *s)
+{
+	struct tm tm;
+	memset(&tm, 0, sizeof(tm));
+
+	const char *end = strptime(s, "%F", &tm);
+	if (end == nullptr || *end != 0)
+		throw std::runtime_error("Failed to parse date");
+
+	return MakeTime(tm);
+}
+
 static void
 Query(const char *server, ConstBuffer<const char *> args)
 {
@@ -282,7 +296,11 @@ Query(const char *server, ConstBuffer<const char *> args)
 			filter.since = Net::Log::Datagram::ExportTimestamp(ParseISO8601(since));
 		else if (auto until = IsFilter(p, "until"))
 			filter.until = Net::Log::Datagram::ExportTimestamp(ParseISO8601(until));
-		else if (StringIsEqual(p, "--follow"))
+		else if (auto date_string = IsFilter(p, "date")) {
+			const auto date = ParseLocalDate(date_string);
+			filter.since = Net::Log::Datagram::ExportTimestamp(date);
+			filter.until = Net::Log::Datagram::ExportTimestamp(date + std::chrono::hours(24));
+		} else if (StringIsEqual(p, "--follow"))
 			follow = true;
 		else
 			throw "Unrecognized query argument";
@@ -380,7 +398,7 @@ try {
 		fprintf(stderr, "Usage: %s SERVER[:PORT] COMMAND ...\n"
 			"\n"
 			"Commands:\n"
-			"  query [--follow] [site=VALUE] [group_site=MAX[@SKIP]] [since=ISO8601] [until=ISO8601]\n", argv[0]);
+			"  query [--follow] [site=VALUE] [group_site=MAX[@SKIP]] [since=ISO8601] [until=ISO8601] [date=YYYY-MM-DD]\n", argv[0]);
 		return EXIT_FAILURE;
 	}
 

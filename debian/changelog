@@ -4,6 +4,7 @@ cm4all-pond (0.3) unstable; urgency=low
   * database: index on time
   * database: allow filtering for multiple sites
   * protocol: GROUP_SITE allows limiting the number of distinct sites
+  * client: add filter option "date"
 
  --   
 

@@ -71,6 +71,8 @@ The following filters are available:
   sites incrementally, until the result is empty.
 - :samp:`since=ISO8601` shows only records since the given time stamp.
 - :samp:`until=ISO8601` shows only records until the given time stamp.
+- :samp:`date=YYYY-MM-DD` is a shortcut which shows records on a
+  certain date (according to the client's time zone)
 
 The client displays records in the standard one-line format by
 default.  If standard output is connected to a datagram or seqpacket
