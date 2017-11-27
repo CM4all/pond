@@ -13,6 +13,7 @@ template<typename T> struct ConstBuffer;
 struct Filter;
 class Selection;
 class AppendListener;
+class AnyRecordList;
 
 class Database {
 	LargeAllocation allocation;
@@ -52,4 +53,7 @@ public:
 
 	Selection Select(const Filter &filter) noexcept;
 	Selection Follow(const Filter &filter, AppendListener &l) noexcept;
+
+private:
+	AnyRecordList GetList(const Filter &filter) noexcept;
 };

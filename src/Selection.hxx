@@ -6,6 +6,8 @@
 
 #include "Cursor.hxx"
 
+class Filter;
+
 /**
  * A wrapper for #Cursor which applies a #Filter.
  */
@@ -17,8 +19,8 @@ class Selection {
 	uint64_t end_id = UINT64_MAX;
 
 public:
-	Selection(Database &_database, const Filter &_filter) noexcept
-		:cursor(_database, _filter),
+	Selection(const AnyRecordList &_list, const Filter &_filter) noexcept
+		:cursor(_list),
 		 filter(_filter) {}
 
 	bool FixDeleted() noexcept;

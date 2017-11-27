@@ -22,8 +22,8 @@ public:
 	explicit Cursor(std::nullptr_t n) noexcept
 		:LightCursor(n) {}
 
-	Cursor(Database &_database, const Filter &filter) noexcept
-		:LightCursor(_database, filter) {}
+	explicit Cursor(const AnyRecordList &_list) noexcept
+		:LightCursor(_list) {}
 
 	LightCursor ToLightCursor() const noexcept {
 		return *this;

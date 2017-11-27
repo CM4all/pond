@@ -12,10 +12,7 @@
 #include <assert.h>
 #include <stdint.h>
 
-struct Filter;
-class Database;
 class Record;
-class AppendListener;
 
 /**
  * An iterator for records in the #Database.  While an instance
@@ -29,7 +26,8 @@ class LightCursor {
 public:
 	explicit LightCursor(std::nullptr_t) noexcept {}
 
-	LightCursor(Database &_database, const Filter &filter) noexcept;
+	explicit LightCursor(const AnyRecordList &_list) noexcept
+		:list(_list) {}
 
 	/**
 	 * Rewind to the first record.
