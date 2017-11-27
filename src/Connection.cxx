@@ -91,6 +91,20 @@ Connection::Send(uint16_t id, PondResponseCommand command,
 		throw std::runtime_error("Short send");
 }
 
+inline void
+Connection::CommitQuery()
+{
+	if (current.follow) {
+		current.selection.reset(new Selection(instance.GetDatabase().Follow(current.filter, *this)));
+	} else {
+		current.selection.reset(new Selection(instance.GetDatabase().Select(current.filter)));
+		socket.ScheduleWrite();
+	}
+
+	/* the response will be assembled by
+	   OnBufferedWrite() */
+}
+
 struct SimplePondError {
 	StringView message;
 };
@@ -139,14 +153,7 @@ try {
 
 		switch (current.command) {
 		case PondRequestCommand::QUERY:
-			if (current.follow) {
-				current.selection.reset(new Selection(instance.GetDatabase().Follow(current.filter, *this)));
-			} else {
-				current.selection.reset(new Selection(instance.GetDatabase().Select(current.filter)));
-				socket.ScheduleWrite();
-			}
-			/* the response will be assembled by
-			   OnBufferedWrite() */
+			CommitQuery();
 			return BufferedResult::AGAIN_OPTIONAL;
 
 		default:

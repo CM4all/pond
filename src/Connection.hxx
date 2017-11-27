@@ -84,6 +84,8 @@ private:
 	void Send(uint16_t id, PondResponseCommand command,
 		  ConstBuffer<void> payload);
 
+	void CommitQuery();
+
 	BufferedResult OnPacket(uint16_t id, PondRequestCommand cmd,
 				ConstBuffer<void> payload);
 
