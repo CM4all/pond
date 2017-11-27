@@ -4,6 +4,8 @@
 
 #pragma once
 
+#include "AnyList.hxx"
+
 #include <cstddef>
 #include <utility>
 
@@ -12,8 +14,6 @@
 
 struct Filter;
 class Database;
-class FullRecordList;
-class PerSiteRecordList;
 class Record;
 class AppendListener;
 
@@ -22,8 +22,7 @@ class AppendListener;
  * exists, the database must not be modified.
  */
 class LightCursor {
-	FullRecordList *const all_records = nullptr;
-	PerSiteRecordList *const per_site_records = nullptr;
+	AnyRecordList list;
 
 	const Record *next = nullptr;
 
@@ -35,7 +34,9 @@ public:
 	/**
 	 * Rewind to the first record.
 	 */
-	void Rewind() noexcept;
+	void Rewind() noexcept {
+		next = list.First();
+	}
 
 	/**
 	 * If the pointed-to #Record has been deleted, rewind to the
@@ -46,10 +47,15 @@ public:
 	 */
 	bool FixDeleted(uint64_t expected_id) noexcept;
 
-	std::pair<const Record *, const Record *> TimeRange(uint64_t since,
-							    uint64_t until) const noexcept;
+	std::pair<const Record *,
+		  const Record *> TimeRange(uint64_t since,
+					    uint64_t until) const noexcept {
+		return list.TimeRange(since, until);
+	}
 
-	void AddAppendListener(AppendListener &l) noexcept;
+	void AddAppendListener(AppendListener &l) noexcept {
+		list.AddAppendListener(l);
+	}
 
 	bool operator==(const LightCursor &other) const noexcept {
 		return next == other.next;
@@ -81,7 +87,12 @@ public:
 	/**
 	 * Skip to the next record.
 	 */
-	LightCursor &operator++() noexcept;
+	LightCursor &operator++() noexcept {
+		assert(next != nullptr);
+
+		next = list.Next(*next);
+		return *this;
+	}
 
 protected:
 	const Record *First() const noexcept;
