@@ -6,7 +6,7 @@ cm4all-pond (0.3) unstable; urgency=low
   * protocol: GROUP_SITE allows limiting the number of distinct sites
   * client: add filter option "date"
 
- --   
+ -- Max Kellermann <mk@cm4all.com>  Mon, 27 Nov 2017 18:53:12 -0000
 
 cm4all-pond (0.2) unstable; urgency=low
 
