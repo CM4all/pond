@@ -39,17 +39,27 @@ Database::Emplace(ConstBuffer<uint8_t> raw)
 }
 
 AnyRecordList
-Database::GetList(const Filter &filter) noexcept
+Database::GetList(Filter &filter) noexcept
 {
-	return filter.site.empty()
-		? AnyRecordList(GetAllRecords())
-		: AnyRecordList(GetPerSiteRecords(filter.site));
+	if (!filter.site.empty()) {
+		auto &list = GetPerSiteRecords(filter.site);
+
+		/* the PerSiteRecordList is already filtered for site;
+		   we can disable it in the Filter, because that check
+		   would be redundant */
+		filter.site.clear();
+
+		return list;
+	} else
+		return GetAllRecords();
 }
 
 inline Selection
-Database::MakeSelection(const Filter &filter) noexcept
+Database::MakeSelection(const Filter &_filter) noexcept
 {
-	return Selection(GetList(filter), filter);
+	Filter filter(_filter);
+	auto list = GetList(filter);
+	return Selection(list, filter);
 }
 
 Selection

@@ -55,6 +55,6 @@ public:
 	Selection Follow(const Filter &filter, AppendListener &l) noexcept;
 
 private:
-	AnyRecordList GetList(const Filter &filter) noexcept;
+	AnyRecordList GetList(Filter &filter) noexcept;
 	Selection MakeSelection(const Filter &filter) noexcept;
 };
