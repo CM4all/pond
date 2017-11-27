@@ -246,7 +246,9 @@ Query(const char *server, ConstBuffer<const char *> args)
 			if (*value == 0)
 				throw "Site name must not be empty";
 
-			filter.site = value;
+			auto e = filter.sites.emplace(value);
+			if (!e.second)
+				throw "Duplicate site name";
 		} else if (auto since = IsFilter(p, "since"))
 			filter.since = Net::Log::Datagram::ExportTimestamp(ParseISO8601(since));
 		else if (auto until = IsFilter(p, "until"))
@@ -261,8 +263,8 @@ Query(const char *server, ConstBuffer<const char *> args)
 	const auto id = client.MakeId();
 	client.Send(id, PondRequestCommand::QUERY);
 
-	if (!filter.site.empty())
-		client.Send(id, PondRequestCommand::FILTER_SITE, filter.site);
+	for (const auto &i : filter.sites)
+		client.Send(id, PondRequestCommand::FILTER_SITE, i);
 
 	if (filter.since != 0)
 		client.Send(id, PondRequestCommand::FILTER_SINCE, filter.since);

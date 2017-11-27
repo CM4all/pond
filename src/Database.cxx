@@ -41,13 +41,13 @@ Database::Emplace(ConstBuffer<uint8_t> raw)
 AnyRecordList
 Database::GetList(Filter &filter) noexcept
 {
-	if (!filter.site.empty()) {
-		auto &list = GetPerSiteRecords(filter.site);
+	if (filter.HasOneSite()) {
+		auto &list = GetPerSiteRecords(*filter.sites.begin());
 
 		/* the PerSiteRecordList is already filtered for site;
 		   we can disable it in the Filter, because that check
 		   would be redundant */
-		filter.site.clear();
+		filter.sites.clear();
 
 		return list;
 	} else

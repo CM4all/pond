@@ -164,14 +164,16 @@ try {
 		    current.command != PondRequestCommand::QUERY)
 			throw SimplePondError{"Misplaced FILTER_SITE"};
 
-		if (!current.filter.site.empty())
-			throw SimplePondError{"Duplicate FILTER_SITE"};
-
 		if (!IsNonEmptyString(payload))
 			throw SimplePondError{"Malformed FILTER_SITE"};
 
-		current.filter.site.assign((const char *)payload.data,
-					   payload.size);
+		{
+			auto e = current.filter.sites.emplace((const char *)payload.data,
+							      payload.size);
+			if (!e.second)
+				throw SimplePondError{"Duplicate FILTER_SITE"};
+		}
+
 		return BufferedResult::AGAIN_EXPECT;
 
 	case PondRequestCommand::FILTER_SINCE:

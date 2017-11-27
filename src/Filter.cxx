@@ -7,9 +7,10 @@
 
 gcc_pure
 static bool
-MatchFilter(const char *value, const std::string &filter) noexcept
+MatchFilter(const char *value, const std::set<std::string> &filter) noexcept
 {
-	return filter.empty() || (value != nullptr && filter == value);
+	return filter.empty() || (value != nullptr &&
+				  filter.find(value) != filter.end());
 }
 
 static bool
@@ -21,7 +22,7 @@ MatchTimestamp(uint64_t timestamp, uint64_t since, uint64_t until)
 bool
 Filter::operator()(const Net::Log::Datagram &d) const noexcept
 {
-	return MatchFilter(d.site, site) &&
+	return MatchFilter(d.site, sites) &&
 		((since == 0 && until == 0) ||
 		 (d.valid_timestamp &&
 		  MatchTimestamp(d.timestamp, since, until)));
