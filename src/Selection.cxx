@@ -3,7 +3,6 @@
  */
 
 #include "Selection.hxx"
-#include "Filter.hxx"
 #include "Record.hxx"
 
 void

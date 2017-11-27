@@ -5,8 +5,7 @@
 #pragma once
 
 #include "Cursor.hxx"
-
-class Filter;
+#include "Filter.hxx"
 
 /**
  * A wrapper for #Cursor which applies a #Filter.
@@ -14,14 +13,15 @@ class Filter;
 class Selection {
 	Cursor cursor;
 
-	const Filter &filter;
+	Filter filter;
 
 	uint64_t end_id = UINT64_MAX;
 
 public:
-	Selection(const AnyRecordList &_list, const Filter &_filter) noexcept
+	template<typename F>
+	Selection(const AnyRecordList &_list, F &&_filter) noexcept
 		:cursor(_list),
-		 filter(_filter) {}
+		 filter(std::forward<F>(_filter)) {}
 
 	bool FixDeleted() noexcept;
 	void Rewind() noexcept;
