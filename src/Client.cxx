@@ -242,10 +242,12 @@ Query(const char *server, ConstBuffer<const char *> args)
 
 	while (!args.empty()) {
 		const char *p = args.shift();
-		if (auto value = IsFilter(p, "site"))
-			// TODO disallow empty value
+		if (auto value = IsFilter(p, "site")) {
+			if (*value == 0)
+				throw "Site name must not be empty";
+
 			filter.site = value;
-		else if (auto since = IsFilter(p, "since"))
+		} else if (auto since = IsFilter(p, "since"))
 			filter.since = Net::Log::Datagram::ExportTimestamp(ParseISO8601(since));
 		else if (auto until = IsFilter(p, "until"))
 			filter.until = Net::Log::Datagram::ExportTimestamp(ParseISO8601(until));
