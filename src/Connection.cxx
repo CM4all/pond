@@ -94,10 +94,12 @@ Connection::Send(uint16_t id, PondResponseCommand command,
 inline void
 Connection::CommitQuery()
 {
+	auto &db = instance.GetDatabase();
+
 	if (current.follow) {
-		current.selection.reset(new Selection(instance.GetDatabase().Follow(current.filter, *this)));
+		current.selection.reset(new Selection(db.Follow(current.filter, *this)));
 	} else {
-		current.selection.reset(new Selection(instance.GetDatabase().Select(current.filter)));
+		current.selection.reset(new Selection(db.Select(current.filter)));
 		socket.ScheduleWrite();
 	}
 
