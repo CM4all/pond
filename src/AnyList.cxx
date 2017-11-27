@@ -11,7 +11,9 @@ AnyRecordList::TimeRange(uint64_t since,
 {
 	return all != nullptr
 		? all->TimeRange(since, until)
-		: per_site->TimeRange(since, until);
+		: (per_site != nullptr
+		   ? per_site->TimeRange(since, until)
+		   : std::make_pair(nullptr, nullptr));
 }
 
 const Record *
@@ -19,7 +21,9 @@ AnyRecordList::First() const noexcept
 {
 	return all != nullptr
 		? all->First()
-		: per_site->First();
+		: (per_site != nullptr
+		   ? per_site->First()
+		   : nullptr);
 }
 
 const Record *
@@ -35,6 +39,6 @@ AnyRecordList::AddAppendListener(AppendListener &l) const noexcept
 {
 	if (all != nullptr)
 		all->AddAppendListener(l);
-	else
+	else if (per_site != nullptr)
 		per_site->AddAppendListener(l);
 }
