@@ -46,10 +46,16 @@ Database::GetList(const Filter &filter) noexcept
 		: AnyRecordList(GetPerSiteRecords(filter.site));
 }
 
+inline Selection
+Database::MakeSelection(const Filter &filter) noexcept
+{
+	return Selection(GetList(filter), filter);
+}
+
 Selection
 Database::Select(const Filter &filter) noexcept
 {
-	Selection selection(GetList(filter), filter);
+	auto selection = MakeSelection(filter);
 	selection.Rewind();
 	return selection;
 }
@@ -57,7 +63,7 @@ Database::Select(const Filter &filter) noexcept
 Selection
 Database::Follow(const Filter &filter, AppendListener &l) noexcept
 {
-	Selection selection(GetList(filter), filter);
+	auto selection = MakeSelection(filter);
 	selection.AddAppendListener(l);
 	return selection;
 }

@@ -56,4 +56,5 @@ public:
 
 private:
 	AnyRecordList GetList(const Filter &filter) noexcept;
+	Selection MakeSelection(const Filter &filter) noexcept;
 };
