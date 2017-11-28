@@ -1,6 +1,6 @@
 cm4all-pond (0.4) unstable; urgency=low
 
-  * 
+  * systemd: drop LimitDATA and LimitRSS
 
  --   
 

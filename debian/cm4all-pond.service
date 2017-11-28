@@ -11,8 +11,6 @@ ExecStart=/usr/sbin/cm4all-pond
 CPUSchedulingPolicy=batch
 
 LimitNPROC=1
-LimitDATA=32G
-LimitRSS=32G
 
 ProtectSystem=full
 NoNewPrivileges=true
