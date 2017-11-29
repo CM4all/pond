@@ -17,7 +17,17 @@ Database::Database(size_t max_size)
 	:allocation(AlignHugePageUp(max_size)),
 	 all_records({allocation.get(), allocation.size()})
 {
-	madvise(allocation.get(), allocation.size(), MADV_HUGEPAGE);
+	int advice = MADV_DONTFORK|MADV_HUGEPAGE;
+
+	if (max_size > 2ull * 1024 * 1024 * 1024)
+		/* exclude database memory from core dumps if it's
+		   extremely large, because such a large memory
+		   section usually doesn't fit in the core dump
+		   partition, which would effectively make core dumps
+		   impossible */
+		advice |= MADV_DONTDUMP;
+
+	madvise(allocation.get(), allocation.size(), advice);
 }
 
 Database::~Database()
