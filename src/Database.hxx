@@ -43,6 +43,16 @@ public:
 	Database(const Database &) = delete;
 	Database &operator=(const Database &) = delete;
 
+	void Clear() {
+		for (auto &i : per_site_records)
+			// TODO: purge unreferenced lists
+			i.second.clear();
+
+		all_records.clear();
+
+		// TODO: madvise(MADV_DONTNEED)
+	}
+
 	FullRecordList &GetAllRecords() {
 		return all_records;
 	}
