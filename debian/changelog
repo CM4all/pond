@@ -6,6 +6,7 @@ cm4all-pond (0.4) unstable; urgency=low
   * receiver: use recvmmsg() for efficiency and fairness
   * client: support local socket
   * client: fix spurious "Short receive" error
+  * debian: enable compiler optimization
 
  --   
 

@@ -1,7 +1,7 @@
 #!/usr/bin/make -f
 # -*- mode: makefile; coding: utf-8 -*-
 
-MESON_BUILDTYPE = debug
+MESON_BUILDTYPE = debugoptimized
 
 MESON_OPTIONS = \
 	--buildtype $(MESON_BUILDTYPE) \
