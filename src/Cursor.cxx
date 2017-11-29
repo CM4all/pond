@@ -9,8 +9,7 @@ bool
 Cursor::FixDeleted() noexcept
 {
 	if (*this && LightCursor::FixDeleted(id)) {
-		if (*this)
-			id = LightCursor::operator*().GetId();
+		CheckUpdateId();
 		return true;
 	} else
 		return false;
@@ -27,9 +26,7 @@ void
 Cursor::Rewind() noexcept
 {
 	LightCursor::Rewind();
-
-	if (*this)
-		id = LightCursor::operator*().GetId();
+	CheckUpdateId();
 }
 
 void
@@ -47,8 +44,14 @@ Cursor::operator++() noexcept
 	assert(*this);
 
 	LightCursor::operator++();
-	if (*this)
-		id = LightCursor::operator*().GetId();
+	CheckUpdateId();
 
 	return *this;
+}
+
+inline void
+Cursor::CheckUpdateId() noexcept
+{
+	if (*this)
+		id = LightCursor::operator*().GetId();
 }

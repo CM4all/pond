@@ -61,4 +61,7 @@ public:
 	Cursor &operator++() noexcept;
 
 	void OnAppend(const Record &record) noexcept;
+
+private:
+	void CheckUpdateId() noexcept;
 };
