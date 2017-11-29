@@ -57,6 +57,13 @@ enum class PondRequestCommand : uint16_t {
 	 * Payload is #PondGroupSitePayload.
 	 */
 	GROUP_SITE = 8,
+
+	/**
+	 * Clear the local database and replace it with contents from
+	 * another Pond server.  Payload is a string specifying the
+	 * (numeric) address of the other Pond server.
+	 */
+	CLONE = 9,
 };
 
 enum class PondResponseCommand : uint16_t {

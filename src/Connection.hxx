@@ -42,6 +42,8 @@ class Connection final
 
 		std::unique_ptr<Selection> selection;
 
+		std::string address;
+
 		bool IsDefined() const {
 			return command != PondRequestCommand::NOP;
 		}
@@ -87,10 +89,13 @@ public:
 	}
 
 private:
+	bool IsLocalAdmin() const noexcept;
+
 	void Send(uint16_t id, PondResponseCommand command,
 		  ConstBuffer<void> payload);
 
 	void CommitQuery();
+	void CommitClone();
 
 	BufferedResult OnPacket(uint16_t id, PondRequestCommand cmd,
 				ConstBuffer<void> payload);

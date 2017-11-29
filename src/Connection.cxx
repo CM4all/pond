@@ -20,6 +20,7 @@ Connection::Request::Clear()
 	group_site.max_sites = 0;
 	follow = false;
 	selection.reset();
+	address.clear();
 }
 
 Connection::Connection(Instance &_instance, UniqueSocketDescriptor &&_fd)
@@ -39,6 +40,13 @@ Connection::~Connection()
 		socket.Close();
 
 	socket.Destroy();
+}
+
+bool
+Connection::IsLocalAdmin() const noexcept
+{
+	const auto cred = socket.GetSocket().GetPeerCredentials();
+	return cred.pid != -1 && (cred.uid == 0 || cred.uid == geteuid());
 }
 
 static PondHeader
@@ -190,6 +198,10 @@ try {
 			CommitQuery();
 			return BufferedResult::AGAIN_OPTIONAL;
 
+		case PondRequestCommand::CLONE:
+			CommitClone();
+			return BufferedResult::AGAIN_OPTIONAL;
+
 		default:
 			throw SimplePondError{"Misplaced COMMIT"};
 		}
@@ -296,6 +308,17 @@ try {
 				throw SimplePondError{"Malformed GROUP_SITE"};
 		}
 
+		return BufferedResult::AGAIN_EXPECT;
+
+	case PondRequestCommand::CLONE:
+		if (!IsNonEmptyString(payload))
+			throw SimplePondError{"Malformed CLONE"};
+
+		socket.UnscheduleWrite();
+		AppendListener::Unregister();
+		current.Set(id, cmd);
+		current.address.assign((const char *)payload.data,
+				       payload.size);
 		return BufferedResult::AGAIN_EXPECT;
 	}
 

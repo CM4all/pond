@@ -8,6 +8,7 @@ cm4all-pond (0.4) unstable; urgency=low
   * client: support local socket
   * client: fix spurious "Short receive" error
   * client: improved receive buffering
+  * protocol: command CLONE allows cloning another database
   * debian: enable compiler optimization
 
  --   

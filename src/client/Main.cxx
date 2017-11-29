@@ -242,6 +242,40 @@ Query(const char *server, ConstBuffer<const char *> args)
 	}
 }
 
+static void
+Clone(const char *server, ConstBuffer<const char *> args)
+{
+	if (args.size != 1)
+		throw "Bad arguments";
+
+	const char *other_server = args.front();
+
+	PondClient client(server);
+	const auto id = client.MakeId();
+	client.Send(id, PondRequestCommand::CLONE, other_server);
+	client.Send(id, PondRequestCommand::COMMIT);
+
+	while (true) {
+		const auto d = client.Receive();
+		if (d.id != id)
+			continue;
+
+		switch (d.command) {
+		case PondResponseCommand::NOP:
+			break;
+
+		case PondResponseCommand::ERROR:
+			throw std::runtime_error(d.payload.ToString());
+
+		case PondResponseCommand::END:
+			return;
+
+		case PondResponseCommand::LOG_RECORD:
+			throw "Unexpected response packet";
+		}
+	}
+}
+
 int
 main(int argc, char **argv)
 try {
@@ -250,7 +284,9 @@ try {
 		fprintf(stderr, "Usage: %s SERVER[:PORT] COMMAND ...\n"
 			"\n"
 			"Commands:\n"
-			"  query [--follow] [site=VALUE] [group_site=MAX[@SKIP]] [since=ISO8601] [until=ISO8601] [date=YYYY-MM-DD]\n", argv[0]);
+			"  query [--follow] [site=VALUE] [group_site=MAX[@SKIP]] [since=ISO8601] [until=ISO8601] [date=YYYY-MM-DD]\n"
+			"  clone OTHERSERVER[:PORT]\n",
+			argv[0]);
 		return EXIT_FAILURE;
 	}
 
@@ -259,6 +295,9 @@ try {
 
 	if (StringIsEqual(command, "query")) {
 		Query(server, args);
+		return EXIT_SUCCESS;
+	} else if (StringIsEqual(command, "clone")) {
+		Clone(server, args);
 		return EXIT_SUCCESS;
 	} else {
 		fprintf(stderr, "Unknown command: %s\n", command);
