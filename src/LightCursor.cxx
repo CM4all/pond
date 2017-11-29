@@ -12,7 +12,8 @@ LightCursor::FixDeleted(uint64_t expected_id) noexcept
 		return false;
 
 	const auto *first = list.First();
-	if (first != next && expected_id < first->GetId()) {
+	if (first != next &&
+	    (first == nullptr || expected_id < first->GetId())) {
 		next = first;
 		return true;
 	} else

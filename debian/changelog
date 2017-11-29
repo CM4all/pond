@@ -2,6 +2,7 @@ cm4all-pond (0.4) unstable; urgency=low
 
   * systemd: drop LimitDATA and LimitRSS
   * database: enable MADV_DONTDUMP with databases larger than 2 GB
+  * database: fix crash bug
 
  --   
 
