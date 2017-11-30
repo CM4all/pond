@@ -3,6 +3,7 @@
  */
 
 #include "Protocol.hxx"
+#include "Datagram.hxx"
 #include "Filter.hxx"
 #include "system/Error.hxx"
 #include "net/log/Parser.hxx"
@@ -19,29 +20,9 @@
 #include "util/ByteOrder.hxx"
 #include "util/Macros.hxx"
 
-#include <memory>
-
 #include <sys/socket.h>
 #include <stdlib.h>
 #include <poll.h>
-
-struct PondDatagram {
-	uint16_t id;
-	PondResponseCommand command;
-
-	struct {
-		std::unique_ptr<uint8_t[]> data;
-		size_t size;
-
-		operator ConstBuffer<void>() const noexcept {
-			return {data.get(), size};
-		}
-
-		std::string ToString() const {
-			return std::string((const char *)data.get(), size);
-		}
-	} payload;
-};
 
 class PondClient {
 	UniqueSocketDescriptor fd;
