@@ -3,12 +3,12 @@
  */
 
 #include "Connection.hxx"
+#include "Error.hxx"
 #include "Instance.hxx"
 #include "Selection.hxx"
 #include "event/Duration.hxx"
 #include "system/Error.hxx"
 #include "util/ByteOrder.hxx"
-#include "util/StringView.hxx"
 
 #include <array>
 
@@ -142,10 +142,6 @@ Connection::CommitQuery()
 	/* the response will be assembled by
 	   OnBufferedWrite() */
 }
-
-struct SimplePondError {
-	StringView message;
-};
 
 gcc_pure
 static bool
