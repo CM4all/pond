@@ -219,7 +219,7 @@ executable('cm4all-pond',
   install_dir: 'sbin')
 
 executable('cm4all-pond-client',
-  'src/Client.cxx',
+  'src/client/Main.cxx',
   include_directories: inc,
   dependencies: [
     net_dep,
