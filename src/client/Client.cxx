@@ -69,15 +69,7 @@ PondDatagram
 PondClient::Receive()
 {
 	PondHeader header;
-	ssize_t nbytes = recv(fd.Get(), &header, sizeof(header), 0);
-	if (nbytes < 0)
-		throw MakeErrno("Failed to receive");
-
-	if (nbytes == 0)
-		throw std::runtime_error("Premature end of stream");
-
-	if (size_t(nbytes) != sizeof(header))
-		throw std::runtime_error("Short receive");
+	FullReceive(fd, (uint8_t *)&header, sizeof(header));
 
 	PondDatagram d;
 	d.id = FromBE16(header.id);
