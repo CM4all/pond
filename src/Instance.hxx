@@ -19,7 +19,7 @@
 struct Config;
 struct SocketConfig;
 class UniqueSocketDescriptor;
-class UdpListener;
+class MultiUdpListener;
 class Listener;
 
 class Instance final : UdpHandler {
@@ -32,7 +32,7 @@ class Instance final : UdpHandler {
 	ShutdownListener shutdown_listener;
 	SignalEvent sighup_event;
 
-	std::forward_list<UdpListener> receivers;
+	std::forward_list<MultiUdpListener> receivers;
 	std::forward_list<Listener> listeners;
 
 	boost::intrusive::list<Connection,

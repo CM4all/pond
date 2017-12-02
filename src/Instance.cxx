@@ -6,7 +6,7 @@
 #include "Config.hxx"
 #include "Listener.hxx"
 #include "Connection.hxx"
-#include "event/net/UdpListener.hxx"
+#include "event/net/MultiUdpListener.hxx"
 #include "net/SocketConfig.hxx"
 #include "util/DeleteDisposer.hxx"
 
@@ -32,6 +32,7 @@ Instance::AddReceiver(const SocketConfig &config)
 	UdpHandler &handler = *this;
 	receivers.emplace_front(event_loop,
 				config.Create(SOCK_DGRAM),
+				MultiReceiveMessage(256, 4096),
 				handler);
 }
 
