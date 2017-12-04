@@ -10,6 +10,7 @@
 #include "net/SocketConfig.hxx"
 #include "util/DeleteDisposer.hxx"
 
+#include <sys/socket.h>
 #include <signal.h>
 #include <unistd.h>
 
@@ -34,6 +35,12 @@ Instance::AddReceiver(const SocketConfig &config)
 				config.Create(SOCK_DGRAM),
 				MultiReceiveMessage(256, 4096),
 				handler);
+
+	static constexpr int buffer_size = 4 * 1024 * 1024;
+	receivers.front().GetSocket().SetOption(SOL_SOCKET, SO_RCVBUF,
+						&buffer_size, sizeof(buffer_size));
+	receivers.front().GetSocket().SetOption(SOL_SOCKET, SO_RCVBUFFORCE,
+						&buffer_size, sizeof(buffer_size));
 }
 
 void

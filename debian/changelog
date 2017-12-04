@@ -4,6 +4,7 @@ cm4all-pond (0.4) unstable; urgency=low
   * database: enable MADV_DONTDUMP with databases larger than 2 GB
   * database: fix crash bug
   * receiver: use recvmmsg() for efficiency and fairness
+  * receiver: configure 4 MB kernel receive buffer
   * client: support local socket
   * client: fix spurious "Short receive" error
   * debian: enable compiler optimization
