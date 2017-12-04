@@ -196,14 +196,16 @@ Query(const char *server, ConstBuffer<const char *> args)
 	};
 
 	while (true) {
-		if (poll(pfds, ARRAY_SIZE(pfds), -1) < 0)
-			throw MakeErrno("poll() failed");
+		if (client.IsEmpty()) {
+			if (poll(pfds, ARRAY_SIZE(pfds), -1) < 0)
+				throw MakeErrno("poll() failed");
 
-		if (pfds[1].revents)
-			/* the output pipe/socket was closed (probably
-			   POLLERR), and there's no point in waiting
-			   for more data from the Pond server */
-			break;
+			if (pfds[1].revents)
+				/* the output pipe/socket was closed (probably
+				   POLLERR), and there's no point in waiting
+				   for more data from the Pond server */
+				break;
+		}
 
 		const auto d = client.Receive();
 		if (d.id != id)

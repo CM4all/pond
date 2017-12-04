@@ -10,6 +10,7 @@
 #include "util/ConstBuffer.hxx"
 #include "util/StringView.hxx"
 #include "util/ByteOrder.hxx"
+#include "util/StaticFifoBuffer.hxx"
 
 #include <string>
 
@@ -19,6 +20,8 @@ class PondClient {
 	UniqueSocketDescriptor fd;
 
 	uint16_t last_id = 0;
+
+	StaticFifoBuffer<uint8_t, 16384> input;
 
 public:
 	explicit PondClient(const char *server)
@@ -58,5 +61,14 @@ public:
 		Send(id, command, ConstBuffer<void>(&be, sizeof(be)));
 	}
 
+	bool IsEmpty() const noexcept {
+		return input.IsEmpty();
+	}
+
 	PondDatagram Receive();
+
+private:
+	void FillInputBuffer();
+	const void *FullReceive(size_t size);
+	void FullReceive(void *dest, size_t size);
 };

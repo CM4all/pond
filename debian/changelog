@@ -7,6 +7,7 @@ cm4all-pond (0.4) unstable; urgency=low
   * receiver: configure 4 MB kernel receive buffer
   * client: support local socket
   * client: fix spurious "Short receive" error
+  * client: improved receive buffering
   * debian: enable compiler optimization
 
  --   
