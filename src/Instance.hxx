@@ -72,8 +72,6 @@ private:
 	void OnExit();
 	void OnReload(int);
 
-	void OnSystemdAgentReleased(const char *path);
-
 	/* virtual methods from UdpHandler */
 	bool OnUdpDatagram(const void *data, size_t length,
 			   SocketAddress address, int uid) override;
