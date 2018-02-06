@@ -2,7 +2,7 @@ cm4all-pond (0.5) unstable; urgency=low
 
   * support protocol version 2 (with CRC and type)
 
- --   
+ -- Max Kellermann <mk@cm4all.com>  Tue, 06 Feb 2018 20:40:57 -0000
 
 cm4all-pond (0.4) unstable; urgency=low
 
