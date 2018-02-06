@@ -170,8 +170,7 @@ Query(const char *server, ConstBuffer<const char *> args)
 		client.Send(id, PondRequestCommand::FILTER_UNTIL, filter.until);
 
 	if (group_site.max_sites != 0)
-		client.Send(id, PondRequestCommand::GROUP_SITE,
-			    ConstBuffer<void>(&group_site, sizeof(group_site)));
+		client.SendT(id, PondRequestCommand::GROUP_SITE, group_site);
 
 	if (follow)
 		client.Send(id, PondRequestCommand::FOLLOW);

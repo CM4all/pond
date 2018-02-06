@@ -40,6 +40,13 @@ public:
 	void Send(uint16_t id, PondRequestCommand command,
 		  ConstBuffer<void> payload=nullptr);
 
+	template<typename T>
+	void SendT(uint16_t id, PondRequestCommand command,
+		   const T &payload) {
+		Send(id, command,
+		     ConstBuffer<void>(&payload, sizeof(payload)));
+	}
+
 	void Send(uint16_t id, PondRequestCommand command,
 		  StringView payload) {
 		Send(id, command, payload.ToVoid());
