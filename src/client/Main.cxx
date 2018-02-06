@@ -7,6 +7,7 @@
 #include "Client.hxx"
 #include "Filter.hxx"
 #include "system/Error.hxx"
+#include "net/log/String.hxx"
 #include "net/log/Parser.hxx"
 #include "net/log/Datagram.hxx"
 #include "net/log/OneLine.hxx"
@@ -150,6 +151,10 @@ Query(const char *server, ConstBuffer<const char *> args)
 			const auto date = ParseLocalDate(date_string);
 			filter.since = Net::Log::Datagram::ExportTimestamp(date);
 			filter.until = Net::Log::Datagram::ExportTimestamp(date + std::chrono::hours(24));
+		} else if (auto type_string = IsFilter(p, "type")) {
+			filter.type = Net::Log::ParseType(type_string);
+			if (filter.type == Net::Log::Type::UNSPECIFIED)
+				throw "Bad type filter";
 		} else if (StringIsEqual(p, "--follow"))
 			follow = true;
 		else
@@ -159,6 +164,9 @@ Query(const char *server, ConstBuffer<const char *> args)
 	PondClient client(server);
 	const auto id = client.MakeId();
 	client.Send(id, PondRequestCommand::QUERY);
+
+	if (filter.type != Net::Log::Type::UNSPECIFIED)
+		client.SendT(id, PondRequestCommand::FILTER_TYPE, filter.type);
 
 	for (const auto &i : filter.sites)
 		client.Send(id, PondRequestCommand::FILTER_SITE, i);
@@ -283,7 +291,7 @@ try {
 		fprintf(stderr, "Usage: %s SERVER[:PORT] COMMAND ...\n"
 			"\n"
 			"Commands:\n"
-			"  query [--follow] [site=VALUE] [group_site=MAX[@SKIP]] [since=ISO8601] [until=ISO8601] [date=YYYY-MM-DD]\n"
+			"  query [--follow] [type=http_access|http_error|submission] [site=VALUE] [group_site=MAX[@SKIP]] [since=ISO8601] [until=ISO8601] [date=YYYY-MM-DD]\n"
 			"  clone OTHERSERVER[:PORT]\n",
 			argv[0]);
 		return EXIT_FAILURE;

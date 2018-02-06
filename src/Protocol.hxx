@@ -64,6 +64,12 @@ enum class PondRequestCommand : uint16_t {
 	 * (numeric) address of the other Pond server.
 	 */
 	CLONE = 9,
+
+	/**
+	 * Specify a filter on the "type" attribute.  Payload is a
+	 * #Net::Log::Type.
+	 */
+	FILTER_TYPE = 10,
 };
 
 enum class PondResponseCommand : uint16_t {

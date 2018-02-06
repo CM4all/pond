@@ -61,6 +61,12 @@ but no past entries are shown.
 
 The following filters are available:
 
+- :samp:`type=TYPE` shows only records of the specified type.
+  Available types: :samp:`http_access` (a HTTP request),
+  :samp:`http_error` (a HTTP log message), :samp:`submission` (an
+  email submission)
+- :samp:`site=NAME` shows only records of the specified site.  There
+  is currently no way to filter records with no site at all.
 - :samp:`site=NAME` shows only records of the specified site.  There
   is currently no way to filter records with no site at all.
 - :samp:`group_site=COUNT[@SKIP]` limits the number of distinct sites

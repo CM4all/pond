@@ -264,6 +264,22 @@ try {
 			throw SimplePondError{"Malformed FILTER_UNTIL"};
 		return BufferedResult::AGAIN_EXPECT;
 
+	case PondRequestCommand::FILTER_TYPE:
+		if (!current.MatchId(id) ||
+		    current.command != PondRequestCommand::QUERY)
+			throw SimplePondError{"Misplaced FILTER_TYPE"};
+
+		if (current.filter.type != Net::Log::Type::UNSPECIFIED)
+			throw SimplePondError{"Duplicate FILTER_TYPE"};
+
+		if (payload.size != sizeof(Net::Log::Type))
+			throw SimplePondError{"Malformed FILTER_TYPE"};
+
+		current.filter.type = *(const Net::Log::Type *)payload.data;
+		if (current.filter.type == Net::Log::Type::UNSPECIFIED)
+			throw SimplePondError{"Malformed FILTER_TYPE"};
+		return BufferedResult::AGAIN_EXPECT;
+
 	case PondRequestCommand::FOLLOW:
 		if (!current.MatchId(id) ||
 		    current.command != PondRequestCommand::QUERY)

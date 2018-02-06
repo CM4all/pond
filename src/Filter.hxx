@@ -4,6 +4,7 @@
 
 #pragma once
 
+#include "net/log/Protocol.hxx"
 #include "util/Compiler.h"
 
 #include <string>
@@ -17,6 +18,8 @@ struct Filter {
 	std::set<std::string> sites;
 
 	uint64_t since = 0, until = 0;
+
+	Net::Log::Type type = Net::Log::Type::UNSPECIFIED;
 
 	bool HasOneSite() const noexcept {
 		return !sites.empty() &&

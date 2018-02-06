@@ -23,6 +23,8 @@ bool
 Filter::operator()(const Net::Log::Datagram &d) const noexcept
 {
 	return MatchFilter(d.site, sites) &&
+		(type == Net::Log::Type::UNSPECIFIED ||
+		 type == d.type) &&
 		((since == 0 && until == 0) ||
 		 (d.valid_timestamp &&
 		  MatchTimestamp(d.timestamp, since, until)));
