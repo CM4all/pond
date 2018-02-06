@@ -241,7 +241,7 @@ try {
 			throw SimplePondError{"Duplicate FILTER_SINCE"};
 
 		if (payload.size != sizeof(uint64_t))
-			throw SimplePondError{"Malformed FILTER_SITE"};
+			throw SimplePondError{"Malformed FILTER_SINCE"};
 
 		current.filter.since = FromBE64(*(const uint64_t *)payload.data);
 		if (current.filter.since == 0)
@@ -257,7 +257,7 @@ try {
 			throw SimplePondError{"Duplicate FILTER_UNTIL"};
 
 		if (payload.size != sizeof(uint64_t))
-			throw SimplePondError{"Malformed FILTER_SITE"};
+			throw SimplePondError{"Malformed FILTER_UNTIL"};
 
 		current.filter.until = FromBE64(*(const uint64_t *)payload.data);
 		if (current.filter.until == 0)
