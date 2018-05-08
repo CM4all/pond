@@ -32,9 +32,8 @@
 
 #include "Client.hxx"
 #include "Datagram.hxx"
+#include "net/SendMessage.hxx"
 #include "system/Error.hxx"
-
-#include <sys/socket.h>
 
 void
 PondClient::Send(uint16_t id, PondRequestCommand command,
@@ -59,20 +58,7 @@ PondClient::Send(uint16_t id, PondRequestCommand command,
 		},
 	};
 
-	struct msghdr m = {
-		.msg_name = nullptr,
-		.msg_namelen = 0,
-		.msg_iov = vec,
-		.msg_iovlen = 1u + !payload.empty(),
-		.msg_control = nullptr,
-		.msg_controllen = 0,
-		.msg_flags = 0,
-	};
-
-	ssize_t nbytes = sendmsg(fd.Get(), &m, 0);
-	if (nbytes < 0)
-		throw MakeErrno("Failed to send");
-
+	auto nbytes = SendMessage(fd, ConstBuffer<struct iovec>(vec, 1u + !payload.empty()), 0);
 	if (size_t(nbytes) != sizeof(header) + payload.size)
 		throw std::runtime_error("Short send");
 }

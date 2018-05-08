@@ -35,6 +35,7 @@
 #include "Client.hxx"
 #include "Filter.hxx"
 #include "system/Error.hxx"
+#include "net/SendMessage.hxx"
 #include "net/log/String.hxx"
 #include "net/log/Parser.hxx"
 #include "net/log/Datagram.hxx"
@@ -48,7 +49,6 @@
 #include "util/ByteOrder.hxx"
 #include "util/Macros.hxx"
 
-#include <sys/socket.h>
 #include <stdlib.h>
 #include <poll.h>
 
@@ -98,17 +98,7 @@ SendPacket(SocketDescriptor s, ConstBuffer<void> payload)
 		},
 	};
 
-	struct msghdr m = {
-		.msg_name = nullptr,
-		.msg_namelen = 0,
-		.msg_iov = vec,
-		.msg_iovlen = ARRAY_SIZE(vec),
-		.msg_control = nullptr,
-		.msg_controllen = 0,
-		.msg_flags = 0,
-	};
-
-	sendmsg(s.Get(), &m, 0);
+	SendMessage(s, ConstBuffer<struct iovec>(vec), 0);
 }
 
 static std::chrono::system_clock::time_point
