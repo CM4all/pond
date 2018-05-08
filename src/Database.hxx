@@ -46,7 +46,7 @@ class AppendListener;
 class AnyRecordList;
 
 class Database {
-	LargeAllocation allocation;
+	const LargeAllocation allocation;
 
 	uint64_t last_id = 0;
 
