@@ -376,15 +376,16 @@ try {
 }
 
 BufferedResult
-Connection::OnBufferedData(const void *buffer, size_t size)
+Connection::OnBufferedData()
 {
-	if (size < sizeof(PondHeader))
+	auto r = socket.ReadBuffer();
+	if (r.size < sizeof(PondHeader))
 		return BufferedResult::MORE;
 
-	const auto *be_header = (const PondHeader *)buffer;
+	const auto *be_header = (const PondHeader *)r.data;
 
 	const size_t payload_size = FromBE16(be_header->size);
-	if (size < sizeof(PondHeader) + payload_size)
+	if (r.size < sizeof(PondHeader) + payload_size)
 		return BufferedResult::MORE;
 
 	const uint16_t id = FromBE16(be_header->id);

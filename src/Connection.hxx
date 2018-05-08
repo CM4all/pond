@@ -131,7 +131,7 @@ private:
 	void OnAppend() noexcept;
 
 	/* virtual methods from class BufferedSocketHandler */
-	BufferedResult OnBufferedData(const void *buffer, size_t size) override;
+	BufferedResult OnBufferedData() override;
 	bool OnBufferedClosed() noexcept override;
 	bool OnBufferedWrite() override;
 	void OnBufferedError(std::exception_ptr e) noexcept override;
