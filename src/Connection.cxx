@@ -393,11 +393,7 @@ Connection::OnBufferedData(const void *buffer, size_t size)
 	size_t consumed = sizeof(*be_header) + payload_size;
 	socket.Consumed(consumed);
 
-	auto result = OnPacket(id, command, {be_header + 1, payload_size});
-	if (result == BufferedResult::OK && consumed < size)
-		result = BufferedResult::PARTIAL;
-
-	return result;
+	return OnPacket(id, command, {be_header + 1, payload_size});
 }
 
 bool
