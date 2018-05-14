@@ -1,6 +1,6 @@
 cm4all-pond (0.6) unstable; urgency=low
 
-  * 
+  * client: add a prefix to server errors
 
  --   
 

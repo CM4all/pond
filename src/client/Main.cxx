@@ -44,6 +44,7 @@
 #include "time/Convert.hxx"
 #include "util/ConstBuffer.hxx"
 #include "util/PrintException.hxx"
+#include "util/RuntimeError.hxx"
 #include "util/StringAPI.hxx"
 #include "util/StringCompare.hxx"
 #include "util/ByteOrder.hxx"
@@ -290,7 +291,7 @@ Clone(const char *server, ConstBuffer<const char *> args)
 			break;
 
 		case PondResponseCommand::ERROR:
-			throw std::runtime_error(d.payload.ToString());
+			throw FormatRuntimeError("Server error: %s", d.payload.ToString());
 
 		case PondResponseCommand::END:
 			return;
