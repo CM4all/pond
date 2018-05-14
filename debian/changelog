@@ -4,7 +4,7 @@ cm4all-pond (0.6) unstable; urgency=low
   * client: suppress site column if filtering on a single site
   * debian: don't start daemon during initial installation
 
- --   
+ -- Max Kellermann <mk@cm4all.com>  Mon, 14 May 2018 14:45:25 -0000
 
 cm4all-pond (0.5) unstable; urgency=low
 
