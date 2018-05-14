@@ -189,6 +189,8 @@ Query(const char *server, ConstBuffer<const char *> args)
 
 	for (const auto &i : filter.sites)
 		client.Send(id, PondRequestCommand::FILTER_SITE, i);
+	const bool single_site = filter.sites.begin() != filter.sites.end() &&
+		std::next(filter.sites.begin()) == filter.sites.end();
 
 	if (filter.since != 0)
 		client.Send(id, PondRequestCommand::FILTER_SINCE, filter.since);
@@ -258,7 +260,8 @@ Query(const char *server, ConstBuffer<const char *> args)
 			try {
 				LogOneLine(out_fd,
 					   Net::Log::ParseDatagram(d.payload.data.get(),
-								   d.payload.data.get() + d.payload.size));
+								   d.payload.data.get() + d.payload.size),
+					   !single_site);
 			} catch (Net::Log::ProtocolError) {
 				fprintf(stderr, "Failed to parse log record\n");
 			}
