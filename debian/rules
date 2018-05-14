@@ -9,7 +9,7 @@ MESON_OPTIONS = \
 	--werror
 
 %:
-	dh $@ --with systemd
+	dh $@ --with systemd --no-start
 
 override_dh_auto_clean:
 	rm -rf debian/build

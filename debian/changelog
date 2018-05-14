@@ -1,6 +1,7 @@
 cm4all-pond (0.6) unstable; urgency=low
 
   * client: add a prefix to server errors
+  * debian: don't start daemon during initial installation
 
  --   
 
