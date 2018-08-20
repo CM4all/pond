@@ -97,7 +97,7 @@ public:
 	}
 
 	bool IsEmpty() const noexcept {
-		return input.IsEmpty();
+		return input.empty();
 	}
 
 	PondDatagram Receive();
