@@ -52,10 +52,13 @@ class PondClient {
 	StaticFifoBuffer<uint8_t, 16384> input;
 
 public:
-	explicit PondClient(const char *server)
-		:fd(ResolveConnectStreamSocket(server, 5480)) {
+	explicit PondClient(UniqueSocketDescriptor &&_fd) noexcept
+		:fd(std::move(_fd)) {
 		fd.SetBlocking();
 	}
+
+	explicit PondClient(const char *server)
+		:PondClient(ResolveConnectStreamSocket(server, 5480)) {}
 
 	SocketDescriptor GetSocket() {
 		return fd;
