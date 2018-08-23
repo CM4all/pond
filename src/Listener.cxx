@@ -39,13 +39,14 @@ Listener::Listener(Instance &_instance, UniqueSocketDescriptor &&_fd)
 	 instance(_instance), logger(instance.GetLogger()) {}
 
 void
-Listener::OnAccept(UniqueSocketDescriptor &&connection_fd, SocketAddress)
+Listener::OnAccept(UniqueSocketDescriptor &&connection_fd,
+		   SocketAddress) noexcept
 {
 	instance.AddConnection(std::move(connection_fd));
 }
 
 void
-Listener::OnAcceptError(std::exception_ptr ep)
+Listener::OnAcceptError(std::exception_ptr ep) noexcept
 {
 	logger(1, "TCP accept error: ", ep);
 }

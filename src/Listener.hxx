@@ -47,6 +47,6 @@ public:
 private:
 	/* virtual methods from class ServerSocket */
 	void OnAccept(UniqueSocketDescriptor &&fd,
-		      SocketAddress address) override;
-	void OnAcceptError(std::exception_ptr ep) override;
+		      SocketAddress address) noexcept override;
+	void OnAcceptError(std::exception_ptr ep) noexcept override;
 };
