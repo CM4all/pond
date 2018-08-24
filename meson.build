@@ -34,9 +34,13 @@ if debug
 endif
 
 test_common_flags = [
+  '-fvisibility=hidden',
 ]
 
 test_cxxflags = test_common_flags + [
+  '-fno-threadsafe-statics',
+  '-fmerge-all-constants',
+
   '-Wno-missing-field-initializers',
   '-Wno-non-virtual-dtor',
 ]
