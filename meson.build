@@ -5,14 +5,15 @@ project('CM4all Pond', ['c', 'cpp'], version: '0.7',
   ],
 )
 
-compiler = meson.get_compiler('cpp')
-
 # TODO: use get_option('b_ndebug'), but that doesn't work with Meson 0.37.1
 if get_option('buildtype') == 'debug'
   debug = true
 else
   debug = false
 endif
+
+compiler = meson.get_compiler('cpp')
+c_compiler = meson.get_compiler('c')
 
 common_flags = [
   '-D_GNU_SOURCE',
@@ -32,19 +33,36 @@ if debug
   common_flags += ['-DPOISON']
 endif
 
-add_global_arguments(common_flags,
+test_common_flags = [
+]
+
+test_cxxflags = test_common_flags + [
+  '-Wno-missing-field-initializers',
+  '-Wno-non-virtual-dtor',
+]
+
+test_cflags = test_common_flags + [
   '-Wmissing-prototypes', '-Wstrict-prototypes',
   '-Wbad-function-cast',
   '-Waggregate-return',
-  '-Wredundant-decls', '-Wno-long-long', '-Wundef',
   '-Wnested-externs',
   '-pedantic',
-  language: 'c')
+]
 
-add_global_arguments(common_flags,
-  '-Wno-missing-field-initializers',
-  '-Wno-non-virtual-dtor',
-  language: 'cpp')
+add_global_arguments(common_flags, language: 'c')
+add_global_arguments(common_flags, language: 'cpp')
+
+foreach f: test_cxxflags
+  if compiler.has_argument(f)
+    add_global_arguments(f, language: 'cpp')
+  endif
+endforeach
+
+foreach f: test_cflags
+  if c_compiler.has_argument(f)
+    add_global_arguments(f, language: 'c')
+  endif
+endforeach
 
 boost = dependency('boost', modules: ['system', 'filesystem'], version: '>= 1.54')
 libevent = dependency('libevent', version: '>= 2.0.19')
