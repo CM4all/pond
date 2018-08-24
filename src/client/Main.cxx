@@ -294,7 +294,8 @@ Clone(const char *server, ConstBuffer<const char *> args)
 			break;
 
 		case PondResponseCommand::ERROR:
-			throw FormatRuntimeError("Server error: %s", d.payload.ToString());
+			throw FormatRuntimeError("Server error: %s",
+						 d.payload.ToString().c_str());
 
 		case PondResponseCommand::END:
 			return;
