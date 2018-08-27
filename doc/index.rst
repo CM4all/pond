@@ -91,6 +91,7 @@ The following filters are available:
 - :samp:`until=ISO8601` shows only records until the given time stamp.
 - :samp:`date=YYYY-MM-DD` is a shortcut which shows records on a
   certain date (according to the client's time zone)
+- :samp:`today` is a shortcut which shows records only of today
 
 The client displays records in the standard one-line format by
 default.  If standard output is connected to a datagram or seqpacket

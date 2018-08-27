@@ -43,6 +43,7 @@
 #include "net/log/Datagram.hxx"
 #include "net/log/OneLine.hxx"
 #include "time/ISO8601.hxx"
+#include "time/Calendar.hxx"
 #include "time/Convert.hxx"
 #include "util/ConstBuffer.hxx"
 #include "util/PrintException.hxx"
@@ -164,6 +165,11 @@ ParseFilterItem(Filter &filter, PondGroupSitePayload &group_site, bool &follow,
 		const auto date = ParseLocalDate(date_string);
 		filter.since = Net::Log::Datagram::ExportTimestamp(date);
 		filter.until = Net::Log::Datagram::ExportTimestamp(date + std::chrono::hours(24));
+	} else if (StringIsEqual(p, "today")) {
+		const auto midnight =
+			PrecedingMidnightLocal(std::chrono::system_clock::now());
+		filter.since = Net::Log::Datagram::ExportTimestamp(midnight);
+		filter.until = Net::Log::Datagram::ExportTimestamp(midnight + std::chrono::hours(24));
 	} else if (auto type_string = IsFilter(p, "type")) {
 		filter.type = Net::Log::ParseType(type_string);
 		if (filter.type == Net::Log::Type::UNSPECIFIED)
@@ -328,7 +334,7 @@ try {
 			"\n"
 			"\n"
 			"Commands:\n"
-			"  query [--follow] [type=http_access|http_error|submission] [site=VALUE] [group_site=MAX[@SKIP]] [since=ISO8601] [until=ISO8601] [date=YYYY-MM-DD]\n"
+			"  query [--follow] [type=http_access|http_error|submission] [site=VALUE] [group_site=MAX[@SKIP]] [since=ISO8601] [until=ISO8601] [date=YYYY-MM-DD] [today]\n"
 			"  clone OTHERSERVER[:PORT]\n",
 			argv[0]);
 		return EXIT_FAILURE;
