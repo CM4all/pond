@@ -36,6 +36,7 @@
 #include "Connection.hxx"
 #include "event/net/MultiUdpListener.hxx"
 #include "net/SocketConfig.hxx"
+#include "net/StaticSocketAddress.hxx"
 #include "util/DeleteDisposer.hxx"
 
 #include <sys/socket.h>
@@ -45,6 +46,7 @@
 Instance::Instance(const Config &config)
 	:shutdown_listener(event_loop, BIND_THIS_METHOD(OnExit)),
 	 sighup_event(event_loop, SIGHUP, BIND_THIS_METHOD(OnReload)),
+	 avahi_client(event_loop, "Pond"),
 	 database(config.database.size)
 {
 	shutdown_listener.Enable();
@@ -76,6 +78,22 @@ Instance::AddListener(const ListenerConfig &config)
 {
 	listeners.emplace_front(*this,
 				config.Create(SOCK_STREAM));
+	auto &listener = listeners.front();
+
+	if (!config.zeroconf_service.empty()) {
+		/* ask the kernel for the effective address via
+		   getsockname(), because it may have changed, e.g. if
+		   the kernel has selected a port for us */
+		const auto local_address = listener.GetLocalAddress();
+		if (local_address.IsDefined()) {
+			const char *const interface = config.interface.empty()
+				? nullptr
+				: config.interface.c_str();
+
+			avahi_client.AddService(config.zeroconf_service.c_str(),
+						interface, local_address);
+		}
+	}
 }
 
 void
@@ -95,6 +113,8 @@ Instance::OnExit()
 
 	shutdown_listener.Disable();
 	sighup_event.Disable();
+
+	avahi_client.Close();
 
 	receivers.clear();
 

@@ -38,12 +38,18 @@ Example::
   listener {
     bind "*"
     #interface "eth0"
+    #zeroconf_service "pond"
   }
 
 The database section can specify how much memory is allocated in total
 (in bytes; the suffixes `k`, `M`, `G` are supported).  Internally, the
 database implements a circular buffer which evicts the oldest items if
 there is no more room for another item.
+
+The listener setting :envvar:`zeroconf_service` registers the listener
+as Zeroconf service in the local Avahi daemon.  This can be used by
+the client to discover Pond servers.
+
 
 Client
 ------
@@ -62,7 +68,8 @@ but no past entries are shown.
 The first command-line argument specifies the Pond server to connect
 to.  This can be a numeric IPv4/IPv6 address, a DNS host name, a local
 socket path (starting with :samp:`/`) or an abstract socket name
-(starting with :samp:`@`).
+(starting with :samp:`@`).  Additionally, a Zeroconf service name can
+be used prefixed with ":samp:`zeroconf/`".
 
 The following filters are available:
 

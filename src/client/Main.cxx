@@ -35,6 +35,7 @@
 #include "Client.hxx"
 #include "Open.hxx"
 #include "Filter.hxx"
+#include "avahi/Check.hxx"
 #include "system/Error.hxx"
 #include "net/SendMessage.hxx"
 #include "net/log/String.hxx"
@@ -314,6 +315,7 @@ try {
 	if (args.size < 2) {
 		fprintf(stderr, "Usage: %s SERVER[:PORT] COMMAND ...\n"
 			"\n"
+			"\n"
 			"Commands:\n"
 			"  query [--follow] [type=http_access|http_error|submission] [site=VALUE] [group_site=MAX[@SKIP]] [since=ISO8601] [until=ISO8601] [date=YYYY-MM-DD]\n"
 			"  clone OTHERSERVER[:PORT]\n",
@@ -323,6 +325,8 @@ try {
 
 	PondServerSpecification server;
 	server.host = args.shift();
+	if (auto zs = StringAfterPrefix(server.host, "zeroconf/"))
+		server.zeroconf_service = MakeZeroconfServiceType(zs, "_tcp");
 
 	const char *const command = args.shift();
 

@@ -34,6 +34,7 @@
 
 #include "Database.hxx"
 #include "Connection.hxx"
+#include "avahi/Client.hxx"
 #include "event/Loop.hxx"
 #include "event/ShutdownListener.hxx"
 #include "event/SignalEvent.hxx"
@@ -60,6 +61,8 @@ class Instance final : UdpHandler {
 
 	ShutdownListener shutdown_listener;
 	SignalEvent sighup_event;
+
+	MyAvahiClient avahi_client;
 
 	std::forward_list<MultiUdpListener> receivers;
 	std::forward_list<Listener> listeners;

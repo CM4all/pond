@@ -32,10 +32,14 @@
 
 #pragma once
 
+#include <string>
+
 class UniqueSocketDescriptor;
 
 struct PondServerSpecification {
 	const char *host = nullptr;
+
+	std::string zeroconf_service;
 };
 
 UniqueSocketDescriptor

@@ -32,6 +32,7 @@
 
 #include "Config.hxx"
 #include "Port.hxx"
+#include "avahi/Check.hxx"
 #include "net/Parser.hxx"
 #include "io/FileLineParser.hxx"
 #include "io/ConfigParser.hxx"
@@ -146,6 +147,9 @@ PondConfigParser::Listener::ParseLine(FileLineParser &line)
 							 POND_DEFAULT_PORT, true);
 	} else if (strcmp(word, "interface") == 0) {
 		config.interface = line.ExpectValueAndEnd();
+	} else if (strcmp(word, "zeroconf_service") == 0) {
+		config.zeroconf_service = MakeZeroconfServiceType(line.ExpectValueAndEnd(),
+								  "_tcp");
 	} else
 		throw LineParser::Error("Unknown option");
 }

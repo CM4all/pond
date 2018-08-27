@@ -2,6 +2,7 @@ cm4all-pond (0.7) unstable; urgency=low
 
   * client: fix server error message
   * switch to IPv4 if joining IPv6 wildcard to IPv4 multicast group
+  * Zeroconf support
   * eliminate dependency on libevent
 
  --   

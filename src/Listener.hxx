@@ -44,6 +44,8 @@ class Listener final : ServerSocket {
 public:
 	Listener(Instance &_instance, UniqueSocketDescriptor &&fd);
 
+	using ServerSocket::GetLocalAddress;
+
 private:
 	/* virtual methods from class ServerSocket */
 	void OnAccept(UniqueSocketDescriptor &&fd,

@@ -41,6 +41,8 @@ struct DatabaseConfig {
 };
 
 struct ListenerConfig : SocketConfig {
+	std::string zeroconf_service;
+
 	ListenerConfig() {
 		listen = 64;
 		tcp_defer_accept = 10;

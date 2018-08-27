@@ -101,6 +101,7 @@ subdir('libcommon/src/system')
 subdir('libcommon/src/event')
 subdir('libcommon/src/net')
 subdir('libcommon/src/event/net')
+subdir('libcommon/src/avahi')
 
 executable('cm4all-pond',
   'src/Main.cxx',
@@ -128,6 +129,7 @@ executable('cm4all-pond',
     system_dep,
     io_dep,
     http_dep,
+    avahi_dep,
   ],
   install: true,
   install_dir: 'sbin')
@@ -139,7 +141,9 @@ executable('cm4all-pond-client',
   include_directories: inc,
   dependencies: [
     net_dep,
+    event_net_dep,
     http_dep,
+    avahi_dep,
   ],
   install: true)
 

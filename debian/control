@@ -10,6 +10,7 @@ Build-Depends: debhelper (>= 10), dh-systemd,
  libboost-system-dev (>= 1.54),
  libboost-filesystem-dev (>= 1.54),
  libsystemd-dev,
+ libavahi-client-dev,
  python3-sphinx
 Standards-Version: 4.0.0
 Vcs-git: git@dev.intern.cm-ag:max/pond.git
