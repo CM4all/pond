@@ -31,6 +31,7 @@
  */
 
 #include "Config.hxx"
+#include "Port.hxx"
 #include "net/Parser.hxx"
 #include "io/FileLineParser.hxx"
 #include "io/ConfigParser.hxx"
@@ -145,7 +146,7 @@ PondConfigParser::Listener::ParseLine(FileLineParser &line)
 
 	if (strcmp(word, "bind") == 0) {
 		config.bind_address = ParseSocketAddress(line.ExpectValueAndEnd(),
-							 5480, true);
+							 POND_DEFAULT_PORT, true);
 	} else if (strcmp(word, "interface") == 0) {
 		config.interface = line.ExpectValueAndEnd();
 	} else

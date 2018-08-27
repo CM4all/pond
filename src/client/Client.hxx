@@ -33,6 +33,7 @@
 #pragma once
 
 #include "Protocol.hxx"
+#include "Port.hxx"
 #include "net/UniqueSocketDescriptor.hxx"
 #include "net/RConnectSocket.hxx"
 #include "util/ConstBuffer.hxx"
@@ -58,7 +59,7 @@ public:
 	}
 
 	explicit PondClient(const char *server)
-		:PondClient(ResolveConnectStreamSocket(server, 5480)) {}
+		:PondClient(ResolveConnectStreamSocket(server, POND_DEFAULT_PORT)) {}
 
 	SocketDescriptor GetSocket() {
 		return fd;
