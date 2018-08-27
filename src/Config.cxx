@@ -131,6 +131,8 @@ PondConfigParser::Receiver::Finish()
 	if (config.bind_address.IsNull())
 		throw LineParser::Error("Listener has no bind address");
 
+	config.Fixup();
+
 	parent.receivers.emplace_front(std::move(config));
 
 	ConfigParser::Finish();
@@ -155,6 +157,8 @@ PondConfigParser::Listener::Finish()
 {
 	if (config.bind_address.IsNull())
 		throw LineParser::Error("Listener has no bind address");
+
+	config.Fixup();
 
 	parent.listeners.emplace_front(std::move(config));
 
