@@ -46,6 +46,7 @@
 
 struct Config;
 struct SocketConfig;
+struct ListenerConfig;
 class UniqueSocketDescriptor;
 class MultiUdpListener;
 class Listener;
@@ -89,7 +90,7 @@ public:
 	}
 
 	void AddReceiver(const SocketConfig &config);
-	void AddListener(const SocketConfig &config);
+	void AddListener(const ListenerConfig &config);
 	void AddConnection(UniqueSocketDescriptor &&fd);
 
 	void Dispatch() {

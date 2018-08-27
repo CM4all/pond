@@ -72,7 +72,7 @@ Instance::AddReceiver(const SocketConfig &config)
 }
 
 void
-Instance::AddListener(const SocketConfig &config)
+Instance::AddListener(const ListenerConfig &config)
 {
 	listeners.emplace_front(*this,
 				config.Create(SOCK_STREAM));

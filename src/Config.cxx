@@ -73,13 +73,10 @@ class PondConfigParser final : public NestedConfigParser {
 
 	class Listener final : public ConfigParser {
 		Config &parent;
-		SocketConfig config;
+		ListenerConfig config;
 
 	public:
-		explicit Listener(Config &_parent):parent(_parent) {
-			config.listen = 64;
-			config.tcp_defer_accept = 10;
-		}
+		explicit Listener(Config &_parent):parent(_parent) {}
 
 	protected:
 		/* virtual methods from class ConfigParser */
