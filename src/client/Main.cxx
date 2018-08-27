@@ -186,7 +186,11 @@ Query(const PondServerSpecification &server, ConstBuffer<const char *> args)
 
 	while (!args.empty()) {
 		const char *p = args.shift();
-		ParseFilterItem(filter, group_site, follow, p);
+		try {
+			ParseFilterItem(filter, group_site, follow, p);
+		} catch (...) {
+			std::throw_with_nested(FormatRuntimeError("Failed to parse '%s'", p));
+		}
 	}
 
 	PondClient client(PondConnect(server));
