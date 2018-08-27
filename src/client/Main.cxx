@@ -117,7 +117,7 @@ ParseLocalDate(const char *s)
 }
 
 static void
-Query(const char *server, ConstBuffer<const char *> args)
+Query(const PondServerSpecification &server, ConstBuffer<const char *> args)
 {
 	Filter filter;
 	PondGroupSitePayload group_site{0, 0};
@@ -273,7 +273,7 @@ Query(const char *server, ConstBuffer<const char *> args)
 }
 
 static void
-Clone(const char *server, ConstBuffer<const char *> args)
+Clone(const PondServerSpecification &server, ConstBuffer<const char *> args)
 {
 	if (args.size != 1)
 		throw "Bad arguments";
@@ -321,7 +321,9 @@ try {
 		return EXIT_FAILURE;
 	}
 
-	const char *const server = args.shift();
+	PondServerSpecification server;
+	server.host = args.shift();
+
 	const char *const command = args.shift();
 
 	if (StringIsEqual(command, "query")) {

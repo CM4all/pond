@@ -35,8 +35,11 @@
 #include "net/UniqueSocketDescriptor.hxx"
 #include "net/RConnectSocket.hxx"
 
+#include <assert.h>
+
 UniqueSocketDescriptor
-PondConnect(const char *server)
+PondConnect(const PondServerSpecification &spec)
 {
-	return ResolveConnectStreamSocket(server, POND_DEFAULT_PORT);
+	assert(spec.host != nullptr);
+	return ResolveConnectStreamSocket(spec.host, POND_DEFAULT_PORT);
 }

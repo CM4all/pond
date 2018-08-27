@@ -34,5 +34,9 @@
 
 class UniqueSocketDescriptor;
 
+struct PondServerSpecification {
+	const char *host = nullptr;
+};
+
 UniqueSocketDescriptor
-PondConnect(const char *server);
+PondConnect(const PondServerSpecification &spec);
