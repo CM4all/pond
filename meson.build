@@ -93,128 +93,14 @@ gtest = declare_dependency(
 
 inc = include_directories('src', 'libcommon/src')
 
-util = static_library('util',
-  'libcommon/src/util/AllocatedString.cxx',
-  'libcommon/src/util/Exception.cxx',
-  'libcommon/src/util/LeakDetector.cxx',
-  'libcommon/src/util/PrintException.cxx',
-  'libcommon/src/util/StringBuilder.cxx',
-  'libcommon/src/util/StringParser.cxx',
-  'libcommon/src/util/StringStrip.cxx',
-  'libcommon/src/util/StringView.cxx',
-  'libcommon/src/util/djbhash.c',
-  include_directories: inc,
-  dependencies: [
-  ])
-util_dep = declare_dependency(link_with: util)
-
-time = static_library('time',
-  'libcommon/src/time/gmtime.c',
-  'libcommon/src/time/Convert.cxx',
-  'libcommon/src/time/ISO8601.cxx',
-  include_directories: inc,
-  dependencies: [
-  ])
-time_dep = declare_dependency(link_with: time)
-
-http = static_library('http',
-  'libcommon/src/http/Method.c',
-  'libcommon/src/http/Status.c',
-  'libcommon/src/http/HeaderName.cxx',
-  'libcommon/src/http/List.cxx',
-  'libcommon/src/http/Date.cxx',
-  'libcommon/src/http/Range.cxx',
-  include_directories: inc,
-  dependencies: [
-    util_dep,
-    time_dep,
-  ])
-http_dep = declare_dependency(link_with: http)
-
-system = static_library('system',
-  'src/system/SetupProcess.cxx',
-  'libcommon/src/system/ProcessName.cxx',
-  'libcommon/src/system/BindMount.cxx',
-  'libcommon/src/system/LargeAllocation.cxx',
-  'libcommon/src/system/EpollFD.cxx',
-  include_directories: inc,
-  dependencies: [
-  ])
-system_dep = declare_dependency(link_with: system)
-
-io = static_library('io',
-  'libcommon/src/io/FileDescriptor.cxx',
-  'libcommon/src/io/WriteFile.cxx',
-  'libcommon/src/io/Logger.cxx',
-  'libcommon/src/io/LineParser.cxx',
-  'libcommon/src/io/FileLineParser.cxx',
-  'libcommon/src/io/ConfigParser.cxx',
-  include_directories: inc,
-  dependencies: [
-    boost,
-    util_dep,
-  ])
-io_dep = declare_dependency(link_with: io)
-
-event = static_library('event',
-  'libcommon/src/event/Loop.cxx',
-  'libcommon/src/event/ShutdownListener.cxx',
-  'libcommon/src/event/CleanupTimer.cxx',
-  'libcommon/src/event/TimerEvent.cxx',
-  'libcommon/src/event/DeferEvent.cxx',
-  'libcommon/src/event/SocketEvent.cxx',
-  'libcommon/src/event/SignalEvent.cxx',
-  'libcommon/src/event/PipeLineReader.cxx',
-  include_directories: inc,
-  dependencies: [
-    util_dep,
-  ])
-event_dep = declare_dependency(link_with: event)
-
-net = static_library('net',
-  'libcommon/src/net/SocketAddress.cxx',
-  'libcommon/src/net/StaticSocketAddress.cxx',
-  'libcommon/src/net/AllocatedSocketAddress.cxx',
-  'libcommon/src/net/MaskedSocketAddress.cxx',
-  'libcommon/src/net/IPv4Address.cxx',
-  'libcommon/src/net/IPv6Address.cxx',
-  'libcommon/src/net/ToString.cxx',
-  'libcommon/src/net/HostParser.cxx',
-  'libcommon/src/net/AddressInfo.cxx',
-  'libcommon/src/net/Resolver.cxx',
-  'libcommon/src/net/Parser.cxx',
-  'libcommon/src/net/RBindSocket.cxx',
-  'libcommon/src/net/RConnectSocket.cxx',
-  'libcommon/src/net/Interface.cxx',
-  'libcommon/src/net/SendMessage.cxx',
-  'libcommon/src/net/SocketDescriptor.cxx',
-  'libcommon/src/net/UniqueSocketDescriptor.cxx',
-  'libcommon/src/net/Buffered.cxx',
-  'libcommon/src/net/SocketConfig.cxx',
-  'libcommon/src/net/MultiReceiveMessage.cxx',
-  'libcommon/src/net/log/String.cxx',
-  'libcommon/src/net/log/Parser.cxx',
-  'libcommon/src/net/log/OneLine.cxx',
-  include_directories: inc,
-  dependencies: [
-    event_dep,
-    system_dep,
-    io_dep,
-  ])
-net_dep = declare_dependency(link_with: net)
-
-event_net = static_library('event_net',
-  'libcommon/src/event/net/ServerSocket.cxx',
-  'libcommon/src/event/net/MultiUdpListener.cxx',
-  'libcommon/src/event/net/SocketWrapper.cxx',
-  'libcommon/src/event/net/BufferedSocket.cxx',
-  include_directories: inc,
-  dependencies: [
-    event_dep,
-    net_dep,
-    util_dep,
-  ])
-event_net_dep = declare_dependency(link_with: event_net)
+subdir('libcommon/src/util')
+subdir('libcommon/src/time')
+subdir('libcommon/src/http')
+subdir('libcommon/src/io')
+subdir('libcommon/src/system')
+subdir('libcommon/src/event')
+subdir('libcommon/src/net')
+subdir('libcommon/src/event/net')
 
 executable('cm4all-pond',
   'src/Main.cxx',
@@ -234,6 +120,7 @@ executable('cm4all-pond',
   'src/Cursor.cxx',
   'src/Selection.cxx',
   'src/client/Client.cxx',
+  'src/system/SetupProcess.cxx',
   include_directories: inc,
   dependencies: [
     libsystemd,
