@@ -118,6 +118,63 @@ ParseLocalDate(const char *s)
 }
 
 static void
+ParseFilterItem(Filter &filter, PondGroupSitePayload &group_site, bool &follow,
+		const char *p)
+{
+	if (auto value = IsFilter(p, "site")) {
+		if (group_site.max_sites != 0)
+			throw "site and group_site are mutually exclusive";
+
+		if (*value == 0)
+			throw "Site name must not be empty";
+
+		auto e = filter.sites.emplace(value);
+		if (!e.second)
+			throw "Duplicate site name";
+	} else if (auto group_value = IsFilter(p, "group_site")) {
+		if (!filter.sites.empty())
+			throw "site and group_site are mutually exclusive";
+
+		if (group_site.max_sites != 0)
+			throw "Duplicate group_site";
+
+		char *endptr;
+		auto max = strtoul(group_value, &endptr, 10);
+		if (endptr == group_value)
+			throw "Number expected after group_site=";
+		if (max == 0)
+			throw "group_site max must be positive";
+
+		if (*endptr == '@') {
+			group_value = endptr + 1;
+			auto skip = strtoul(group_value, &endptr, 10);
+			if (endptr == group_value)
+				throw "Number expected after group_site=...@";
+
+			group_site.skip_sites = ToBE32(skip);
+		} else if (*endptr != 0)
+			throw "Garbage after group_site max";
+
+		group_site.max_sites = ToBE32(max);
+	} else if (auto since = IsFilter(p, "since"))
+		filter.since = Net::Log::Datagram::ExportTimestamp(ParseISO8601(since));
+	else if (auto until = IsFilter(p, "until"))
+		filter.until = Net::Log::Datagram::ExportTimestamp(ParseISO8601(until));
+	else if (auto date_string = IsFilter(p, "date")) {
+		const auto date = ParseLocalDate(date_string);
+		filter.since = Net::Log::Datagram::ExportTimestamp(date);
+		filter.until = Net::Log::Datagram::ExportTimestamp(date + std::chrono::hours(24));
+	} else if (auto type_string = IsFilter(p, "type")) {
+		filter.type = Net::Log::ParseType(type_string);
+		if (filter.type == Net::Log::Type::UNSPECIFIED)
+			throw "Bad type filter";
+	} else if (StringIsEqual(p, "--follow"))
+		follow = true;
+	else
+		throw "Unrecognized query argument";
+}
+
+static void
 Query(const PondServerSpecification &server, ConstBuffer<const char *> args)
 {
 	Filter filter;
@@ -129,57 +186,7 @@ Query(const PondServerSpecification &server, ConstBuffer<const char *> args)
 
 	while (!args.empty()) {
 		const char *p = args.shift();
-		if (auto value = IsFilter(p, "site")) {
-			if (group_site.max_sites != 0)
-				throw "site and group_site are mutually exclusive";
-
-			if (*value == 0)
-				throw "Site name must not be empty";
-
-			auto e = filter.sites.emplace(value);
-			if (!e.second)
-				throw "Duplicate site name";
-		} else if (auto group_value = IsFilter(p, "group_site")) {
-			if (!filter.sites.empty())
-				throw "site and group_site are mutually exclusive";
-
-			if (group_site.max_sites != 0)
-				throw "Duplicate group_site";
-
-			char *endptr;
-			auto max = strtoul(group_value, &endptr, 10);
-			if (endptr == group_value)
-				throw "Number expected after group_site=";
-			if (max == 0)
-				throw "group_site max must be positive";
-
-			if (*endptr == '@') {
-				group_value = endptr + 1;
-				auto skip = strtoul(group_value, &endptr, 10);
-				if (endptr == group_value)
-					throw "Number expected after group_site=...@";
-
-				group_site.skip_sites = ToBE32(skip);
-			} else if (*endptr != 0)
-				throw "Garbage after group_site max";
-
-			group_site.max_sites = ToBE32(max);
-		} else if (auto since = IsFilter(p, "since"))
-			filter.since = Net::Log::Datagram::ExportTimestamp(ParseISO8601(since));
-		else if (auto until = IsFilter(p, "until"))
-			filter.until = Net::Log::Datagram::ExportTimestamp(ParseISO8601(until));
-		else if (auto date_string = IsFilter(p, "date")) {
-			const auto date = ParseLocalDate(date_string);
-			filter.since = Net::Log::Datagram::ExportTimestamp(date);
-			filter.until = Net::Log::Datagram::ExportTimestamp(date + std::chrono::hours(24));
-		} else if (auto type_string = IsFilter(p, "type")) {
-			filter.type = Net::Log::ParseType(type_string);
-			if (filter.type == Net::Log::Type::UNSPECIFIED)
-				throw "Bad type filter";
-		} else if (StringIsEqual(p, "--follow"))
-			follow = true;
-		else
-			throw "Unrecognized query argument";
+		ParseFilterItem(filter, group_site, follow, p);
 	}
 
 	PondClient client(PondConnect(server));
