@@ -33,6 +33,7 @@
 #include "Protocol.hxx"
 #include "Datagram.hxx"
 #include "Client.hxx"
+#include "Open.hxx"
 #include "Filter.hxx"
 #include "system/Error.hxx"
 #include "net/SendMessage.hxx"
@@ -180,7 +181,7 @@ Query(const char *server, ConstBuffer<const char *> args)
 			throw "Unrecognized query argument";
 	}
 
-	PondClient client(server);
+	PondClient client(PondConnect(server));
 	const auto id = client.MakeId();
 	client.Send(id, PondRequestCommand::QUERY);
 
@@ -279,7 +280,7 @@ Clone(const char *server, ConstBuffer<const char *> args)
 
 	const char *other_server = args.front();
 
-	PondClient client(server);
+	PondClient client(PondConnect(server));
 	const auto id = client.MakeId();
 	client.Send(id, PondRequestCommand::CLONE, other_server);
 	client.Send(id, PondRequestCommand::COMMIT);

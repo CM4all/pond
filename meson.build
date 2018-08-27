@@ -135,6 +135,7 @@ executable('cm4all-pond',
 executable('cm4all-pond-client',
   'src/client/Main.cxx',
   'src/client/Client.cxx',
+  'src/client/Open.cxx',
   include_directories: inc,
   dependencies: [
     net_dep,

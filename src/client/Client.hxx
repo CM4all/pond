@@ -33,9 +33,7 @@
 #pragma once
 
 #include "Protocol.hxx"
-#include "Port.hxx"
 #include "net/UniqueSocketDescriptor.hxx"
-#include "net/RConnectSocket.hxx"
 #include "util/ConstBuffer.hxx"
 #include "util/StringView.hxx"
 #include "util/ByteOrder.hxx"
@@ -57,9 +55,6 @@ public:
 		:fd(std::move(_fd)) {
 		fd.SetBlocking();
 	}
-
-	explicit PondClient(const char *server)
-		:PondClient(ResolveConnectStreamSocket(server, POND_DEFAULT_PORT)) {}
 
 	SocketDescriptor GetSocket() {
 		return fd;

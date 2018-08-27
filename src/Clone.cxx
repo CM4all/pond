@@ -31,10 +31,13 @@
  */
 
 #include "Connection.hxx"
+#include "Port.hxx"
 #include "Error.hxx"
 #include "Instance.hxx"
 #include "client/Client.hxx"
+#include "client/Open.hxx"
 #include "client/Datagram.hxx"
+#include "net/RConnectSocket.hxx"
 #include "system/Error.hxx"
 #include "util/Macros.hxx"
 
@@ -106,7 +109,8 @@ static void
 ConnectReceiveAndEmplace(Database &db, const char *address,
 			 SocketDescriptor peer_socket)
 {
-	PondClient client(address);
+	PondClient client(ResolveConnectStreamSocket(address,
+						     POND_DEFAULT_PORT));
 	const auto id = client.MakeId();
 	client.Send(id, PondRequestCommand::QUERY);
 	client.Send(id, PondRequestCommand::COMMIT);
