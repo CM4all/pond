@@ -40,6 +40,8 @@
 
 #include <array>
 
+#include <sys/socket.h>
+
 void
 Connection::Request::Clear()
 {
