@@ -340,9 +340,6 @@ try {
 		fprintf(stderr, "Unknown command: %s\n", command);
 		return EXIT_FAILURE;
 	}
-} catch (const char *msg) {
-	fprintf(stderr, "%s\n", msg);
-	return EXIT_FAILURE;
 } catch (...) {
 	PrintException(std::current_exception());
 	return EXIT_FAILURE;
