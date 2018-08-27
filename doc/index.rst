@@ -59,6 +59,11 @@ enables "follow" mode, which means that the client receives a
 continuous live stream of records as they are received by the server,
 but no past entries are shown.
 
+The first command-line argument specifies the Pond server to connect
+to.  This can be a numeric IPv4/IPv6 address, a DNS host name, a local
+socket path (starting with :samp:`/`) or an abstract socket name
+(starting with :samp:`@`).
+
 The following filters are available:
 
 - :samp:`type=TYPE` shows only records of the specified type.
