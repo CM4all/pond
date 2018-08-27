@@ -34,7 +34,6 @@
 #include "Error.hxx"
 #include "Instance.hxx"
 #include "Selection.hxx"
-#include "event/Duration.hxx"
 #include "system/Error.hxx"
 #include "util/ByteOrder.hxx"
 
@@ -58,8 +57,8 @@ Connection::Connection(Instance &_instance, UniqueSocketDescriptor &&_fd)
 	 socket(_instance.GetEventLoop())
 {
 	socket.Init(_fd.Release(), FD_TCP,
-		    nullptr,
-		    &EventDuration<30>::value,
+		    Event::Duration(-1),
+		    std::chrono::seconds(30),
 		    *this);
 	socket.DeferRead(false);
 }
