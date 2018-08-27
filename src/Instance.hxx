@@ -33,7 +33,6 @@
 #pragma once
 
 #include "Database.hxx"
-#include "Connection.hxx"
 #include "avahi/Client.hxx"
 #include "event/Loop.hxx"
 #include "event/ShutdownListener.hxx"
@@ -51,6 +50,7 @@ struct ListenerConfig;
 class UniqueSocketDescriptor;
 class MultiUdpListener;
 class Listener;
+class Connection;
 
 class Instance final : UdpHandler {
 	const RootLogger logger;
@@ -68,6 +68,7 @@ class Instance final : UdpHandler {
 	std::forward_list<Listener> listeners;
 
 	boost::intrusive::list<Connection,
+			       boost::intrusive::base_hook<boost::intrusive::list_base_hook<boost::intrusive::link_mode<boost::intrusive::auto_unlink>>>,
 			       boost::intrusive::constant_time_size<false>> connections;
 
 	Database database;
