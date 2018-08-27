@@ -69,7 +69,6 @@ foreach f: test_cflags
 endforeach
 
 boost = dependency('boost', modules: ['system', 'filesystem'], version: '>= 1.54')
-libevent = dependency('libevent', version: '>= 2.0.19')
 libsystemd = dependency('libsystemd')
 
 gtest_compile_args = [
@@ -137,6 +136,7 @@ system = static_library('system',
   'libcommon/src/system/ProcessName.cxx',
   'libcommon/src/system/BindMount.cxx',
   'libcommon/src/system/LargeAllocation.cxx',
+  'libcommon/src/system/EpollFD.cxx',
   include_directories: inc,
   dependencies: [
   ])
@@ -160,13 +160,13 @@ event = static_library('event',
   'libcommon/src/event/Loop.cxx',
   'libcommon/src/event/ShutdownListener.cxx',
   'libcommon/src/event/CleanupTimer.cxx',
+  'libcommon/src/event/TimerEvent.cxx',
   'libcommon/src/event/DeferEvent.cxx',
-  'libcommon/src/event/NewSocketEvent.cxx',
+  'libcommon/src/event/SocketEvent.cxx',
   'libcommon/src/event/SignalEvent.cxx',
   'libcommon/src/event/PipeLineReader.cxx',
   include_directories: inc,
   dependencies: [
-    libevent,
     util_dep,
   ])
 event_dep = declare_dependency(link_with: event)
@@ -210,7 +210,6 @@ event_net = static_library('event_net',
   'libcommon/src/event/net/BufferedSocket.cxx',
   include_directories: inc,
   dependencies: [
-    libevent,
     event_dep,
     net_dep,
     util_dep,
