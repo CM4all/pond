@@ -69,7 +69,8 @@ The first command-line argument specifies the Pond server to connect
 to.  This can be a numeric IPv4/IPv6 address, a DNS host name, a local
 socket path (starting with :samp:`/`) or an abstract socket name
 (starting with :samp:`@`).  Additionally, a Zeroconf service name can
-be used prefixed with ":samp:`zeroconf/`".
+be used prefixed with ":samp:`zeroconf/`" (requires
+:file:`avahi-daemon` on both client and server).
 
 The following filters are available:
 

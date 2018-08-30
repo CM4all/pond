@@ -18,12 +18,14 @@ Vcs-git: git@dev.intern.cm-ag:max/pond.git
 Package: cm4all-pond
 Architecture: any
 Depends: ${shlibs:Depends}, systemd-sysv, adduser
+Suggests: avahi-daemon
 Description: Pond log database server
  Pond is a volatile round-robin database for log messages.
 
 Package: cm4all-pond-client
 Architecture: any
 Depends: ${shlibs:Depends}
+Suggests: avahi-daemon
 Description: Pond log database client
  Pond is a volatile round-robin database for log messages.
  .
