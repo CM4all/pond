@@ -52,6 +52,7 @@
 #include "util/StringCompare.hxx"
 #include "util/ByteOrder.hxx"
 #include "util/Macros.hxx"
+#include "util/StaticFifoBuffer.hxx"
 
 #include <stdlib.h>
 #include <poll.h>
@@ -305,6 +306,68 @@ Query(const PondServerSpecification &server, ConstBuffer<const char *> args)
 	}
 }
 
+template<typename B>
+static size_t
+ReadToBuffer(FileDescriptor fd, B &buffer)
+{
+	auto w = buffer.Write();
+	if (w.empty())
+		throw std::runtime_error("Input buffer full");
+
+	auto nbytes = fd.Read(w.data, w.size);
+	if (nbytes < 0)
+		throw MakeErrno("Failed to read");
+
+	buffer.Append(nbytes);
+	return nbytes;
+}
+
+template<typename F>
+static void
+ReadPackets(FileDescriptor fd, F &&f)
+{
+	StaticFifoBuffer<uint8_t, 65536> input;
+
+	while (true) {
+		auto r = input.Read();
+		// TODO: alignment/padding?
+		const auto &header = *(const PondHeader *)(const void *)r.data;
+		if (r.size < sizeof(header) ||
+		    r.size < sizeof(header) + FromBE16(header.size)) {
+			size_t nbytes = ReadToBuffer(fd, input);
+			if (nbytes == 0) {
+				if (!input.empty())
+					throw std::runtime_error("Trailing garbage");
+				return;
+			}
+
+			continue;
+		}
+
+		f(FromBE16(header.id), FromBE16(header.command),
+		  ConstBuffer<void>(&header + 1, FromBE16(header.size)));
+		input.Consume(sizeof(header) + FromBE16(header.size));
+	}
+
+
+}
+
+static void
+Inject(const PondServerSpecification &server, ConstBuffer<const char *> args)
+{
+	if (!args.empty())
+		throw "Bad arguments";
+
+	PondClient client(PondConnect(server));
+
+	ReadPackets(FileDescriptor(STDIN_FILENO), [&client](unsigned, unsigned command, ConstBuffer<void> payload){
+			if (command == unsigned(PondResponseCommand::LOG_RECORD))
+				client.Send(client.MakeId(),
+					    PondRequestCommand::INJECT_LOG_RECORD,
+					    payload);
+		});
+}
+
 static void
 Clone(const PondServerSpecification &server, ConstBuffer<const char *> args)
 {
@@ -350,6 +413,7 @@ try {
 			"\n"
 			"Commands:\n"
 			"  query [--follow] [--raw] [type=http_access|http_error|submission] [site=VALUE] [group_site=MAX[@SKIP]] [since=ISO8601] [until=ISO8601] [date=YYYY-MM-DD] [today]\n"
+			"  inject <RAWFILE\n"
 			"  clone OTHERSERVER[:PORT]\n",
 			argv[0]);
 		return EXIT_FAILURE;
@@ -364,6 +428,9 @@ try {
 
 	if (StringIsEqual(command, "query")) {
 		Query(server, args);
+		return EXIT_SUCCESS;
+	} else if (StringIsEqual(command, "inject")) {
+		Inject(server, args);
 		return EXIT_SUCCESS;
 	} else if (StringIsEqual(command, "clone")) {
 		Clone(server, args);

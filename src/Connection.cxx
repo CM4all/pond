@@ -34,6 +34,7 @@
 #include "Error.hxx"
 #include "Instance.hxx"
 #include "Selection.hxx"
+#include "net/log/Parser.hxx"
 #include "system/Error.hxx"
 #include "util/ByteOrder.hxx"
 
@@ -356,6 +357,8 @@ try {
 		return BufferedResult::AGAIN_EXPECT;
 
 	case PondRequestCommand::CLONE:
+		// TODO: check if client is privileged
+
 		if (!IsNonEmptyString(payload))
 			throw SimplePondError{"Malformed CLONE"};
 
@@ -364,6 +367,17 @@ try {
 		current.Set(id, cmd);
 		current.address.assign((const char *)payload.data,
 				       payload.size);
+		return BufferedResult::AGAIN_EXPECT;
+
+	case PondRequestCommand::INJECT_LOG_RECORD:
+		// TODO: check if client is privileged
+
+		try {
+			instance.GetDatabase().Emplace({(const uint8_t *)payload.data,
+						payload.size});
+		} catch (Net::Log::ProtocolError) {
+		}
+
 		return BufferedResult::AGAIN_EXPECT;
 	}
 

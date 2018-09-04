@@ -122,6 +122,8 @@ The client displays records in the standard one-line format by
 default.  If standard output is connected to a datagram or seqpacket
 socket, then the log datagrams are sent in raw format instead.
 
+.. _clone:
+
 Cloning
 ^^^^^^^
 
@@ -138,6 +140,25 @@ accept any new data on its :samp:`receiver`.
 
 This command is experimental, and should not be used for regular
 operation.  It may change or be removed at any time.
+
+Injecting Data
+^^^^^^^^^^^^^^
+
+The command :samp:`inject` reads :envvar:`LOG_RECORD` packets from
+standard input (possibly generated with :option:`--raw`) and inject
+them into the Pond server.  The server will only allow this if the
+client is local (connected with a local socket, not TCP) and
+privileged.  Example::
+
+  cm4all-pond-client pond.server.local query --raw ... |
+    cm4all-pond-client @pond inject
+
+This example shows something that is similar to :ref:`clone`, but less
+efficient, because all data now passes through the client, while
+:samp:`clone` transfers data directly between the two Pond servers.
+
+This command was implemented for development and debugging, and is not
+meant for production use.
 
 
 Security

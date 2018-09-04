@@ -98,6 +98,14 @@ enum class PondRequestCommand : uint16_t {
 	 * #Net::Log::Type.
 	 */
 	FILTER_TYPE = 10,
+
+	/**
+	 * Inject a log record into the server database, as if it had
+	 * been received on the UDP receiver.  Payload is the same as
+	 * PondResponseCommand::LOG_RECORD.  Only accepted from
+	 * privileged local clients.
+	 */
+	INJECT_LOG_RECORD = 11,
 };
 
 enum class PondResponseCommand : uint16_t {
