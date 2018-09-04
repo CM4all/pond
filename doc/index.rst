@@ -91,6 +91,11 @@ The following command-line options are available:
  Follow the live stream of records as they are received by the server,
  but no past entries are shown.
 
+.. option:: --raw
+
+ Write raw :envvar:`LOG_RECORD` packets to standard output instead of
+ pretty-printing them as text lines.
+
 The following filters are available:
 
 - :samp:`type=TYPE` shows only records of the specified type.

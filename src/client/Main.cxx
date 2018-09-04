@@ -120,6 +120,7 @@ ParseLocalDate(const char *s)
 
 struct QueryOptions {
 	bool follow = false;
+	bool raw = false;
 };
 
 static void
@@ -181,6 +182,8 @@ ParseFilterItem(Filter &filter, PondGroupSitePayload &group_site,
 			throw "Bad type filter";
 	} else if (StringIsEqual(p, "--follow"))
 		options.follow = true;
+	else if (StringIsEqual(p, "--raw"))
+		options.raw = true;
 	else
 		throw "Unrecognized query argument";
 }
@@ -279,6 +282,13 @@ Query(const PondServerSpecification &server, ConstBuffer<const char *> args)
 				   datagrams to it */
 				SendPacket(socket, d.payload);
 				continue;
+			} else if (options.raw) {
+				const PondHeader header{ToBE16(d.id), ToBE16(uint16_t(d.command)), ToBE16(d.payload.size)};
+				if (write(STDOUT_FILENO, &header, sizeof(header)) < 0 ||
+				    write(STDOUT_FILENO, d.payload.data.get(),
+					  d.payload.size) < 0)
+					throw MakeErrno("Failed to write to stdout");
+				continue;
 			}
 
 			try {
@@ -339,7 +349,7 @@ try {
 			"\n"
 			"\n"
 			"Commands:\n"
-			"  query [--follow] [type=http_access|http_error|submission] [site=VALUE] [group_site=MAX[@SKIP]] [since=ISO8601] [until=ISO8601] [date=YYYY-MM-DD] [today]\n"
+			"  query [--follow] [--raw] [type=http_access|http_error|submission] [site=VALUE] [group_site=MAX[@SKIP]] [since=ISO8601] [until=ISO8601] [date=YYYY-MM-DD] [today]\n"
 			"  clone OTHERSERVER[:PORT]\n",
 			argv[0]);
 		return EXIT_FAILURE;
