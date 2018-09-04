@@ -167,3 +167,10 @@ Security
 This software implements no access restrictions.  Datagrams from
 anybody are inserted into the database, and all clients are allowed to
 access all data.
+
+Due to lack fo access restrictions, this software should not be
+accessible to processes which are not authorized to see all data.
+Therefore, the Pond :samp:`listener` should not be mounted into
+unprivileged jails/containers; instead, `Passage
+<https://github.com/CM4all/passage>`__ should be used as a bridge from
+unprivileged entities to the Pond client.
