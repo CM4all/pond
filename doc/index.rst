@@ -55,8 +55,9 @@ database implements a circular buffer which evicts the oldest items if
 there is no more room for another item.
 
 The listener setting :envvar:`zeroconf_service` registers the listener
-as Zeroconf service in the local Avahi daemon.  This can be used by
-the client to discover Pond servers.
+as Zeroconf service in the local Avahi daemon (requires installing the
+:file:`avahi-daemon` package on all servers and clients).  This can be
+used by the client to discover Pond servers.
 
 The last two :samp:`listener` blocks configure local sockets, the
 first one with an abstract address, and the second one with a socket
@@ -86,8 +87,8 @@ The first command-line argument specifies the Pond server to connect
 to.  This can be a numeric IPv4/IPv6 address, a DNS host name, a local
 socket path (starting with :samp:`/`) or an abstract socket name
 (starting with :samp:`@`).  Additionally, a Zeroconf service name can
-be used prefixed with ":samp:`zeroconf/`" (requires
-:file:`avahi-daemon` on both client and server).
+be used prefixed with ":samp:`zeroconf/`" (requires installing the
+:file:`avahi-daemon` package on all servers and clients).
 
 The following command-line options are available:
 
