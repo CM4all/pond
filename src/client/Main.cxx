@@ -118,8 +118,13 @@ ParseLocalDate(const char *s)
 	return MakeTime(tm);
 }
 
+struct QueryOptions {
+	bool follow = false;
+};
+
 static void
-ParseFilterItem(Filter &filter, PondGroupSitePayload &group_site, bool &follow,
+ParseFilterItem(Filter &filter, PondGroupSitePayload &group_site,
+		QueryOptions &options,
 		const char *p)
 {
 	if (auto value = IsFilter(p, "site")) {
@@ -175,7 +180,7 @@ ParseFilterItem(Filter &filter, PondGroupSitePayload &group_site, bool &follow,
 		if (filter.type == Net::Log::Type::UNSPECIFIED)
 			throw "Bad type filter";
 	} else if (StringIsEqual(p, "--follow"))
-		follow = true;
+		options.follow = true;
 	else
 		throw "Unrecognized query argument";
 }
@@ -185,7 +190,7 @@ Query(const PondServerSpecification &server, ConstBuffer<const char *> args)
 {
 	Filter filter;
 	PondGroupSitePayload group_site{0, 0};
-	bool follow = false;
+	QueryOptions options;
 
 	const FileDescriptor out_fd(STDOUT_FILENO);
 	auto socket = CheckPacketSocket(out_fd);
@@ -193,7 +198,7 @@ Query(const PondServerSpecification &server, ConstBuffer<const char *> args)
 	while (!args.empty()) {
 		const char *p = args.shift();
 		try {
-			ParseFilterItem(filter, group_site, follow, p);
+			ParseFilterItem(filter, group_site, options, p);
 		} catch (...) {
 			std::throw_with_nested(FormatRuntimeError("Failed to parse '%s'", p));
 		}
@@ -220,7 +225,7 @@ Query(const PondServerSpecification &server, ConstBuffer<const char *> args)
 	if (group_site.max_sites != 0)
 		client.SendT(id, PondRequestCommand::GROUP_SITE, group_site);
 
-	if (follow)
+	if (options.follow)
 		client.Send(id, PondRequestCommand::FOLLOW);
 
 	client.Send(id, PondRequestCommand::COMMIT);
