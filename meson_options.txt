@@ -1,0 +1,3 @@
+option('documentation', type: 'combo',
+  choices: ['true', 'false', 'auto'], value: 'auto',
+  description: 'Build documentation')

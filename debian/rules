@@ -5,6 +5,7 @@ MESON_BUILDTYPE = debugoptimized
 
 MESON_OPTIONS = \
 	--buildtype $(MESON_BUILDTYPE) \
+	-Ddocumentation=true \
 	--prefix=/usr \
 	--werror
 

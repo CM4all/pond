@@ -1,4 +1,12 @@
-sphinx = find_program('sphinx-build')
+enable_documentation = get_option('documentation')
+if enable_documentation == 'false'
+  subdir_done()
+endif
+
+sphinx = find_program('sphinx-build', required: enable_documentation == 'true')
+if not sphinx.found()
+  subdir_done()
+endif
 
 custom_target('HTML documentation',
   output: 'html',
