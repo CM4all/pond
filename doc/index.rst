@@ -41,6 +41,14 @@ Example::
     #zeroconf_service "pond"
   }
 
+  listener {
+    bind "@pond"
+  }
+
+  listener {
+    bind "/run/cm4all/pond/socket"
+  }
+
 The database section can specify how much memory is allocated in total
 (in bytes; the suffixes `k`, `M`, `G` are supported).  Internally, the
 database implements a circular buffer which evicts the oldest items if
@@ -49,6 +57,10 @@ there is no more room for another item.
 The listener setting :envvar:`zeroconf_service` registers the listener
 as Zeroconf service in the local Avahi daemon.  This can be used by
 the client to discover Pond servers.
+
+The last two :samp:`listener` blocks configure local sockets, the
+first one with an abstract address, and the second one with a socket
+path.
 
 
 Client
