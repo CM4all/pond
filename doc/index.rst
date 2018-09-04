@@ -67,7 +67,12 @@ Client
 ------
 
 The package :file:`cm4all-pond-client` contains a very simple and
-generic client which can be used to query logs.  Example::
+generic client which can be used to query logs.
+
+Querying
+^^^^^^^^
+
+Example::
 
   cm4all-pond-client localhost query site=foo
   cm4all-pond-client localhost query --follow
