@@ -117,6 +117,24 @@ The client displays records in the standard one-line format by
 default.  If standard output is connected to a datagram or seqpacket
 socket, then the log datagrams are sent in raw format instead.
 
+Cloning
+^^^^^^^
+
+The command :samp:`clone` can be used to clone the contents of another
+Pond server::
+
+  cm4all-pond-client @pond clone other.pond.server
+
+This asks the local Pond server (listening on abstract socket
+:file:`@pond`) to download the whole database from the Pond daemon on
+host :samp:`other.pond.server`.  The operation will block until the
+clone has completed; during that time, the local Pond server will not
+accept any new data on its :samp:`receiver`.
+
+This command is experimental, and should not be used for regular
+operation.  It may change or be removed at any time.
+
+
 Security
 --------
 
