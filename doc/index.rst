@@ -84,6 +84,13 @@ socket path (starting with :samp:`/`) or an abstract socket name
 be used prefixed with ":samp:`zeroconf/`" (requires
 :file:`avahi-daemon` on both client and server).
 
+The following command-line options are available:
+
+.. option:: --follow
+
+ Follow the live stream of records as they are received by the server,
+ but no past entries are shown.
+
 The following filters are available:
 
 - :samp:`type=TYPE` shows only records of the specified type.
