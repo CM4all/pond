@@ -85,11 +85,24 @@ public:
 			deque.emplace_back(last);
 	}
 
+	/**
+	 * Find the records spanning the given time range.  Returns a
+	 * pair of #Record pointers denoting the first record inside
+	 * the range and the first record after the range.  The first
+	 * is `nullptr` if all records are older, and the second is
+	 * `nullptr` if there are no records after the end of the
+	 * range.
+	 */
 	gcc_pure
 	std::pair<const Record *, const Record *> TimeRange(uint64_t since,
 							    uint64_t until) const noexcept;
 
 private:
+	/**
+	 * Find the lowest `std::deque` index which has the given time
+	 * stamp or is newer.  Returns SIZE_MAX if all time stamps are
+	 * older.
+	 */
 	gcc_pure
 	size_t FindTimeOrGreaterIndex(size_t left_index, size_t right_index,
 				      uint64_t time) const noexcept;
