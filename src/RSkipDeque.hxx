@@ -90,6 +90,7 @@ public:
 							    uint64_t until) const noexcept;
 
 private:
+	gcc_pure
 	size_t FindTimeOrGreaterIndex(size_t left_index, size_t right_index,
 				      uint64_t time) const noexcept;
 };
