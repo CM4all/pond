@@ -37,14 +37,14 @@
 
 inline
 RecordSkipDeque::Item::Item(const Record &_record) noexcept
-	:record(_record), id(record.GetId()),
+	:record(_record),
 	 time(record.GetParsed().timestamp) {}
 
 void
 RecordSkipDeque::FixDeleted(const Record &first) noexcept
 {
 	const auto min_id = first.GetId();
-	while (!deque.empty() && deque.front().id < min_id)
+	while (!deque.empty() && deque.front().record.GetId() < min_id)
 		deque.pop_front();
 
 	if (deque.empty())
@@ -57,9 +57,10 @@ RecordSkipDeque::UpdateNew(const Record &last) noexcept
 	the_last = &last;
 
 	if (last.GetParsed().valid_timestamp &&
-	    (deque.empty() ||
-	     last.GetId() >= deque.back().id + SKIP_COUNT))
+	    (deque.empty() || last.GetId() >= next_deque_id)) {
 		deque.emplace_back(last);
+		next_deque_id = last.GetId() + SKIP_COUNT;
+	}
 }
 
 size_t

@@ -49,7 +49,6 @@ class Record;
 class RecordSkipDeque {
 	struct Item {
 		const Record &record;
-		uint64_t id;
 		uint64_t time;
 
 		explicit Item(const Record &_record) noexcept;
@@ -61,6 +60,11 @@ class RecordSkipDeque {
 	 * The actual skip list of #Record instances.
 	 */
 	Deque deque;
+
+	/**
+	 * The id of the next #Record to be appended to #deque.
+	 */
+	uint64_t next_deque_id = 0;
 
 	/**
 	 * The last record in the list, which however may not be in
