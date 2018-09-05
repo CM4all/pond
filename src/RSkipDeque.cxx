@@ -31,6 +31,7 @@
  */
 
 #include "RSkipDeque.hxx"
+#include "Record.hxx"
 
 #include <assert.h>
 

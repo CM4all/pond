@@ -32,10 +32,13 @@
 
 #pragma once
 
-#include "Record.hxx"
 #include "util/Compiler.h"
 
 #include <deque>
+
+#include <stdint.h>
+
+class Record;
 
 /**
  * A sort of "index" for the #Record time.  This is a very simple and
