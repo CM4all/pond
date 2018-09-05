@@ -34,6 +34,33 @@
 
 #include <assert.h>
 
+inline
+RecordSkipDeque::Item::Item(const Record &_record) noexcept
+	:record(_record), id(record.GetId()),
+	 time(record.GetParsed().timestamp) {}
+
+void
+RecordSkipDeque::FixDeleted(const Record &first) noexcept
+{
+	const auto min_id = first.GetId();
+	while (!deque.empty() && deque.front().id < min_id)
+		deque.pop_front();
+
+	if (deque.empty())
+		the_last = nullptr;
+}
+
+void
+RecordSkipDeque::UpdateNew(const Record &last) noexcept
+{
+	the_last = &last;
+
+	if (last.GetParsed().valid_timestamp &&
+	    (deque.empty() ||
+	     last.GetId() >= deque.back().id + SKIP_COUNT))
+		deque.emplace_back(last);
+}
+
 size_t
 RecordSkipDeque::FindTimeOrGreaterIndex(size_t left_index, size_t right_index,
 					uint64_t time) const noexcept

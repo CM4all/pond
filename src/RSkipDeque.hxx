@@ -49,9 +49,7 @@ class RecordSkipDeque {
 		uint64_t id;
 		uint64_t time;
 
-		explicit Item(const Record &_record)
-			:record(_record), id(record.GetId()),
-			 time(record.GetParsed().timestamp) {}
+		explicit Item(const Record &_record) noexcept;
 	};
 
 	using Deque = std::deque<Item>;
@@ -78,23 +76,9 @@ public:
 	 * Remove pointers to deleted #Record instances from this
 	 * container.
 	 */
-	void FixDeleted(const Record &first) noexcept {
-		const auto min_id = first.GetId();
-		while (!deque.empty() && deque.front().id < min_id)
-			deque.pop_front();
+	void FixDeleted(const Record &first) noexcept;
 
-		if (deque.empty())
-			the_last = nullptr;
-	}
-
-	void UpdateNew(const Record &last) noexcept {
-		the_last = &last;
-
-		if (last.GetParsed().valid_timestamp &&
-		    (deque.empty() ||
-		     last.GetId() >= deque.back().id + SKIP_COUNT))
-			deque.emplace_back(last);
-	}
+	void UpdateNew(const Record &last) noexcept;
 
 	/**
 	 * Find the records spanning the given time range.  Returns a
