@@ -58,7 +58,7 @@ class RecordList {
 public:
 	RecordList() = default;
 
-	~RecordList() {
+	~RecordList() noexcept {
 		assert(list.empty());
 		assert(append_listeners.empty());
 	}
@@ -68,43 +68,43 @@ public:
 
 	typedef typename List::const_iterator const_iterator;
 
-	const_iterator begin() const {
+	const_iterator begin() const noexcept {
 		return list.begin();
 	}
 
-	const_iterator end() const {
+	const_iterator end() const noexcept {
 		return list.end();
 	}
 
-	Record &front() {
+	Record &front() noexcept {
 		return list.front();
 	}
 
-	void clear() {
+	void clear() noexcept {
 		list.clear();
 	}
 
 	template<typename Disposer>
-	void clear_and_dispose(Disposer &&d) {
+	void clear_and_dispose(Disposer &&d) noexcept {
 		list.clear_and_dispose(std::forward<Disposer>(d));
 	}
 
-	void push_back(Record &record) {
+	void push_back(Record &record) noexcept {
 		list.push_back(record);
 		skip_deque.UpdateNew(record);
 
 		append_listeners.OnAppend(record);
 	}
 
-	const Record *First() const {
+	const Record *First() const noexcept {
 		return list.empty() ? nullptr : &list.front();
 	}
 
-	const Record *Last() const {
+	const Record *Last() const noexcept {
 		return list.empty() ? nullptr : &list.back();
 	}
 
-	const Record *Next(const Record &current) const {
+	const Record *Next(const Record &current) const noexcept {
 		auto i = list.iterator_to(current);
 		++i;
 		return i == list.end()
@@ -122,7 +122,7 @@ public:
 		return skip_deque.TimeRange(since, until);
 	}
 
-	void AddAppendListener(AppendListener &l) {
+	void AddAppendListener(AppendListener &l) noexcept {
 		append_listeners.Add(l);
 	}
 };
@@ -140,7 +140,7 @@ public:
 	}
 
 	template<typename... Args>
-	reference emplace_back(Args... args) {
+	reference emplace_back(Args... args) noexcept {
 		auto &record =
 			VCircularBuffer::emplace_back(std::forward<Args>(args)...);
 		skip_deque.UpdateNew(record);
@@ -150,15 +150,15 @@ public:
 		return record;
 	}
 
-	const Record *First() const {
+	const Record *First() const noexcept {
 		return empty() ? nullptr : &front();
 	}
 
-	const Record *Last() const {
+	const Record *Last() const noexcept {
 		return empty() ? nullptr : &back();
 	}
 
-	const Record *Next(const Record &current) const {
+	const Record *Next(const Record &current) const noexcept {
 		auto i = iterator_to(current);
 		++i;
 		return i == end()
@@ -176,7 +176,7 @@ public:
 		return skip_deque.TimeRange(since, until);
 	}
 
-	void AddAppendListener(AppendListener &l) {
+	void AddAppendListener(AppendListener &l) noexcept {
 		append_listeners.Add(l);
 	}
 };

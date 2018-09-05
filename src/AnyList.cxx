@@ -55,7 +55,7 @@ AnyRecordList::First() const noexcept
 }
 
 const Record *
-AnyRecordList::Next(const Record &r) const
+AnyRecordList::Next(const Record &r) const noexcept
 {
 	return all != nullptr
 		? all->Next(r)

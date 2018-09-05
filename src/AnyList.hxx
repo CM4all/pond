@@ -65,7 +65,7 @@ public:
 	const Record *First() const noexcept;
 
 	gcc_pure
-	const Record *Next(const Record &r) const;
+	const Record *Next(const Record &r) const noexcept;
 
 	void AddAppendListener(AppendListener &l) const noexcept;
 };
