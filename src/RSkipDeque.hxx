@@ -47,9 +47,27 @@ class Record;
  * traverse the #Record linked list.
  */
 class RecordSkipDeque {
+	/**
+	 * An item in the skip list.
+	 */
 	struct Item {
+		/**
+		 * The first (and hopefully earliest) #Record in this
+		 * group.
+		 */
 		const Record &record;
+
+		/**
+		 * This record's id.  This struct must contain a copy
+		 * because it is needed by FixDeleted(), which gets
+		 * called after records have been disposed, and it's
+		 * impossible to dereference the #Record.
+		 */
 		uint64_t id;
+
+		/**
+		 * This record's time stamp.
+		 */
 		uint64_t time;
 
 		explicit Item(const Record &_record) noexcept;
