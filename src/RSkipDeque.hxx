@@ -56,10 +56,21 @@ class RecordSkipDeque {
 
 	using Deque = std::deque<Item>;
 
+	/**
+	 * The actual skip list of #Record instances.
+	 */
 	Deque deque;
 
+	/**
+	 * The last record in the list, which however may not be in
+	 * the #deque.  It is needed to find the real end of the list
+	 * in TimeRange().
+	 */
 	const Record *the_last = nullptr;
 
+	/**
+	 * The distance between two records in the #deque.
+	 */
 	static constexpr uint64_t SKIP_COUNT = 4096;
 
 public:
