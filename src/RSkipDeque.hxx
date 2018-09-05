@@ -93,6 +93,11 @@ class RecordSkipDeque {
 	static constexpr uint64_t SKIP_COUNT = 4096;
 
 public:
+	RecordSkipDeque() = default;
+
+	RecordSkipDeque(const RecordSkipDeque &) = delete;
+	RecordSkipDeque &operator=(const RecordSkipDeque &) = delete;
+
 	/**
 	 * Remove pointers to deleted #Record instances from this
 	 * container.
