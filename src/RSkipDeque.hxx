@@ -119,14 +119,4 @@ public:
 	 */
 	gcc_pure
 	const Record *TimeLowerBound(Net::Log::TimePoint since) const noexcept;
-
-private:
-	/**
-	 * Find the lowest `std::deque` index which has the given time
-	 * stamp or is newer.  Returns SIZE_MAX if all time stamps are
-	 * older.
-	 */
-	gcc_pure
-	size_t FindTimeOrGreaterIndex(size_t left_index, size_t right_index,
-				      Net::Log::TimePoint time) const noexcept;
 };

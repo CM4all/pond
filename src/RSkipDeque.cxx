@@ -33,6 +33,8 @@
 #include "RSkipDeque.hxx"
 #include "Record.hxx"
 
+#include <algorithm>
+
 #include <assert.h>
 
 inline
@@ -69,52 +71,19 @@ RecordSkipDeque::UpdateNew(const Record &last) noexcept
 	}
 }
 
-size_t
-RecordSkipDeque::FindTimeOrGreaterIndex(size_t left_index, size_t right_index,
-					Net::Log::TimePoint time) const noexcept
-{
-	assert(!deque.empty());
-	assert(left_index <= right_index);
-	assert(right_index < deque.size());
-
-	if (time <= deque[left_index].time)
-		return left_index;
-
-	if (time > deque[right_index].time)
-		return SIZE_MAX;
-
-	while (left_index < right_index) {
-		// TODO: interpolate
-		const size_t middle_index = (left_index + right_index) / 2;
-		if (middle_index == left_index)
-			break;
-
-		const Net::Log::TimePoint middle_time = deque[middle_index].time;
-
-		if (middle_time >= time)
-			right_index = middle_index;
-		else
-			left_index = middle_index;
-	}
-
-	return left_index;
-}
-
 const Record *
 RecordSkipDeque::TimeLowerBound(Net::Log::TimePoint since) const noexcept
 {
 	assert(since != Net::Log::TimePoint::min());
 
-	if (deque.empty())
+	auto i = std::lower_bound(deque.begin(), deque.end(), since, [](const auto &a, const auto b){
+			return a.time < b;
+		});
+	if (i == deque.end())
 		return nullptr;
 
-	size_t lower_index =
-		FindTimeOrGreaterIndex(0, deque.size() - 1, since);
-	if (lower_index == SIZE_MAX)
-		return nullptr;
+	if (i != deque.begin())
+		--i;
 
-	if (lower_index > 0)
-		--lower_index;
-
-	return &deque[lower_index].record;
+	return &i->record;
 }
