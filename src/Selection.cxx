@@ -36,7 +36,8 @@
 void
 Selection::SkipMismatches() noexcept
 {
-	while (cursor && !filter(cursor->GetParsed()))
+	while (cursor && cursor->GetId() <= end_id &&
+	       !filter(cursor->GetParsed()))
 		++cursor;
 }
 

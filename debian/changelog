@@ -2,6 +2,7 @@ cm4all-pond (0.7) unstable; urgency=low
 
   * protocol: command INJECT_LOG_RECORD allows injecting records via TCP
   * database: improve robustness against small timestamp jitter
+  * database: optimize the "until" filter
   * client: fix server error message
   * client: add filter option "today"
   * client: add query option "--raw"
