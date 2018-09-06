@@ -46,8 +46,8 @@ namespace Net { namespace Log { struct Datagram; }}
 struct Filter {
 	std::set<std::string> sites;
 
-	Net::Log::TimePoint since = Net::Log::TimePoint();
-	Net::Log::TimePoint until = Net::Log::TimePoint();
+	Net::Log::TimePoint since = Net::Log::TimePoint::min();
+	Net::Log::TimePoint until = Net::Log::TimePoint::max();
 
 	Net::Log::Type type = Net::Log::Type::UNSPECIFIED;
 

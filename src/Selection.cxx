@@ -56,8 +56,8 @@ Selection::Rewind() noexcept
 	assert(!cursor);
 	assert(end_id == UINT64_MAX);
 
-	if (filter.since > Net::Log::TimePoint() ||
-	    filter.until > Net::Log::TimePoint()) {
+	if (filter.since != Net::Log::TimePoint::min() ||
+	    filter.until != Net::Log::TimePoint::max()) {
 		const auto tr = cursor.TimeRange(filter.since, filter.until);
 		if (tr.first == nullptr)
 			return;

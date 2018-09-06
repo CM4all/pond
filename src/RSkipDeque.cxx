@@ -107,13 +107,13 @@ RecordSkipDeque::TimeRange(Net::Log::TimePoint since,
 	if (deque.empty())
 		return std::make_pair(nullptr, nullptr);
 
-	size_t lower_index = since > Net::Log::TimePoint()
+	size_t lower_index = since != Net::Log::TimePoint::min()
 		? FindTimeOrGreaterIndex(0, deque.size() - 1, since)
 		: 0;
 	if (lower_index == SIZE_MAX)
 		return std::make_pair(nullptr, nullptr);
 
-	size_t upper_index = until > Net::Log::TimePoint()
+	size_t upper_index = until != Net::Log::TimePoint::max()
 		? FindTimeOrGreaterIndex(lower_index, deque.size() - 1, until)
 		: deque.size() - 1;
 	assert(upper_index < deque.size() || upper_index == SIZE_MAX);

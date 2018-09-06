@@ -45,8 +45,7 @@ static bool
 MatchTimestamp(Net::Log::TimePoint timestamp,
 	       Net::Log::TimePoint since, Net::Log::TimePoint until)
 {
-	return timestamp >= since &&
-		(until == Net::Log::TimePoint() || timestamp <= until);
+	return timestamp >= since && timestamp <= until;
 }
 
 bool
@@ -55,8 +54,8 @@ Filter::operator()(const Net::Log::Datagram &d) const noexcept
 	return MatchFilter(d.site, sites) &&
 		(type == Net::Log::Type::UNSPECIFIED ||
 		 type == d.type) &&
-		((since == Net::Log::TimePoint() &&
-		  until == Net::Log::TimePoint()) ||
+		((since == Net::Log::TimePoint::min() &&
+		  until == Net::Log::TimePoint::max()) ||
 		 (d.HasTimestamp() &&
 		  MatchTimestamp(d.timestamp, since, until)));
 }

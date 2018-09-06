@@ -220,10 +220,10 @@ Query(const PondServerSpecification &server, ConstBuffer<const char *> args)
 	const bool single_site = filter.sites.begin() != filter.sites.end() &&
 		std::next(filter.sites.begin()) == filter.sites.end();
 
-	if (filter.since != Net::Log::TimePoint())
+	if (filter.since != Net::Log::TimePoint::min())
 		client.Send(id, PondRequestCommand::FILTER_SINCE, filter.since);
 
-	if (filter.until != Net::Log::TimePoint())
+	if (filter.until != Net::Log::TimePoint::max())
 		client.Send(id, PondRequestCommand::FILTER_UNTIL, filter.until);
 
 	if (group_site.max_sites != 0)
