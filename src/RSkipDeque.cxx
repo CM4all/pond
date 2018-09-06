@@ -56,10 +56,17 @@ RecordSkipDeque::UpdateNew(const Record &last) noexcept
 {
 	the_last = &last;
 
-	if (last.GetParsed().valid_timestamp &&
-	    (deque.empty() ||
-	     last.GetId() >= deque.back().id + SKIP_COUNT))
-		deque.emplace_back(last);
+	if (last.GetParsed().valid_timestamp) {
+		if (deque.empty() ||
+		    last.GetId() >= deque.back().id + SKIP_COUNT)
+			/* create a new skip item */
+			deque.emplace_back(last);
+		else if (!deque.empty() &&
+			 last.GetParsed().timestamp < deque.back().time)
+			/* the new time stamp is older; update the
+			   current item's time stamp */
+			deque.back().time = last.GetParsed().timestamp;
+	}
 }
 
 size_t

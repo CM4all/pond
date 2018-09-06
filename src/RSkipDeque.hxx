@@ -66,7 +66,9 @@ class RecordSkipDeque {
 		uint64_t id;
 
 		/**
-		 * This record's time stamp.
+		 * This earliest time stamp in this group.  Due to
+		 * timing glitches, the earliest time stamp may not be
+		 * the first one.
 		 */
 		uint64_t time;
 
