@@ -62,13 +62,12 @@ Selection::Rewind() noexcept
 {
 	assert(!cursor);
 
-	if (filter.since != Net::Log::TimePoint::min() ||
-	    filter.until != Net::Log::TimePoint::max()) {
-		const auto tr = cursor.TimeRange(filter.since, filter.until);
-		if (tr.first == nullptr)
+	if (filter.since != Net::Log::TimePoint::min()) {
+		const auto *record = cursor.TimeLowerBound(filter.since);
+		if (record == nullptr)
 			return;
 
-		cursor.SetNext(*tr.first);
+		cursor.SetNext(*record);
 	} else
 		cursor.Rewind();
 

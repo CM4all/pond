@@ -33,15 +33,14 @@
 #include "AnyList.hxx"
 #include "RList.hxx"
 
-std::pair<const Record *, const Record *>
-AnyRecordList::TimeRange(Net::Log::TimePoint since,
-			 Net::Log::TimePoint until) const noexcept
+const Record *
+AnyRecordList::TimeLowerBound(Net::Log::TimePoint since) const noexcept
 {
 	return all != nullptr
-		? all->TimeRange(since, until)
+		? all->TimeLowerBound(since)
 		: (per_site != nullptr
-		   ? per_site->TimeRange(since, until)
-		   : std::make_pair(nullptr, nullptr));
+		   ? per_site->TimeLowerBound(since)
+		   : nullptr);
 }
 
 const Record *

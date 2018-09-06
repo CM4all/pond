@@ -66,7 +66,7 @@ public:
 	 */
 	bool FixDeleted() noexcept;
 
-	using LightCursor::TimeRange;
+	using LightCursor::TimeLowerBound;
 	using LightCursor::AddAppendListener;
 
 	void SetNext(const Record &record) noexcept;

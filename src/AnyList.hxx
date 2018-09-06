@@ -58,9 +58,7 @@ public:
 	constexpr AnyRecordList(PerSiteRecordList &list) noexcept:per_site(&list) {}
 
 	gcc_pure
-	std::pair<const Record *,
-		  const Record *> TimeRange(Net::Log::TimePoint since,
-					    Net::Log::TimePoint until) const noexcept;
+	const Record *TimeLowerBound(Net::Log::TimePoint since) const noexcept;
 
 	gcc_pure
 	const Record *First() const noexcept;

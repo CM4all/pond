@@ -113,13 +113,12 @@ public:
 	}
 
 	gcc_pure
-	std::pair<const Record *, const Record *> TimeRange(Net::Log::TimePoint since,
-							    Net::Log::TimePoint until) noexcept {
+	const Record *TimeLowerBound(Net::Log::TimePoint since) noexcept {
 		if (list.empty())
-			return std::make_pair(nullptr, nullptr);
+			return nullptr;
 
 		skip_deque.FixDeleted(front());
-		return skip_deque.TimeRange(since, until);
+		return skip_deque.TimeLowerBound(since);
 	}
 
 	void AddAppendListener(AppendListener &l) noexcept {
@@ -167,13 +166,12 @@ public:
 	}
 
 	gcc_pure
-	std::pair<const Record *, const Record *> TimeRange(Net::Log::TimePoint since,
-							    Net::Log::TimePoint until) noexcept {
+	const Record *TimeLowerBound(Net::Log::TimePoint since) noexcept {
 		if (empty())
-			return std::make_pair(nullptr, nullptr);
+			return nullptr;
 
 		skip_deque.FixDeleted(front());
-		return skip_deque.TimeRange(since, until);
+		return skip_deque.TimeLowerBound(since);
 	}
 
 	void AddAppendListener(AppendListener &l) noexcept {

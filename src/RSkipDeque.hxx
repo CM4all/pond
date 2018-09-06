@@ -118,8 +118,7 @@ public:
 	 * range.
 	 */
 	gcc_pure
-	std::pair<const Record *, const Record *> TimeRange(Net::Log::TimePoint since,
-							    Net::Log::TimePoint until) const noexcept;
+	const Record *TimeLowerBound(Net::Log::TimePoint since) const noexcept;
 
 private:
 	/**

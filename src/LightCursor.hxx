@@ -73,10 +73,8 @@ public:
 	 */
 	bool FixDeleted(uint64_t expected_id) noexcept;
 
-	std::pair<const Record *,
-		  const Record *> TimeRange(Net::Log::TimePoint since,
-					    Net::Log::TimePoint until) const noexcept {
-		return list.TimeRange(since, until);
+	const Record *TimeLowerBound(Net::Log::TimePoint since) const noexcept {
+		return list.TimeLowerBound(since);
 	}
 
 	void AddAppendListener(AppendListener &l) noexcept {
