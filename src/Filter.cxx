@@ -57,6 +57,6 @@ Filter::operator()(const Net::Log::Datagram &d) const noexcept
 		 type == d.type) &&
 		((since == Net::Log::TimePoint() &&
 		  until == Net::Log::TimePoint()) ||
-		 (d.valid_timestamp &&
+		 (d.HasTimestamp() &&
 		  MatchTimestamp(d.timestamp, since, until)));
 }

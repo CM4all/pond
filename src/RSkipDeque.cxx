@@ -56,7 +56,7 @@ RecordSkipDeque::UpdateNew(const Record &last) noexcept
 {
 	the_last = &last;
 
-	if (last.GetParsed().valid_timestamp) {
+	if (last.GetParsed().HasTimestamp()) {
 		if (deque.empty() ||
 		    last.GetId() >= deque.back().id + SKIP_COUNT)
 			/* create a new skip item */
