@@ -33,6 +33,13 @@
 #include "Selection.hxx"
 #include "Record.hxx"
 
+/**
+ * Stop searching for matching time stamps for this duration after the
+ * given "until" time stamp.  This shall avoid stopping too early when
+ * there is jitter.
+ */
+static constexpr Net::Log::Duration until_offset = std::chrono::seconds(10);
+
 void
 Selection::SkipMismatches() noexcept
 {
@@ -54,7 +61,6 @@ void
 Selection::Rewind() noexcept
 {
 	assert(!cursor);
-	assert(end_id == UINT64_MAX);
 
 	if (filter.since != Net::Log::TimePoint::min() ||
 	    filter.until != Net::Log::TimePoint::max()) {
@@ -63,9 +69,6 @@ Selection::Rewind() noexcept
 			return;
 
 		cursor.SetNext(*tr.first);
-
-		if (tr.second != nullptr)
-			end_id = tr.second->GetId();
 	} else
 		cursor.Rewind();
 
@@ -86,7 +89,8 @@ Selection::OnAppend(const Record &record) noexcept
 
 Selection::operator bool() const noexcept
 {
-	return cursor && cursor->GetId() <= end_id;
+	return cursor && (!cursor->GetParsed().HasTimestamp() ||
+			  cursor->GetParsed().timestamp - until_offset <= filter.until);
 }
 
 Selection &

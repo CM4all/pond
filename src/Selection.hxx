@@ -43,8 +43,6 @@ class Selection {
 
 	Filter filter;
 
-	uint64_t end_id = UINT64_MAX;
-
 public:
 	template<typename F>
 	Selection(const AnyRecordList &_list, F &&_filter) noexcept
