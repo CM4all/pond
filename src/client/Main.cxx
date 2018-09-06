@@ -165,18 +165,18 @@ ParseFilterItem(Filter &filter, PondGroupSitePayload &group_site,
 
 		group_site.max_sites = ToBE32(max);
 	} else if (auto since = IsFilter(p, "since"))
-		filter.since = Net::Log::Datagram::ExportTimestamp(ParseISO8601(since));
+		filter.since = Net::Log::FromSystem(ParseISO8601(since));
 	else if (auto until = IsFilter(p, "until"))
-		filter.until = Net::Log::Datagram::ExportTimestamp(ParseISO8601(until));
+		filter.until = Net::Log::FromSystem(ParseISO8601(until));
 	else if (auto date_string = IsFilter(p, "date")) {
 		const auto date = ParseLocalDate(date_string);
-		filter.since = Net::Log::Datagram::ExportTimestamp(date);
-		filter.until = Net::Log::Datagram::ExportTimestamp(date + std::chrono::hours(24));
+		filter.since = Net::Log::FromSystem(date);
+		filter.until = Net::Log::FromSystem(date + std::chrono::hours(24));
 	} else if (StringIsEqual(p, "today")) {
 		const auto midnight =
 			PrecedingMidnightLocal(std::chrono::system_clock::now());
-		filter.since = Net::Log::Datagram::ExportTimestamp(midnight);
-		filter.until = Net::Log::Datagram::ExportTimestamp(midnight + std::chrono::hours(24));
+		filter.since = Net::Log::FromSystem(midnight);
+		filter.until = Net::Log::FromSystem(midnight + std::chrono::hours(24));
 	} else if (auto type_string = IsFilter(p, "type")) {
 		filter.type = Net::Log::ParseType(type_string);
 		if (filter.type == Net::Log::Type::UNSPECIFIED)
@@ -220,10 +220,10 @@ Query(const PondServerSpecification &server, ConstBuffer<const char *> args)
 	const bool single_site = filter.sites.begin() != filter.sites.end() &&
 		std::next(filter.sites.begin()) == filter.sites.end();
 
-	if (filter.since != 0)
+	if (filter.since != Net::Log::TimePoint())
 		client.Send(id, PondRequestCommand::FILTER_SINCE, filter.since);
 
-	if (filter.until != 0)
+	if (filter.until != Net::Log::TimePoint())
 		client.Send(id, PondRequestCommand::FILTER_UNTIL, filter.until);
 
 	if (group_site.max_sites != 0)

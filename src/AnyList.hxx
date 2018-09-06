@@ -32,6 +32,7 @@
 
 #pragma once
 
+#include "net/log/Chrono.hxx"
 #include "util/Compiler.h"
 
 #include <utility>
@@ -58,8 +59,8 @@ public:
 
 	gcc_pure
 	std::pair<const Record *,
-		  const Record *> TimeRange(uint64_t since,
-					    uint64_t until) const noexcept;
+		  const Record *> TimeRange(Net::Log::TimePoint since,
+					    Net::Log::TimePoint until) const noexcept;
 
 	gcc_pure
 	const Record *First() const noexcept;

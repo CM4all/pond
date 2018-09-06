@@ -113,8 +113,8 @@ public:
 	}
 
 	gcc_pure
-	std::pair<const Record *, const Record *> TimeRange(uint64_t since,
-							    uint64_t until) noexcept {
+	std::pair<const Record *, const Record *> TimeRange(Net::Log::TimePoint since,
+							    Net::Log::TimePoint until) noexcept {
 		if (list.empty())
 			return std::make_pair(nullptr, nullptr);
 
@@ -167,8 +167,8 @@ public:
 	}
 
 	gcc_pure
-	std::pair<const Record *, const Record *> TimeRange(uint64_t since,
-							    uint64_t until) noexcept {
+	std::pair<const Record *, const Record *> TimeRange(Net::Log::TimePoint since,
+							    Net::Log::TimePoint until) noexcept {
 		if (empty())
 			return std::make_pair(nullptr, nullptr);
 

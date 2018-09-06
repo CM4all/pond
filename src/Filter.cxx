@@ -42,9 +42,11 @@ MatchFilter(const char *value, const std::set<std::string> &filter) noexcept
 }
 
 static bool
-MatchTimestamp(uint64_t timestamp, uint64_t since, uint64_t until)
+MatchTimestamp(Net::Log::TimePoint timestamp,
+	       Net::Log::TimePoint since, Net::Log::TimePoint until)
 {
-	return timestamp >= since && (until == 0 || timestamp <= until);
+	return timestamp >= since &&
+		(until == Net::Log::TimePoint() || timestamp <= until);
 }
 
 bool
@@ -53,7 +55,8 @@ Filter::operator()(const Net::Log::Datagram &d) const noexcept
 	return MatchFilter(d.site, sites) &&
 		(type == Net::Log::Type::UNSPECIFIED ||
 		 type == d.type) &&
-		((since == 0 && until == 0) ||
+		((since == Net::Log::TimePoint() &&
+		  until == Net::Log::TimePoint()) ||
 		 (d.valid_timestamp &&
 		  MatchTimestamp(d.timestamp, since, until)));
 }

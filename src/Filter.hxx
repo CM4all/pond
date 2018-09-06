@@ -32,6 +32,7 @@
 
 #pragma once
 
+#include "net/log/Chrono.hxx"
 #include "net/log/Protocol.hxx"
 #include "util/Compiler.h"
 
@@ -45,7 +46,8 @@ namespace Net { namespace Log { struct Datagram; }}
 struct Filter {
 	std::set<std::string> sites;
 
-	uint64_t since = 0, until = 0;
+	Net::Log::TimePoint since = Net::Log::TimePoint();
+	Net::Log::TimePoint until = Net::Log::TimePoint();
 
 	Net::Log::Type type = Net::Log::Type::UNSPECIFIED;
 

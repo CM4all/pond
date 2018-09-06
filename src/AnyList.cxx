@@ -34,8 +34,8 @@
 #include "RList.hxx"
 
 std::pair<const Record *, const Record *>
-AnyRecordList::TimeRange(uint64_t since,
-			 uint64_t until) const noexcept
+AnyRecordList::TimeRange(Net::Log::TimePoint since,
+			 Net::Log::TimePoint until) const noexcept
 {
 	return all != nullptr
 		? all->TimeRange(since, until)

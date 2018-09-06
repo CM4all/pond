@@ -33,6 +33,7 @@
 #pragma once
 
 #include "Protocol.hxx"
+#include "net/log/Chrono.hxx"
 #include "net/UniqueSocketDescriptor.hxx"
 #include "util/ConstBuffer.hxx"
 #include "util/StringView.hxx"
@@ -93,6 +94,16 @@ public:
 		  uint64_t payload) {
 		uint64_t be = ToBE64(payload);
 		Send(id, command, ConstBuffer<void>(&be, sizeof(be)));
+	}
+
+	void Send(uint16_t id, PondRequestCommand command,
+		  Net::Log::Duration payload) {
+		Send(id, command, payload.count());
+	}
+
+	void Send(uint16_t id, PondRequestCommand command,
+		  Net::Log::TimePoint payload) {
+		Send(id, command, payload.time_since_epoch());
 	}
 
 	bool IsEmpty() const noexcept {

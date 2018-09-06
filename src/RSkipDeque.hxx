@@ -32,6 +32,7 @@
 
 #pragma once
 
+#include "net/log/Chrono.hxx"
 #include "util/Compiler.h"
 
 #include <deque>
@@ -70,7 +71,7 @@ class RecordSkipDeque {
 		 * timing glitches, the earliest time stamp may not be
 		 * the first one.
 		 */
-		uint64_t time;
+		Net::Log::TimePoint time;
 
 		explicit Item(const Record &_record) noexcept;
 	};
@@ -117,8 +118,8 @@ public:
 	 * range.
 	 */
 	gcc_pure
-	std::pair<const Record *, const Record *> TimeRange(uint64_t since,
-							    uint64_t until) const noexcept;
+	std::pair<const Record *, const Record *> TimeRange(Net::Log::TimePoint since,
+							    Net::Log::TimePoint until) const noexcept;
 
 private:
 	/**
@@ -128,5 +129,5 @@ private:
 	 */
 	gcc_pure
 	size_t FindTimeOrGreaterIndex(size_t left_index, size_t right_index,
-				      uint64_t time) const noexcept;
+				      Net::Log::TimePoint time) const noexcept;
 };
