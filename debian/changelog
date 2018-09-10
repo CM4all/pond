@@ -10,7 +10,7 @@ cm4all-pond (0.7) unstable; urgency=low
   * Zeroconf support
   * eliminate dependency on libevent
 
- --   
+ -- Max Kellermann <mk@cm4all.com>  Mon, 10 Sep 2018 17:56:14 +0200
 
 cm4all-pond (0.6) unstable; urgency=low
 
