@@ -40,6 +40,7 @@
 #include "net/RConnectSocket.hxx"
 #include "system/Error.hxx"
 #include "util/Macros.hxx"
+#include "util/ScopeExit.hxx"
 
 #include <poll.h>
 
@@ -123,6 +124,12 @@ Connection::CommitClone()
 try {
 	if (!IsLocalAdmin())
 		throw SimplePondError{"Forbiddden"};
+
+	/* cloning can take a long time, and during that time, this
+	   server is unavailable; better unregister it so clients
+	   don't try to use it */
+	instance.DisableZeroconf();
+	AtScopeExit(&instance=instance) { instance.EnableZeroconf(); };
 
 	ConnectReceiveAndEmplace(instance.GetDatabase(),
 				 current.address.c_str(),

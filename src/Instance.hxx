@@ -93,6 +93,14 @@ public:
 		return database;
 	}
 
+	void EnableZeroconf() noexcept {
+		avahi_client.ShowServices();
+	}
+
+	void DisableZeroconf() noexcept {
+		avahi_client.HideServices();
+	}
+
 	void AddReceiver(const SocketConfig &config);
 	void AddListener(const ListenerConfig &config);
 	void AddConnection(UniqueSocketDescriptor &&fd);
