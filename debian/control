@@ -3,7 +3,7 @@ Section: non-free/admin
 Priority: extra
 Maintainer: Max Kellermann <mk@cm4all.com>
 Build-Depends: debhelper (>= 10), dh-systemd,
- meson (>= 0.37),
+ meson (>= 0.47),
  g++ (>= 4:6),
  libc6-dev (>= 2.13),
  libboost-dev (>= 1.54),
