@@ -407,7 +407,7 @@ Connection::OnBufferedData()
 	const auto command = PondRequestCommand(FromBE16(be_header->command));
 
 	size_t consumed = sizeof(*be_header) + payload_size;
-	socket.Consumed(consumed);
+	socket.KeepConsumed(consumed);
 
 	return OnPacket(id, command, {be_header + 1, payload_size});
 }
