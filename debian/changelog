@@ -1,3 +1,9 @@
+cm4all-pond (0.8) unstable; urgency=low
+
+  * 
+
+ --   
+
 cm4all-pond (0.7) unstable; urgency=low
 
   * protocol: command INJECT_LOG_RECORD allows injecting records via TCP
