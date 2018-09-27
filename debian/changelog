@@ -1,6 +1,6 @@
 cm4all-pond (0.8) unstable; urgency=low
 
-  * 
+  * support HTTP method "REPORT"
 
  --   
 
