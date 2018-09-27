@@ -2,7 +2,7 @@ cm4all-pond (0.8) unstable; urgency=low
 
   * support HTTP method "REPORT"
 
- --   
+ -- Max Kellermann <mk@cm4all.com>  Thu, 27 Sep 2018 13:05:02 +0200
 
 cm4all-pond (0.7) unstable; urgency=low
 
