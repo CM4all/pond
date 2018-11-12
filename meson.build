@@ -38,6 +38,21 @@ test_common_flags = [
   '-fvisibility=hidden',
 ]
 
+if not debug
+  test_common_flags += [
+    '-ffunction-sections',
+    '-fdata-sections',
+  ]
+
+  add_global_link_arguments(
+    compiler.get_supported_link_arguments(
+      '-Wl,--gc-sections',
+      '-Wl,--icf=all',
+    ),
+    language: 'cpp'
+  )
+endif
+
 test_cxxflags = test_common_flags + [
   '-fno-threadsafe-statics',
   '-fmerge-all-constants',
