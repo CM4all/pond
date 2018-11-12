@@ -1,3 +1,2 @@
-option('documentation', type: 'combo',
-  choices: ['true', 'false', 'auto'], value: 'auto',
+option('documentation', type: 'feature',
   description: 'Build documentation')

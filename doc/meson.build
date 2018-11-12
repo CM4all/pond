@@ -1,9 +1,4 @@
-enable_documentation = get_option('documentation')
-if enable_documentation == 'false'
-  subdir_done()
-endif
-
-sphinx = find_program('sphinx-build', required: enable_documentation == 'true')
+sphinx = find_program('sphinx-build', required: get_option('documentation'))
 if not sphinx.found()
   subdir_done()
 endif
