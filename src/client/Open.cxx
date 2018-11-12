@@ -45,6 +45,8 @@
 
 #include <assert.h>
 
+static constexpr Event::Duration CONNECT_TIMEOUT = std::chrono::seconds(30);
+
 class ConnectZeroconfOperation final
 	: AvahiServiceExplorerListener, ConnectSocketHandler {
 
@@ -109,7 +111,8 @@ private:
 		servers.emplace_back(key, address);
 
 		if (was_empty)
-			connect.Connect(servers.front().address);
+			connect.Connect(servers.front().address,
+					CONNECT_TIMEOUT);
 	}
 
 	void OnAvahiRemoveObject(const std::string &key) noexcept override {
@@ -132,7 +135,8 @@ private:
 			error = ep;
 
 		if (!servers.empty())
-			connect.Connect(servers.front().address);
+			connect.Connect(servers.front().address,
+					CONNECT_TIMEOUT);
 		else if (!explorer_timeout.IsPending())
 			GetEventLoop().Break();
 	}
