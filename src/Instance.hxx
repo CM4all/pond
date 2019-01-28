@@ -75,21 +75,21 @@ class Instance final : UdpHandler {
 
 public:
 	explicit Instance(const Config &config);
-	~Instance();
+	~Instance() noexcept;
 
-	const RootLogger &GetLogger() const {
+	const RootLogger &GetLogger() const noexcept {
 		return logger;
 	}
 
-	EventLoop &GetEventLoop() {
+	EventLoop &GetEventLoop() noexcept {
 		return event_loop;
 	}
 
-	Database &GetDatabase() {
+	Database &GetDatabase() noexcept {
 		return database;
 	}
 
-	const Database &GetDatabase() const {
+	const Database &GetDatabase() const noexcept {
 		return database;
 	}
 
@@ -103,15 +103,15 @@ public:
 
 	void AddReceiver(const SocketConfig &config);
 	void AddListener(const ListenerConfig &config);
-	void AddConnection(UniqueSocketDescriptor &&fd);
+	void AddConnection(UniqueSocketDescriptor &&fd) noexcept;
 
-	void Dispatch() {
+	void Dispatch() noexcept {
 		event_loop.Dispatch();
 	}
 
 private:
-	void OnExit();
-	void OnReload(int);
+	void OnExit() noexcept;
+	void OnReload(int) noexcept;
 
 	/* virtual methods from UdpHandler */
 	bool OnUdpDatagram(const void *data, size_t length,

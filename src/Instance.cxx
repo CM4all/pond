@@ -53,9 +53,7 @@ Instance::Instance(const Config &config)
 	sighup_event.Enable();
 }
 
-Instance::~Instance()
-{
-}
+Instance::~Instance() noexcept = default;
 
 void
 Instance::AddReceiver(const SocketConfig &config)
@@ -97,14 +95,14 @@ Instance::AddListener(const ListenerConfig &config)
 }
 
 void
-Instance::AddConnection(UniqueSocketDescriptor &&fd)
+Instance::AddConnection(UniqueSocketDescriptor &&fd) noexcept
 {
 	auto *c = new Connection(*this, std::move(fd));
 	connections.push_front(*c);
 }
 
 void
-Instance::OnExit()
+Instance::OnExit() noexcept
 {
 	if (should_exit)
 		return;
@@ -124,6 +122,6 @@ Instance::OnExit()
 }
 
 void
-Instance::OnReload(int)
+Instance::OnReload(int) noexcept
 {
 }
