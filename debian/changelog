@@ -1,6 +1,6 @@
 cm4all-pond (0.9) unstable; urgency=low
 
-  * 
+  * debian: use debhelper 12
 
  --   
 
