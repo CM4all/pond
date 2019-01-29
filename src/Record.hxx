@@ -69,4 +69,8 @@ public:
 	const Net::Log::Datagram &GetParsed() const noexcept {
 		return parsed;
 	}
+
+	bool IsOlderThan(Net::Log::TimePoint t) const noexcept {
+		return parsed.HasTimestamp() && parsed.timestamp < t;
+	}
 };

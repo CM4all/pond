@@ -81,6 +81,12 @@ public:
 		// TODO: madvise(MADV_DONTNEED)
 	}
 
+	void DeleteOlderThan(Net::Log::TimePoint t) noexcept {
+		while (!all_records.empty() &&
+		       all_records.front().IsOlderThan(t))
+			all_records.pop_front();
+	}
+
 	FullRecordList &GetAllRecords() noexcept {
 		return all_records;
 	}
