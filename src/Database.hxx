@@ -66,12 +66,12 @@ class Database {
 
 public:
 	explicit Database(size_t max_size);
-	~Database();
+	~Database() noexcept;
 
 	Database(const Database &) = delete;
 	Database &operator=(const Database &) = delete;
 
-	void Clear() {
+	void Clear() noexcept {
 		for (auto &i : per_site_records)
 			// TODO: purge unreferenced lists
 			i.second.clear();
@@ -81,15 +81,15 @@ public:
 		// TODO: madvise(MADV_DONTNEED)
 	}
 
-	FullRecordList &GetAllRecords() {
+	FullRecordList &GetAllRecords() noexcept {
 		return all_records;
 	}
 
-	PerSiteRecordList &GetPerSiteRecords(const std::string &site) {
+	PerSiteRecordList &GetPerSiteRecords(const std::string &site) noexcept {
 		return per_site_records[site];
 	}
 
-	const Record &Emplace(ConstBuffer<uint8_t> raw);
+	const Record &Emplace(ConstBuffer<uint8_t> raw) noexcept;
 
 	Selection Select(const Filter &filter) noexcept;
 	Selection Follow(const Filter &filter, AppendListener &l) noexcept;

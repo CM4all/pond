@@ -58,7 +58,7 @@ Database::Database(size_t max_size)
 	madvise(allocation.get(), allocation.size(), advice);
 }
 
-Database::~Database()
+Database::~Database() noexcept
 {
 	for (auto &i : per_site_records)
 		i.second.clear();
@@ -67,7 +67,7 @@ Database::~Database()
 }
 
 const Record &
-Database::Emplace(ConstBuffer<uint8_t> raw)
+Database::Emplace(ConstBuffer<uint8_t> raw) noexcept
 {
 	auto &record = all_records.emplace_back(sizeof(Record) + raw.size,
 						++last_id, raw);
