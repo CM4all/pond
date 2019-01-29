@@ -27,6 +27,7 @@ Example::
 
   database {
     size "1G"
+    #max_age "7 days"
   }
   
   receiver {
@@ -52,7 +53,9 @@ Example::
 The database section can specify how much memory is allocated in total
 (in bytes; the suffixes `k`, `M`, `G` are supported).  Internally, the
 database implements a circular buffer which evicts the oldest items if
-there is no more room for another item.
+there is no more room for another item.  If ``max_age`` is specified,
+then records older than this will be evicted even if there is still
+room in the buffer.
 
 The listener setting :envvar:`zeroconf_service` registers the listener
 as Zeroconf service in the local Avahi daemon (requires installing the

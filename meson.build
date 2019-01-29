@@ -127,6 +127,7 @@ executable('cm4all-pond',
   'src/Selection.cxx',
   'src/client/Client.cxx',
   'src/system/SetupProcess.cxx',
+  'libcommon/src/pg/Interval.cxx',
   include_directories: inc,
   dependencies: [
     libsystemd,

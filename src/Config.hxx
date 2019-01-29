@@ -34,10 +34,17 @@
 
 #include "net/SocketConfig.hxx"
 
+#include <chrono>
 #include <forward_list>
 
 struct DatabaseConfig {
 	size_t size = 16 * 1024 * 1024;
+
+	/**
+	 * A positive value means that records older than this
+	 * duration will be deleted.
+	 */
+	std::chrono::system_clock::duration max_age{};
 };
 
 struct ListenerConfig : SocketConfig {

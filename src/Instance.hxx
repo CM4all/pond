@@ -37,6 +37,7 @@
 #include "event/Loop.hxx"
 #include "event/ShutdownListener.hxx"
 #include "event/SignalEvent.hxx"
+#include "event/TimerEvent.hxx"
 #include "event/net/UdpHandler.hxx"
 #include "io/Logger.hxx"
 
@@ -70,6 +71,14 @@ class Instance final : UdpHandler {
 	boost::intrusive::list<Connection,
 			       boost::intrusive::base_hook<boost::intrusive::list_base_hook<boost::intrusive::link_mode<boost::intrusive::auto_unlink>>>,
 			       boost::intrusive::constant_time_size<false>> connections;
+
+	const std::chrono::system_clock::duration max_age{};
+
+	/**
+	 * This timer deletes old records once a minute if a #max_age
+	 * was configured.
+	 */
+	TimerEvent max_age_timer;
 
 	Database database;
 
@@ -110,6 +119,15 @@ public:
 	}
 
 private:
+	void OnMaxAgeTimer() noexcept;
+
+	/**
+	 * Schedule the #max_age_timer if a #max_age is configured
+	 * (but don't update the timer if it has already been
+	 * scheduled).
+	 */
+	void MaybeScheduleMaxAgeTimer() noexcept;
+
 	void OnExit() noexcept;
 	void OnReload(int) noexcept;
 

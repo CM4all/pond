@@ -36,6 +36,7 @@
 #include "net/Parser.hxx"
 #include "io/FileLineParser.hxx"
 #include "io/ConfigParser.hxx"
+#include "pg/Interval.hxx"
 #include "util/StringParser.hxx"
 
 void
@@ -103,6 +104,10 @@ PondConfigParser::Database::ParseLine(FileLineParser &line)
 		config.size = ParseSize(line.ExpectValueAndEnd());
 		if (config.size < 64 * 1024)
 			throw LineParser::Error("Database size is too small");
+	} else if (strcmp(word, "max_age") == 0) {
+		config.max_age = Pg::ParseIntervalS(line.ExpectValueAndEnd());
+		if (config.max_age <= std::chrono::system_clock::duration::zero())
+			throw LineParser::Error("max_age too small");
 	} else
 		throw LineParser::Error("Unknown option");
 }

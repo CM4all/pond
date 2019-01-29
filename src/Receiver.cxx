@@ -49,6 +49,8 @@ Instance::OnUdpDatagram(const void *data, size_t length,
 	} catch (Net::Log::ProtocolError) {
 	}
 
+	MaybeScheduleMaxAgeTimer();
+
 	return true;
 }
 

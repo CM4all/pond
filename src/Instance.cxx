@@ -43,10 +43,14 @@
 #include <signal.h>
 #include <unistd.h>
 
+static constexpr Event::Duration max_age_interval = std::chrono::minutes(1);
+
 Instance::Instance(const Config &config)
 	:shutdown_listener(event_loop, BIND_THIS_METHOD(OnExit)),
 	 sighup_event(event_loop, SIGHUP, BIND_THIS_METHOD(OnReload)),
 	 avahi_client(event_loop, "Pond"),
+	 max_age(config.database.max_age),
+	 max_age_timer(event_loop, BIND_THIS_METHOD(OnMaxAgeTimer)),
 	 database(config.database.size)
 {
 	shutdown_listener.Enable();
@@ -99,6 +103,22 @@ Instance::AddConnection(UniqueSocketDescriptor &&fd) noexcept
 {
 	auto *c = new Connection(*this, std::move(fd));
 	connections.push_front(*c);
+}
+
+void
+Instance::OnMaxAgeTimer() noexcept
+{
+	assert(max_age > std::chrono::system_clock::duration::zero());
+
+	database.DeleteOlderThan(Net::Log::FromSystem(event_loop.SystemNow() - max_age));
+}
+
+void
+Instance::MaybeScheduleMaxAgeTimer() noexcept
+{
+	if (max_age > std::chrono::system_clock::duration::zero() &&
+	    !max_age_timer.IsPending())
+		max_age_timer.Schedule(max_age_interval);
 }
 
 void

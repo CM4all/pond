@@ -1,5 +1,6 @@
 cm4all-pond (0.9) unstable; urgency=low
 
+  * add setting "max_age"
   * debian: use debhelper 12
 
  --   
