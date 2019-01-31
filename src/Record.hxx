@@ -73,4 +73,12 @@ public:
 	bool IsOlderThan(Net::Log::TimePoint t) const noexcept {
 		return parsed.HasTimestamp() && parsed.timestamp < t;
 	}
+
+	/**
+	 * Like IsOlderThan(), but also return true if the time stamp
+	 * is not known.  Used by Database::DeleteOlderThan().
+	 */
+	bool IsOlderThanOrUnknown(Net::Log::TimePoint t) const noexcept {
+		return !parsed.HasTimestamp() || parsed.timestamp < t;
+	}
 };

@@ -83,7 +83,7 @@ public:
 
 	void DeleteOlderThan(Net::Log::TimePoint t) noexcept {
 		while (!all_records.empty() &&
-		       all_records.front().IsOlderThan(t))
+		       all_records.front().IsOlderThanOrUnknown(t))
 			all_records.pop_front();
 	}
 
