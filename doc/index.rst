@@ -1,5 +1,5 @@
 Pond
-====
+####
 
 Author: Max Kellermann <mk@cm4all.com>
 
@@ -9,7 +9,7 @@ clients to query them.
 
 
 Configuration
--------------
+=============
 
 The file :file:`/etc/cm4all/pond/pond.conf` configures several aspects
 of this software:
@@ -68,13 +68,13 @@ path.
 
 
 Client
-------
+======
 
 The package :file:`cm4all-pond-client` contains a very simple and
 generic client which can be used to query logs.
 
 Querying
-^^^^^^^^
+--------
 
 Example::
 
@@ -136,7 +136,7 @@ socket, then the log datagrams are sent in raw format instead.
 .. _iso8601:
 
 ISO8601 time stamps
-~~~~~~~~~~~~~~~~~~~
+^^^^^^^^^^^^^^^^^^^
 
 Examples of accepted `ISO8601
 <https://en.wikipedia.org/wiki/ISO_8601>`_ time stamps:
@@ -152,7 +152,7 @@ Examples of accepted `ISO8601
 .. _clone:
 
 Cloning
-^^^^^^^
+-------
 
 The command :samp:`clone` can be used to clone the contents of another
 Pond server::
@@ -169,7 +169,7 @@ This command is experimental, and should not be used for regular
 operation.  It may change or be removed at any time.
 
 Injecting Data
-^^^^^^^^^^^^^^
+--------------
 
 The command :samp:`inject` reads :envvar:`LOG_RECORD` packets from
 standard input (possibly generated with :option:`--raw`) and inject
@@ -189,7 +189,7 @@ meant for production use.
 
 
 Security
---------
+========
 
 This software implements no access restrictions.  Datagrams from
 anybody are inserted into the database, and all clients are allowed to
