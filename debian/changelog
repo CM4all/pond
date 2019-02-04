@@ -4,7 +4,7 @@ cm4all-pond (0.9) unstable; urgency=low
   * client: support more ISO8601 variants
   * debian: use debhelper 12
 
- --   
+ -- Max Kellermann <mk@cm4all.com>  Mon, 04 Feb 2019 19:06:50 +0100
 
 cm4all-pond (0.8) unstable; urgency=low
 
