@@ -164,11 +164,13 @@ ParseFilterItem(Filter &filter, PondGroupSitePayload &group_site,
 			throw "Garbage after group_site max";
 
 		group_site.max_sites = ToBE32(max);
-	} else if (auto since = IsFilter(p, "since"))
-		filter.since = Net::Log::FromSystem(ParseISO8601(since));
-	else if (auto until = IsFilter(p, "until"))
-		filter.until = Net::Log::FromSystem(ParseISO8601(until));
-	else if (auto date_string = IsFilter(p, "date")) {
+	} else if (auto since = IsFilter(p, "since")) {
+		auto t = ParseISO8601(since);
+		filter.since = Net::Log::FromSystem(t.first);
+	} else if (auto until = IsFilter(p, "until")) {
+		auto t = ParseISO8601(until);
+		filter.until = Net::Log::FromSystem(t.first + t.second);
+	} else if (auto date_string = IsFilter(p, "date")) {
 		const auto date = ParseLocalDate(date_string);
 		filter.since = Net::Log::FromSystem(date);
 		filter.until = Net::Log::FromSystem(date + std::chrono::hours(24));
