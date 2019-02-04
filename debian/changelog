@@ -1,6 +1,7 @@
 cm4all-pond (0.9) unstable; urgency=low
 
   * add setting "max_age"
+  * client: support more ISO8601 variants
   * debian: use debhelper 12
 
  --   
