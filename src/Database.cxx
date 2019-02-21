@@ -67,7 +67,7 @@ Database::~Database() noexcept
 }
 
 const Record &
-Database::Emplace(ConstBuffer<uint8_t> raw) noexcept
+Database::Emplace(ConstBuffer<uint8_t> raw)
 {
 	auto &record = all_records.emplace_back(sizeof(Record) + raw.size,
 						++last_id, raw);

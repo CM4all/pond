@@ -1,6 +1,6 @@
 cm4all-pond (0.10) unstable; urgency=low
 
-  * 
+  * fix crash after CLONE error
 
  --   
 

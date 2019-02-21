@@ -95,7 +95,7 @@ public:
 		return per_site_records[site];
 	}
 
-	const Record &Emplace(ConstBuffer<uint8_t> raw) noexcept;
+	const Record &Emplace(ConstBuffer<uint8_t> raw);
 
 	Selection Select(const Filter &filter) noexcept;
 	Selection Follow(const Filter &filter, AppendListener &l) noexcept;

@@ -139,7 +139,7 @@ public:
 	}
 
 	template<typename... Args>
-	reference emplace_back(Args... args) noexcept {
+	reference emplace_back(Args... args) {
 		auto &record =
 			VCircularBuffer::emplace_back(std::forward<Args>(args)...);
 		skip_deque.UpdateNew(record);
