@@ -2,6 +2,7 @@ cm4all-pond (0.10) unstable; urgency=low
 
   * fix crash after CLONE error
   * systemd: restart on failure
+  * systemd: enable crash dumps
 
  --   
 

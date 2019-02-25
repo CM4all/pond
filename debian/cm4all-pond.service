@@ -13,6 +13,9 @@ CPUSchedulingPolicy=batch
 
 LimitNPROC=1
 
+# enable crash dumps
+LimitCORE=infinity
+
 ProtectSystem=full
 NoNewPrivileges=true
 RestrictAddressFamilies=AF_UNIX AF_INET AF_INET6
