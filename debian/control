@@ -17,14 +17,15 @@ Vcs-git: git://github.com/CM4all/pond
 
 Package: cm4all-pond
 Architecture: any
-Depends: ${shlibs:Depends}, systemd-sysv, adduser
+Depends: ${misc:Depends}, ${shlibs:Depends},
+ systemd-sysv, adduser
 Suggests: avahi-daemon
 Description: Pond log database server
  Pond is a volatile round-robin database for log messages.
 
 Package: cm4all-pond-client
 Architecture: any
-Depends: ${shlibs:Depends}
+Depends: ${misc:Depends}, ${shlibs:Depends}
 Suggests: avahi-daemon
 Description: Pond log database client
  Pond is a volatile round-robin database for log messages.
@@ -34,6 +35,7 @@ Description: Pond log database client
 Package: cm4all-pond-doc
 Section: non-free/doc
 Architecture: all
+Depends: ${misc:Depends}
 Description: Documentation for cm4all-pond
  Pond is a volatile round-robin database for log messages.
  .
