@@ -6,7 +6,7 @@ cm4all-pond (0.10) unstable; urgency=low
   * systemd: enable crash dumps
   * debian/rules: use dh_sphinxdoc
 
- --   
+ -- Max Kellermann <mk@cm4all.com>  Mon, 25 Feb 2019 12:03:03 +0100
 
 cm4all-pond (0.9) unstable; urgency=low
 
