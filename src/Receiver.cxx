@@ -44,6 +44,11 @@ Instance::OnUdpDatagram(const void *data, size_t length,
 	(void)address;
 	(void)uid;
 
+	if (length == MAX_DATAGRAM_SIZE)
+		/* this datagram was probably truncated, so don't
+		   bother parsing it */
+		return true;
+
 	try {
 		database.Emplace({(const uint8_t *)data, length});
 	} catch (Net::Log::ProtocolError) {
