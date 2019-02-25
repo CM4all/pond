@@ -54,6 +54,8 @@ class Listener;
 class Connection;
 
 class Instance final : UdpHandler {
+	static constexpr size_t MAX_DATAGRAM_SIZE = 4096;
+
 	const RootLogger logger;
 
 	EventLoop event_loop;

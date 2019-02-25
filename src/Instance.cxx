@@ -65,7 +65,7 @@ Instance::AddReceiver(const SocketConfig &config)
 	UdpHandler &handler = *this;
 	receivers.emplace_front(event_loop,
 				config.Create(SOCK_DGRAM),
-				MultiReceiveMessage(256, 4096),
+				MultiReceiveMessage(256, MAX_DATAGRAM_SIZE),
 				handler);
 
 	static constexpr int buffer_size = 4 * 1024 * 1024;
