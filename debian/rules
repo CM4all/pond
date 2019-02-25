@@ -6,7 +6,7 @@ MESON_OPTIONS = \
 	--werror
 
 %:
-	dh $@ --no-start
+	dh $@ --no-start --with sphinxdoc
 
 override_dh_auto_configure:
 	dh_auto_configure -- $(MESON_OPTIONS)

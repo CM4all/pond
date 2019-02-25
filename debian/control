@@ -35,7 +35,7 @@ Description: Pond log database client
 Package: cm4all-pond-doc
 Section: non-free/doc
 Architecture: all
-Depends: ${misc:Depends}
+Depends: ${misc:Depends}, ${sphinxdoc:Depends}
 Description: Documentation for cm4all-pond
  Pond is a volatile round-robin database for log messages.
  .

@@ -4,6 +4,7 @@ cm4all-pond (0.10) unstable; urgency=low
   * ignore truncated datagrams
   * systemd: restart on failure
   * systemd: enable crash dumps
+  * debian/rules: use dh_sphinxdoc
 
  --   
 
