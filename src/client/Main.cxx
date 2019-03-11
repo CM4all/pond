@@ -274,7 +274,8 @@ Query(const PondServerSpecification &server, ConstBuffer<const char *> args)
 			break;
 
 		case PondResponseCommand::ERROR:
-			throw std::runtime_error(d.payload.ToString());
+			throw FormatRuntimeError("Server error: %s",
+						 d.payload.ToString().c_str());
 
 		case PondResponseCommand::END:
 			return;
