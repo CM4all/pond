@@ -1,7 +1,7 @@
 cm4all-pond (0.11) unstable; urgency=low
 
   * client: add a prefix to more server errors
-  * client: support "today" in "since=" and "until="
+  * client: support "today", "now" in "since=" and "until="
 
  --   
 

@@ -151,6 +151,7 @@ Examples of accepted `ISO8601
 
 Other than ISO8601, the following special tokens are understood:
 
+- :samp:`now` is the current time stamp
 - :samp:`today` is the current date in the local time zone
 
 .. _clone:
