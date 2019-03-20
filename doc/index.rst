@@ -149,6 +149,10 @@ Examples of accepted `ISO8601
 - :samp:`2019-02-04T16:46` (seconds omitted)
 - :samp:`2019-02-04` (time of day omitted)
 
+Other than ISO8601, the following special tokens are understood:
+
+- :samp:`today` is the current date in the local time zone
+
 .. _clone:
 
 Cloning
