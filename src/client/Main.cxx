@@ -43,7 +43,7 @@
 #include "net/log/Datagram.hxx"
 #include "net/log/OneLine.hxx"
 #include "time/ISO8601.hxx"
-#include "time/Calendar.hxx"
+#include "time/Math.hxx"
 #include "time/Convert.hxx"
 #include "util/ConstBuffer.hxx"
 #include "util/PrintException.hxx"
