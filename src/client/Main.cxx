@@ -170,6 +170,10 @@ ParseFilterItem(Filter &filter, PondGroupSitePayload &group_site,
 	} else if (auto until = IsFilter(p, "until")) {
 		auto t = ParseTimePoint(until);
 		filter.until = Net::Log::FromSystem(t.first + t.second);
+	} else if (auto time = IsFilter(p, "time")) {
+		auto t = ParseTimePoint(time);
+		filter.since = Net::Log::FromSystem(t.first);
+		filter.until = Net::Log::FromSystem(t.first + t.second);
 	} else if (auto date_string = IsFilter(p, "date")) {
 		const auto date = ParseLocalDate(date_string);
 		filter.since = Net::Log::FromSystem(date);

@@ -125,6 +125,8 @@ The following filters are available:
   See :ref:`iso8601` for details.
 - :samp:`until=ISO8601` shows only records until the given time stamp.
   See :ref:`iso8601` for details.
+- :samp:`time=ISO8601` is a shortcut for :samp:`since=...` and
+  :samp:`until=...`
 - :samp:`date=YYYY-MM-DD` is a shortcut which shows records on a
   certain date (according to the client's time zone)
 - :samp:`today` is a shortcut which shows records only of today
