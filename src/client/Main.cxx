@@ -42,7 +42,7 @@
 #include "net/log/Parser.hxx"
 #include "net/log/Datagram.hxx"
 #include "net/log/OneLine.hxx"
-#include "time/ISO8601.hxx"
+#include "time/Parser.hxx"
 #include "time/Math.hxx"
 #include "time/Convert.hxx"
 #include "util/ConstBuffer.hxx"
@@ -165,10 +165,10 @@ ParseFilterItem(Filter &filter, PondGroupSitePayload &group_site,
 
 		group_site.max_sites = ToBE32(max);
 	} else if (auto since = IsFilter(p, "since")) {
-		auto t = ParseISO8601(since);
+		auto t = ParseTimePoint(since);
 		filter.since = Net::Log::FromSystem(t.first);
 	} else if (auto until = IsFilter(p, "until")) {
-		auto t = ParseISO8601(until);
+		auto t = ParseTimePoint(until);
 		filter.until = Net::Log::FromSystem(t.first + t.second);
 	} else if (auto date_string = IsFilter(p, "date")) {
 		const auto date = ParseLocalDate(date_string);
