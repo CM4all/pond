@@ -13,7 +13,8 @@ Build-Depends: debhelper (>= 12~),
  libavahi-client-dev,
  python3-sphinx
 Standards-Version: 4.0.0
-Vcs-git: git://github.com/CM4all/pond
+Vcs-Browser: https://github.com/CM4all/pond
+Vcs-Git: git://github.com/CM4all/pond
 
 Package: cm4all-pond
 Architecture: any
