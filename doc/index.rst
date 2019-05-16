@@ -65,6 +65,10 @@ The ``database`` block can contain the following settings:
   is no more room for another item.
 - ``max_age``: if specified, then records older than this will be
   evicted even if there is still room in the buffer.
+- ``per_site_message_rate_limit``: if specified, then each site is
+  rate-limited to this number of messages per second.  Excess messages
+  will be discarded silently.  This affects only log datagrams which
+  contain only a message (e.g. :samp:`http_error`).
 
 ``receiver``
 ------------

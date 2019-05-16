@@ -1,5 +1,5 @@
 /*
- * Copyright 2017-2018 Content Management AG
+ * Copyright 2017-2019 Content Management AG
  * All rights reserved.
  *
  * author: Max Kellermann <mk@cm4all.com>
@@ -108,6 +108,8 @@ PondConfigParser::Database::ParseLine(FileLineParser &line)
 		config.max_age = Pg::ParseIntervalS(line.ExpectValueAndEnd());
 		if (config.max_age <= std::chrono::system_clock::duration::zero())
 			throw LineParser::Error("max_age too small");
+	} else if (strcmp(word, "per_site_message_rate_limit") == 0) {
+		config.per_site_message_rate_limit = ParsePositiveLong(line.ExpectValueAndEnd());
 	} else
 		throw LineParser::Error("Unknown option");
 }

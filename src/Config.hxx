@@ -1,5 +1,5 @@
 /*
- * Copyright 2017-2018 Content Management AG
+ * Copyright 2017-2019 Content Management AG
  * All rights reserved.
  *
  * author: Max Kellermann <mk@cm4all.com>
@@ -45,6 +45,8 @@ struct DatabaseConfig {
 	 * duration will be deleted.
 	 */
 	std::chrono::system_clock::duration max_age{};
+
+	double per_site_message_rate_limit = -1;
 };
 
 struct ListenerConfig : SocketConfig {

@@ -1,5 +1,5 @@
 /*
- * Copyright 2017-2018 Content Management AG
+ * Copyright 2017-2019 Content Management AG
  * All rights reserved.
  *
  * author: Max Kellermann <mk@cm4all.com>
@@ -32,6 +32,7 @@
 
 #pragma once
 
+#include "TokenBucket.hxx"
 #include "RList.hxx"
 #include "system/LargeAllocation.hxx"
 
@@ -40,6 +41,7 @@
 #include <string>
 
 template<typename T> struct ConstBuffer;
+template<typename Clock> class ClockCache;
 struct Filter;
 class Selection;
 class AppendListener;
@@ -47,6 +49,9 @@ class AnyRecordList;
 
 class Database {
 	const LargeAllocation allocation;
+
+	const double per_site_message_rate_limit;
+	const double per_site_message_burst;
 
 	uint64_t last_id = 0;
 
@@ -64,8 +69,15 @@ class Database {
 		 */
 		PerSiteRecordList list;
 
+		TokenBucket rate_limiter;
+
 		~PerSite() noexcept {
 			list.clear();
+		}
+
+		bool CheckRateLimit(double now, double rate, double burst,
+				    size_t size) noexcept {
+			return rate_limiter.Check(now, rate, burst, size);
 		}
 	};
 
@@ -73,7 +85,7 @@ class Database {
 	std::unordered_map<std::string, PerSite> per_site_records;
 
 public:
-	explicit Database(size_t max_size);
+	explicit Database(size_t max_size, double _per_site_message_rate_limit=-1);
 	~Database() noexcept;
 
 	Database(const Database &) = delete;
@@ -97,6 +109,10 @@ public:
 		return all_records;
 	}
 
+	auto &GetPerSite(const std::string &site) noexcept {
+		return per_site_records[site];
+	}
+
 	PerSiteRecordList &GetPerSiteRecords(const std::string &site) noexcept {
 		return per_site_records[site].list;
 	}
@@ -105,6 +121,15 @@ public:
 	 * Throws if parsing the buffer fails.
 	 */
 	const Record &Emplace(ConstBuffer<uint8_t> raw);
+
+	/**
+	 * Throws if parsing the buffer fails.
+	 *
+	 * @return a pointer to the new record or nullptr if a rate
+	 * limit was exceeded
+	 */
+	const Record *CheckEmplace(ConstBuffer<uint8_t> raw,
+				   const ClockCache<std::chrono::steady_clock> &clock);
 
 	Selection Select(const Filter &filter) noexcept;
 	Selection Follow(const Filter &filter, AppendListener &l) noexcept;

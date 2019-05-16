@@ -1,5 +1,5 @@
 /*
- * Copyright 2017-2018 Content Management AG
+ * Copyright 2017-2019 Content Management AG
  * All rights reserved.
  *
  * author: Max Kellermann <mk@cm4all.com>
@@ -35,14 +35,18 @@
 #include "Filter.hxx"
 #include "AnyList.hxx"
 #include "system/HugePage.hxx"
+#include "time/Cast.hxx"
+#include "time/ClockCache.hxx"
 
 #include <unordered_set>
 
 #include <assert.h>
 #include <sys/mman.h>
 
-Database::Database(size_t max_size)
+Database::Database(size_t max_size, double _per_site_message_rate_limit)
 	:allocation(AlignHugePageUp(max_size)),
+	 per_site_message_rate_limit(_per_site_message_rate_limit),
+	 per_site_message_burst(10 * per_site_message_rate_limit), // TODO: make burst configurable
 	 all_records({allocation.get(), allocation.size()})
 {
 	int advice = MADV_DONTFORK|MADV_HUGEPAGE;
@@ -73,6 +77,58 @@ Database::Emplace(ConstBuffer<uint8_t> raw)
 		GetPerSiteRecords(record.GetParsed().site).push_back(record);
 
 	return record;
+}
+
+namespace {
+struct RateLimitExceeded {};
+}
+
+static constexpr bool
+IsMessage(const Net::Log::Type type) noexcept
+{
+	return type == Net::Log::Type::HTTP_ERROR;
+}
+
+static constexpr bool
+IsMessage(const Net::Log::Datagram &d) noexcept
+{
+	return IsMessage(d.type);
+}
+
+const Record *
+Database::CheckEmplace(ConstBuffer<uint8_t> raw,
+		       const ClockCache<std::chrono::steady_clock> &clock)
+try {
+	if (per_site_message_rate_limit <= 0)
+		/* no rate limit configured */
+		return &Emplace(raw);
+
+	auto &record = all_records.check_emplace_back([this, &clock](const Record &r){
+		if (!IsMessage(r.GetParsed()))
+			/* not a message, not affected by the rate
+			   limit */
+			return;
+
+		const char *site = r.GetParsed().site;
+		if (site == nullptr)
+			return;
+
+		const auto now = clock.now();
+		const auto float_now = ToFloatSeconds(now.time_since_epoch());
+
+		auto &per_site = GetPerSite(site);
+		if (!per_site.CheckRateLimit(float_now, per_site_message_rate_limit,
+					     per_site_message_burst, 1))
+			throw RateLimitExceeded();
+	}, sizeof(Record) + raw.size, ++last_id, raw);
+
+	if (record.GetParsed().site != nullptr)
+		GetPerSiteRecords(record.GetParsed().site).push_back(record);
+
+	return &record;
+} catch (RateLimitExceeded) {
+	fprintf(stderr, "RateLimited\n");
+	return nullptr;
 }
 
 AnyRecordList

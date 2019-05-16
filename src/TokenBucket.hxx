@@ -1,5 +1,5 @@
 /*
- * Copyright 2017-2018 Content Management AG
+ * Copyright 2019 Content Management AG
  * All rights reserved.
  *
  * author: Max Kellermann <mk@cm4all.com>
@@ -30,38 +30,29 @@
  * OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#include "Instance.hxx"
-#include "event/net/UdpListener.hxx"
-#include "net/UniqueSocketDescriptor.hxx"
-#include "net/SocketConfig.hxx"
-#include "net/log/Parser.hxx"
-#include "util/PrintException.hxx"
+#pragma once
 
-bool
-Instance::OnUdpDatagram(const void *data, size_t length,
-			SocketAddress address, int uid)
-{
-	(void)address;
-	(void)uid;
+#include <algorithm>
 
-	if (length == MAX_DATAGRAM_SIZE)
-		/* this datagram was probably truncated, so don't
-		   bother parsing it */
+/**
+ * An implementation of the "token bucket" rate limiter algorithm.
+ *
+ * @see https://en.wikipedia.org/wiki/Token_bucket
+ */
+class TokenBucket {
+	double zero_time;
+
+public:
+	/**
+	 * @return true if the given transmission is conforming, false
+	 * to discard it
+	 */
+	bool Check(double now, double rate, double burst, double size) noexcept {
+		double available = std::min((now - zero_time) * rate, burst);
+		if (available < size)
+			return false;
+
+		zero_time = now - (available - size) / rate;
 		return true;
-
-	try {
-		database.CheckEmplace({(const uint8_t *)data, length},
-				      event_loop.GetSteadyClockCache());
-	} catch (Net::Log::ProtocolError) {
 	}
-
-	MaybeScheduleMaxAgeTimer();
-
-	return true;
-}
-
-void
-Instance::OnUdpError(std::exception_ptr ep) noexcept
-{
-	logger(1, "UDP receiver error: ", ep);
-}
+};
