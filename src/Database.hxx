@@ -101,6 +101,9 @@ public:
 		return per_site_records[site].list;
 	}
 
+	/**
+	 * Throws if parsing the buffer fails.
+	 */
 	const Record &Emplace(ConstBuffer<uint8_t> raw);
 
 	Selection Select(const Filter &filter) noexcept;
