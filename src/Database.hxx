@@ -56,13 +56,21 @@ class Database {
 	 */
 	FullRecordList all_records;
 
-	/**
-	 * A chronological list for each site.  This list does not
-	 * "own" the #Record instances, it only points to those owned
-	 * by #all_records.
-	 */
-	// TODO: purge empty lists eventually
-	std::unordered_map<std::string, PerSiteRecordList> per_site_records;
+	struct PerSite {
+		/**
+		 * A chronological list for each site.  This list does not
+		 * "own" the #Record instances, it only points to those owned
+		 * by #all_records.
+		 */
+		PerSiteRecordList list;
+
+		~PerSite() noexcept {
+			list.clear();
+		}
+	};
+
+	// TODO: purge empty items eventually
+	std::unordered_map<std::string, PerSite> per_site_records;
 
 public:
 	explicit Database(size_t max_size);
@@ -72,9 +80,7 @@ public:
 	Database &operator=(const Database &) = delete;
 
 	void Clear() noexcept {
-		for (auto &i : per_site_records)
-			// TODO: purge unreferenced lists
-			i.second.clear();
+		per_site_records.clear();
 
 		all_records.clear();
 
@@ -92,7 +98,7 @@ public:
 	}
 
 	PerSiteRecordList &GetPerSiteRecords(const std::string &site) noexcept {
-		return per_site_records[site];
+		return per_site_records[site].list;
 	}
 
 	const Record &Emplace(ConstBuffer<uint8_t> raw);

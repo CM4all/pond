@@ -60,9 +60,6 @@ Database::Database(size_t max_size)
 
 Database::~Database() noexcept
 {
-	for (auto &i : per_site_records)
-		i.second.clear();
-
 	all_records.clear();
 }
 
