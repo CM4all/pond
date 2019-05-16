@@ -149,6 +149,18 @@ public:
 		return record;
 	}
 
+	template<typename C, typename... Args>
+	reference check_emplace_back(C &&check, Args... args) {
+		auto &record =
+			VCircularBuffer::check_emplace_back(std::forward<C>(check),
+							    std::forward<Args>(args)...);
+		skip_deque.UpdateNew(record);
+
+		append_listeners.OnAppend(record);
+
+		return record;
+	}
+
 	const Record *First() const noexcept {
 		return empty() ? nullptr : &front();
 	}
