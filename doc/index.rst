@@ -159,9 +159,9 @@ The following filters are available:
   skip a number of sites.  This can be used to receive records for all
   sites incrementally, until the result is empty.
 - :samp:`since=ISO8601` shows only records since the given time stamp.
-  See :ref:`iso8601` for details.
+  See :ref:`timestamps` for details.
 - :samp:`until=ISO8601` shows only records until the given time stamp.
-  See :ref:`iso8601` for details.
+  See :ref:`timestamps` for details.
 - :samp:`time=ISO8601` is a shortcut for :samp:`since=...` and
   :samp:`until=...`
 - :samp:`date=YYYY-MM-DD` is a shortcut which shows records on a
@@ -172,7 +172,7 @@ The client displays records in the standard one-line format by
 default.  If standard output is connected to a datagram or seqpacket
 socket, then the log datagrams are sent in raw format instead.
 
-.. _iso8601:
+.. _timestamps:
 
 ISO8601 time stamps
 ^^^^^^^^^^^^^^^^^^^
