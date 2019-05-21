@@ -103,6 +103,22 @@ The ``listener`` block can contain the following settings:
   Zeroconf service in the local Avahi daemon.  This can be used by
   clients to discover Pond servers.
 
+``@include``
+------------
+
+Include another file. Example::
+
+   @include "foo/bar.conf"
+   @include_optional "foo/may-not-exist.conf"
+   @include "wildcard/*.conf"
+
+The second line silently ignores non-existing files.
+
+The third line includes all files in the directory ``wildcard`` ending
+with ``.conf``.
+
+The specified file name may be relative to the including file.
+
 
 Client
 ======
