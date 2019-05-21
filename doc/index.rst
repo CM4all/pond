@@ -50,21 +50,54 @@ Example::
     bind "/run/cm4all/pond/socket"
   }
 
-The database section can specify how much memory is allocated in total
-(in bytes; the suffixes `k`, `M`, `G` are supported).  Internally, the
-database implements a circular buffer which evicts the oldest items if
-there is no more room for another item.  If ``max_age`` is specified,
-then records older than this will be evicted even if there is still
-room in the buffer.
-
-The listener setting :envvar:`zeroconf_service` registers the listener
-as Zeroconf service in the local Avahi daemon (requires installing the
-:file:`avahi-daemon` package on all servers and clients).  This can be
-used by the client to discover Pond servers.
-
 The last two :samp:`listener` blocks configure local sockets, the
 first one with an abstract address, and the second one with a socket
 path.
+
+``database``
+------------
+
+The ``database`` block can contain the following settings:
+
+- ``size`` specifies how much memory is allocated in total (in bytes;
+  the suffixes `k`, `M`, `G` are supported).  Internally, the database
+  implements a circular buffer which evicts the oldest items if there
+  is no more room for another item.
+- ``max_age``: if specified, then records older than this will be
+  evicted even if there is still room in the buffer.
+
+``receiver``
+------------
+
+The ``receiver`` block can contain the following settings:
+
+- ``bind``: an address to bind to. May be the wildcard ``*`` or an
+  IPv4/IPv6 address followed by a port. If you omit the port number,
+  it will default to 5479.  IPv6 addresses should be enclosed in
+  square brackets to disambiguate the port separator. Local sockets
+  start with a slash :file:`/`, and abstract sockets start with the
+  symbol ``@``.
+- ``multicast_group``: join this multicast group, which allows
+  receiving multicast commands. Value is a multicast IPv4/IPv6
+  address.  IPv6 addresses may contain a scope identifier after a
+  percent sign (``%``).
+- ``interface``: limit this listener to the given network interface.
+
+``listener``
+------------
+
+The ``listener`` block can contain the following settings:
+
+- ``bind``: an address to bind to. May be the wildcard ``*`` or an
+  IPv4/IPv6 address followed by a port. If you omit the port number,
+  it will default to 5480.  IPv6 addresses should be enclosed in
+  square brackets to disambiguate the port separator. Local sockets
+  start with a slash :file:`/`, and abstract sockets start with the
+  symbol ``@``.
+- ``interface``: limit this listener to the given network interface.
+- ``zeroconf_service``: if specified, then register this listener as
+  Zeroconf service in the local Avahi daemon.  This can be used by
+  clients to discover Pond servers.
 
 
 Client
