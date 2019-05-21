@@ -4,6 +4,7 @@ cm4all-pond (0.11) unstable; urgency=low
   * client: support "today", "now" in "since=" and "until="
   * client: add filter option "time="
   * database: add configurable per-site message rate limit
+  * config: include "local.conf" and "conf.d/*.conf"
 
  --   
 
