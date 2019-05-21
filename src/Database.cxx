@@ -127,7 +127,6 @@ try {
 
 	return &record;
 } catch (RateLimitExceeded) {
-	fprintf(stderr, "RateLimited\n");
 	return nullptr;
 }
 
