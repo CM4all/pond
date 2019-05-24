@@ -137,7 +137,7 @@ try {
 
 	Send(current.id, PondResponseCommand::END, nullptr);
 	current.Clear();
-} catch (const std::runtime_error &e) {
+} catch (...) {
 	logger(2, "CLONE error: ", std::current_exception());
 	throw SimplePondError{"CLONE error"};
 }
