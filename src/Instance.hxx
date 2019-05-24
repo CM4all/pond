@@ -48,6 +48,7 @@
 struct Config;
 struct SocketConfig;
 struct ListenerConfig;
+struct PondStatsPayload;
 class UniqueSocketDescriptor;
 class MultiUdpListener;
 class Listener;
@@ -103,6 +104,9 @@ public:
 	const Database &GetDatabase() const noexcept {
 		return database;
 	}
+
+	gcc_pure
+	PondStatsPayload GetStats() const noexcept;
 
 	void EnableZeroconf() noexcept {
 		avahi_client.ShowServices();

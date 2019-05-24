@@ -34,9 +34,11 @@
 #include "Config.hxx"
 #include "Listener.hxx"
 #include "Connection.hxx"
+#include "Protocol.hxx"
 #include "event/net/MultiUdpListener.hxx"
 #include "net/SocketConfig.hxx"
 #include "net/StaticSocketAddress.hxx"
+#include "util/ByteOrder.hxx"
 #include "util/DeleteDisposer.hxx"
 
 #include <sys/socket.h>
@@ -58,6 +60,16 @@ Instance::Instance(const Config &config)
 }
 
 Instance::~Instance() noexcept = default;
+
+PondStatsPayload
+Instance::GetStats() const noexcept
+{
+	PondStatsPayload s{};
+	s.memory_capacity = ToBE64(database.GetMemoryCapacity());
+	s.memory_usage = ToBE64(database.GetMemoryUsage());
+	s.n_records = ToBE32(database.GetRecordCount());
+	return s;
+}
 
 void
 Instance::AddReceiver(const SocketConfig &config)

@@ -382,12 +382,7 @@ try {
 
 	case PondRequestCommand::STATS:
 		{
-			const auto &db = instance.GetDatabase();
-			PondStatsPayload p{};
-			p.memory_capacity = ToBE64(db.GetMemoryCapacity());
-			p.memory_usage = ToBE64(db.GetMemoryUsage());
-			p.n_records = ToBE32(db.GetRecordCount());
-
+			const auto p = instance.GetStats();
 			Send(id, PondResponseCommand::STATS, {&p, sizeof(p)});
 		}
 
