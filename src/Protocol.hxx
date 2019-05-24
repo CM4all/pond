@@ -138,6 +138,8 @@ struct PondHeader {
 	uint16_t size;
 };
 
+static_assert(sizeof(PondHeader) == 6, "Wrong size");
+
 /**
  * Payload for PondRequestCommand::GROUP_SITE.
  */
@@ -152,5 +154,3 @@ struct PondGroupSitePayload {
 	 */
 	uint32_t skip_sites;
 };
-
-static_assert(sizeof(PondHeader) == 6, "Wrong size");
