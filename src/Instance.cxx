@@ -53,7 +53,8 @@ Instance::Instance(const Config &config)
 	 avahi_client(event_loop, "Pond"),
 	 max_age(config.database.max_age),
 	 max_age_timer(event_loop, BIND_THIS_METHOD(OnMaxAgeTimer)),
-	 database(config.database.size)
+	 database(config.database.size,
+		  config.database.per_site_message_rate_limit)
 {
 	shutdown_listener.Enable();
 	sighup_event.Enable();
