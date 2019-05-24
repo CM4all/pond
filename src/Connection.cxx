@@ -379,6 +379,19 @@ try {
 		}
 
 		return BufferedResult::AGAIN_EXPECT;
+
+	case PondRequestCommand::STATS:
+		{
+			const auto &db = instance.GetDatabase();
+			PondStatsPayload p{};
+			p.memory_capacity = ToBE64(db.GetMemoryCapacity());
+			p.memory_usage = ToBE64(db.GetMemoryUsage());
+			p.n_records = ToBE32(db.GetRecordCount());
+
+			Send(id, PondResponseCommand::STATS, {&p, sizeof(p)});
+		}
+
+		return BufferedResult::AGAIN_EXPECT;
 	}
 
 	throw SimplePondError{"Command not implemented"};

@@ -91,6 +91,18 @@ public:
 	Database(const Database &) = delete;
 	Database &operator=(const Database &) = delete;
 
+	auto GetMemoryCapacity() const noexcept {
+		return allocation.size();
+	}
+
+	auto GetMemoryUsage() const noexcept {
+		return all_records.GetMemoryUsage();
+	}
+
+	auto GetRecordCount() const noexcept {
+		return all_records.size();
+	}
+
 	void Clear() noexcept {
 		per_site_records.clear();
 

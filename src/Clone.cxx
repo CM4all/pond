@@ -102,6 +102,9 @@ ReceiveAndEmplace(Database &db, PondClient &client, uint16_t id,
 
 			db.Emplace({d.payload.data.get(), d.payload.size});
 			break;
+
+		case PondResponseCommand::STATS:
+			throw std::runtime_error("Unexpected response packet");
 		}
 	}
 }

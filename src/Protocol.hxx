@@ -106,6 +106,11 @@ enum class PondRequestCommand : uint16_t {
 	 * privileged local clients.
 	 */
 	INJECT_LOG_RECORD = 11,
+
+	/**
+	 * Request statistics.  Returns #PondResponseCommand::STATS.
+	 */
+	STATS = 12,
 };
 
 enum class PondResponseCommand : uint16_t {
@@ -127,6 +132,12 @@ enum class PondResponseCommand : uint16_t {
 	 * A serialized log record according to net/log/Protocol.hxx
 	 */
 	LOG_RECORD = 3,
+
+	/**
+	 * Statistics.  Response for #PondRequestCommand::STATS.
+	 * Payload is #PondStatsPayload.
+	 */
+	STATS = 4,
 };
 
 /**
@@ -153,4 +164,15 @@ struct PondGroupSitePayload {
 	 * How many sites will be skipped with this query?
 	 */
 	uint32_t skip_sites;
+};
+
+/**
+ * Payload for PondResponseCommand::STATS.
+ */
+struct PondStatsPayload {
+	uint64_t memory_capacity, memory_usage;
+
+	uint32_t n_records;
+
+	uint32_t reserved;
 };

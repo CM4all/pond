@@ -54,6 +54,7 @@
 #include "util/Macros.hxx"
 #include "util/StaticFifoBuffer.hxx"
 
+#include <inttypes.h>
 #include <stdlib.h>
 #include <poll.h>
 
@@ -309,8 +310,42 @@ Query(const PondServerSpecification &server, ConstBuffer<const char *> args)
 			}
 
 			break;
+
+		case PondResponseCommand::STATS:
+			throw "Unexpected response packet";
 		}
 	}
+}
+
+static void
+Stats(const PondServerSpecification &server, ConstBuffer<const char *> args)
+{
+	if (!args.empty())
+		throw "Bad arguments";
+
+	PondClient client(PondConnect(server));
+	const auto id = client.MakeId();
+	client.Send(id, PondRequestCommand::STATS);
+	const auto response = client.Receive();
+	if (response.id != id)
+		throw "Wrong id";
+
+	if (response.command != PondResponseCommand::STATS)
+		throw "Wrong response command";
+
+	ConstBuffer<void> payload = response.payload;
+	const PondStatsPayload &stats = *(const PondStatsPayload *)payload.data;
+
+	if (payload.size < sizeof(PondStatsPayload))
+		// TODO: backwards compatibility, allow smaller payloads
+		throw "Wrong response payload size";
+
+	printf("memory_capacity=%" PRIu64 "\n"
+	       "memory_usage=%" PRIu64 "\n"
+	       "n_records=%" PRIu32 "\n",
+	       FromBE64(stats.memory_capacity),
+	       FromBE64(stats.memory_usage),
+	       FromBE32(stats.n_records));
 }
 
 template<typename B>
@@ -405,6 +440,7 @@ Clone(const PondServerSpecification &server, ConstBuffer<const char *> args)
 			return;
 
 		case PondResponseCommand::LOG_RECORD:
+		case PondResponseCommand::STATS:
 			throw "Unexpected response packet";
 		}
 	}
@@ -420,6 +456,7 @@ try {
 			"\n"
 			"Commands:\n"
 			"  query [--follow] [--raw] [type=http_access|http_error|submission] [site=VALUE] [group_site=MAX[@SKIP]] [since=ISO8601] [until=ISO8601] [date=YYYY-MM-DD] [today]\n"
+			"  stats\n"
 			"  inject <RAWFILE\n"
 			"  clone OTHERSERVER[:PORT]\n",
 			argv[0]);
@@ -435,6 +472,9 @@ try {
 
 	if (StringIsEqual(command, "query")) {
 		Query(server, args);
+		return EXIT_SUCCESS;
+	} else if (StringIsEqual(command, "stats")) {
+		Stats(server, args);
 		return EXIT_SUCCESS;
 	} else if (StringIsEqual(command, "inject")) {
 		Inject(server, args);
