@@ -342,10 +342,10 @@ Stats(const PondServerSpecification &server, ConstBuffer<const char *> args)
 
 	printf("memory_capacity=%" PRIu64 "\n"
 	       "memory_usage=%" PRIu64 "\n"
-	       "n_records=%" PRIu32 "\n",
+	       "n_records=%" PRIu64 "\n",
 	       FromBE64(stats.memory_capacity),
 	       FromBE64(stats.memory_usage),
-	       FromBE32(stats.n_records));
+	       FromBE64(stats.n_records));
 }
 
 template<typename B>

@@ -172,7 +172,5 @@ struct PondGroupSitePayload {
 struct PondStatsPayload {
 	uint64_t memory_capacity, memory_usage;
 
-	uint32_t n_records;
-
-	uint32_t reserved;
+	uint64_t n_records;
 };

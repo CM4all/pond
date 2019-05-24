@@ -67,7 +67,7 @@ Instance::GetStats() const noexcept
 	PondStatsPayload s{};
 	s.memory_capacity = ToBE64(database.GetMemoryCapacity());
 	s.memory_usage = ToBE64(database.GetMemoryUsage());
-	s.n_records = ToBE32(database.GetRecordCount());
+	s.n_records = ToBE64(database.GetRecordCount());
 	return s;
 }
 
