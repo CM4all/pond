@@ -3,6 +3,7 @@ cm4all-pond (0.11) unstable; urgency=low
   * client: add a prefix to more server errors
   * client: support "today", "now" in "since=" and "until="
   * client: add filter option "time="
+  * client: larger receive buffer
   * database: add configurable per-site message rate limit
   * config: include "local.conf" and "conf.d/*.conf"
   * protocol: command STATS
