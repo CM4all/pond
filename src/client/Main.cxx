@@ -346,6 +346,13 @@ Stats(const PondServerSpecification &server, ConstBuffer<const char *> args)
 	       FromBE64(stats.memory_capacity),
 	       FromBE64(stats.memory_usage),
 	       FromBE64(stats.n_records));
+
+	printf("n_received=%" PRIu64 "\n"
+	       "n_malformed=%" PRIu64 "\n"
+	       "n_discarded=%" PRIu64 "\n",
+	       FromBE64(stats.n_received),
+	       FromBE64(stats.n_malformed),
+	       FromBE64(stats.n_discarded));
 }
 
 template<typename B>

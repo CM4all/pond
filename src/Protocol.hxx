@@ -173,4 +173,21 @@ struct PondStatsPayload {
 	uint64_t memory_capacity, memory_usage;
 
 	uint64_t n_records;
+
+	/**
+	 * The total number of datagrams received.  This includes
+	 * discarded and malformed ones.
+	 */
+	uint64_t n_received;
+
+	/**
+	 * The number of malformed datagrams.
+	 */
+	uint64_t n_malformed;
+
+	/**
+	 * The number of discarded datagrams (e.g. due to rate
+	 * limits).
+	 */
+	uint64_t n_discarded;
 };

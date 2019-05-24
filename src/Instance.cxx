@@ -68,6 +68,9 @@ Instance::GetStats() const noexcept
 	s.memory_capacity = ToBE64(database.GetMemoryCapacity());
 	s.memory_usage = ToBE64(database.GetMemoryUsage());
 	s.n_records = ToBE64(database.GetRecordCount());
+	s.n_received = ToBE64(n_received);
+	s.n_malformed = ToBE64(n_malformed);
+	s.n_discarded = ToBE64(n_discarded);
 	return s;
 }
 

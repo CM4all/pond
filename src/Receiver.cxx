@@ -44,15 +44,23 @@ Instance::OnUdpDatagram(const void *data, size_t length,
 	(void)address;
 	(void)uid;
 
-	if (length == MAX_DATAGRAM_SIZE)
+	++n_received;
+
+	if (length == MAX_DATAGRAM_SIZE) {
 		/* this datagram was probably truncated, so don't
 		   bother parsing it */
+		++n_malformed;
 		return true;
+	}
 
 	try {
-		database.CheckEmplace({(const uint8_t *)data, length},
-				      event_loop.GetSteadyClockCache());
+		const auto *r =
+			database.CheckEmplace({(const uint8_t *)data, length},
+					      event_loop.GetSteadyClockCache());
+		if (r == nullptr)
+			++n_discarded;
 	} catch (Net::Log::ProtocolError) {
+		++n_malformed;
 	}
 
 	MaybeScheduleMaxAgeTimer();

@@ -45,6 +45,8 @@
 
 #include <forward_list>
 
+#include <stdint.h>
+
 struct Config;
 struct SocketConfig;
 struct ListenerConfig;
@@ -84,6 +86,11 @@ class Instance final : UdpHandler {
 	TimerEvent max_age_timer;
 
 	Database database;
+
+	/**
+	 * @see struct PondStatsPayload
+	 */
+	uint64_t n_received = 0, n_malformed = 0, n_discarded = 0;
 
 public:
 	explicit Instance(const Config &config);
