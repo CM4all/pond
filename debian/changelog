@@ -9,7 +9,7 @@ cm4all-pond (0.11) unstable; urgency=low
   * config: include "local.conf" and "conf.d/*.conf"
   * protocol: command STATS
 
- --   
+ -- Max Kellermann <mk@cm4all.com>  Sun, 26 May 2019 19:21:35 +0200
 
 cm4all-pond (0.10) unstable; urgency=low
 
