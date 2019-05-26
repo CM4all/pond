@@ -5,6 +5,7 @@ cm4all-pond (0.11) unstable; urgency=low
   * client: add filter option "time="
   * client: larger receive buffer
   * database: add configurable per-site message rate limit
+  * database: reduce overhead
   * config: include "local.conf" and "conf.d/*.conf"
   * protocol: command STATS
 

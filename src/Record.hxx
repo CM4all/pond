@@ -1,5 +1,5 @@
 /*
- * Copyright 2017-2018 Content Management AG
+ * Copyright 2017-2019 Content Management AG
  * All rights reserved.
  *
  * author: Max Kellermann <mk@cm4all.com>
@@ -32,7 +32,7 @@
 
 #pragma once
 
-#include "net/log/Datagram.hxx"
+#include "SmallDatagram.hxx"
 #include "util/ConstBuffer.hxx"
 
 #include <boost/intrusive/list_hook.hpp>
@@ -47,7 +47,7 @@ private:
 
 	const size_t raw_size;
 
-	Net::Log::Datagram parsed;
+	SmallDatagram parsed;
 
 public:
 	/**
@@ -66,7 +66,7 @@ public:
 		return {this + 1, raw_size};
 	}
 
-	const Net::Log::Datagram &GetParsed() const noexcept {
+	const auto &GetParsed() const noexcept {
 		return parsed;
 	}
 

@@ -1,5 +1,5 @@
 /*
- * Copyright 2017-2018 Content Management AG
+ * Copyright 2017-2019 Content Management AG
  * All rights reserved.
  *
  * author: Max Kellermann <mk@cm4all.com>
@@ -41,6 +41,7 @@
 
 #include <stdint.h>
 
+struct SmallDatagram;
 namespace Net { namespace Log { struct Datagram; }}
 
 struct Filter {
@@ -55,6 +56,9 @@ struct Filter {
 		return !sites.empty() &&
 			std::next(sites.begin()) == sites.end();
 	}
+
+	gcc_pure
+	bool operator()(const SmallDatagram &d) const noexcept;
 
 	gcc_pure
 	bool operator()(const Net::Log::Datagram &d) const noexcept;

@@ -30,16 +30,28 @@
  * OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#include "Record.hxx"
-#include "net/log/Parser.hxx"
+#pragma once
 
-#include <algorithm>
+#include "net/log/Datagram.hxx"
 
-Record::Record(uint64_t _id, ConstBuffer<uint8_t> _raw)
-	:id(_id), raw_size(_raw.size)
-{
-	memcpy((void *)(this + 1), _raw.data, raw_size);
+/**
+ * A smaller version of #Net::Log::Datagram with only the attributes
+ * used by the Pond server.
+ */
+struct SmallDatagram {
+	Net::Log::TimePoint timestamp;
 
-	auto raw = ConstBuffer<uint8_t>::FromVoid({this + 1, raw_size});
-	parsed = Net::Log::ParseDatagram(raw.begin(), raw.end());
-}
+	const char *site;
+
+	Net::Log::Type type = Net::Log::Type::UNSPECIFIED;
+
+	SmallDatagram() = default;
+
+	constexpr SmallDatagram(const Net::Log::Datagram &src) noexcept
+		:timestamp(src.timestamp), site(src.site),
+		 type(src.type) {}
+
+	constexpr bool HasTimestamp() const noexcept {
+		return timestamp != Net::Log::TimePoint();
+	}
+};

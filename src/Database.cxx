@@ -90,7 +90,7 @@ IsMessage(const Net::Log::Type type) noexcept
 }
 
 static constexpr bool
-IsMessage(const Net::Log::Datagram &d) noexcept
+IsMessage(const SmallDatagram &d) noexcept
 {
 	return IsMessage(d.type);
 }
