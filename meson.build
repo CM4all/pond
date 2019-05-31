@@ -1,4 +1,4 @@
-project('CM4all Pond', ['c', 'cpp'], version: '0.11',
+project('CM4all Pond', ['c', 'cpp'], version: '0.12',
   meson_version: '>= 0.47',
   default_options: [
     'c_std=c99',
