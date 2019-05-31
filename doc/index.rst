@@ -82,10 +82,10 @@ The ``receiver`` block can contain the following settings:
   square brackets to disambiguate the port separator. Local sockets
   start with a slash :file:`/`, and abstract sockets start with the
   symbol ``@``.
-- ``v6only``: if set to :samp:`yes`, then an IPv6 listener disable
-  IPv4 support.  This is required to avoid the port conflict when you
-  need an IPv4 listener with a different configuration (e.g. an IPv4
-  multicast group).
+- ``v6only``: if set to :samp:`yes`, then IPv4 support is disabled on
+  an IPv6 listener.  This is required to avoid the port conflict when
+  you need an IPv4 listener with a different configuration (e.g. an
+  IPv4 multicast group).
 - ``multicast_group``: join this multicast group, which allows
   receiving multicast commands. Value is a multicast IPv4/IPv6
   address.  IPv6 addresses may contain a scope identifier after a
