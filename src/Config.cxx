@@ -122,6 +122,14 @@ PondConfigParser::Receiver::ParseLine(FileLineParser &line)
 	if (strcmp(word, "bind") == 0) {
 		config.bind_address = ParseSocketAddress(line.ExpectValueAndEnd(),
 							 5479, true);
+	} else if (strcmp(word, "v6only") == 0) {
+		const bool value = line.NextBool();
+		line.ExpectEnd();
+
+		if (!value)
+			throw std::runtime_error("Explicitly disabling v6only is not implemented");
+
+		config.v6only = value;
 	} else if (strcmp(word, "multicast_group") == 0) {
 		config.multicast_group = ParseSocketAddress(line.ExpectValueAndEnd(),
 							    0, false);
