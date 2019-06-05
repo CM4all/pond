@@ -1,6 +1,7 @@
 cm4all-pond (0.12) unstable; urgency=low
 
   * receiver: add setting "v6only"
+  * database: add missing initialization to rate limiter
 
  --   
 
