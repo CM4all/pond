@@ -148,7 +148,11 @@ public:
 private:
 	template<typename S>
 	auto &GetPerSite(S &&site) noexcept {
-		return per_site_records[std::forward<S>(site)];
+		auto e = per_site_records.emplace(std::piecewise_construct,
+						  std::forward_as_tuple(std::forward<S>(site)),
+						  std::forward_as_tuple());
+		auto &per_site = e.first->second;
+		return per_site;
 	}
 
 	template<typename S>
