@@ -173,6 +173,8 @@ Database::Follow(const Filter &filter, AppendListener &l) noexcept
 std::vector<std::string>
 Database::CollectSites(const Filter &filter) noexcept
 {
+	assert(filter.sites.empty());
+
 	std::unordered_set<std::string> s;
 	std::vector<std::string> v;
 
