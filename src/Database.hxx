@@ -126,7 +126,7 @@ public:
 	}
 
 	PerSiteRecordList &GetPerSiteRecords(const std::string &site) noexcept {
-		return per_site_records[site].list;
+		return GetPerSite(site).list;
 	}
 
 	/**
