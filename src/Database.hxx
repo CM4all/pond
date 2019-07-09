@@ -121,14 +121,6 @@ public:
 		return all_records;
 	}
 
-	auto &GetPerSite(const std::string &site) noexcept {
-		return per_site_records[site];
-	}
-
-	PerSiteRecordList &GetPerSiteRecords(const std::string &site) noexcept {
-		return GetPerSite(site).list;
-	}
-
 	/**
 	 * Throws if parsing the buffer fails.
 	 */
@@ -154,6 +146,14 @@ public:
 	std::vector<std::string> CollectSites(const Filter &filter) noexcept;
 
 private:
+	auto &GetPerSite(const std::string &site) noexcept {
+		return per_site_records[site];
+	}
+
+	PerSiteRecordList &GetPerSiteRecords(const std::string &site) noexcept {
+		return GetPerSite(site).list;
+	}
+
 	AnyRecordList GetList(Filter &filter) noexcept;
 	Selection MakeSelection(const Filter &filter) noexcept;
 };
