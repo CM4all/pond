@@ -64,7 +64,7 @@ class RecordSkipDeque {
 		 * called after records have been disposed, and it's
 		 * impossible to dereference the #Record.
 		 */
-		uint64_t id;
+		const uint64_t id;
 
 		/**
 		 * This earliest time stamp in this group.  Due to
