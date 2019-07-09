@@ -37,6 +37,8 @@
 #include "system/LargeAllocation.hxx"
 #include "util/TokenBucket.hxx"
 
+#include <boost/intrusive/slist.hpp>
+
 #include <unordered_map>
 #include <set>
 #include <string>
@@ -63,6 +65,10 @@ class Database {
 	FullRecordList all_records;
 
 	struct PerSite {
+		using ListHook =
+			boost::intrusive::slist_member_hook<boost::intrusive::link_mode<boost::intrusive::normal_link>>;
+		ListHook list_siblings;
+
 		/**
 		 * A chronological list for each site.  This list does not
 		 * "own" the #Record instances, it only points to those owned
@@ -85,6 +91,20 @@ class Database {
 	// TODO: purge empty items eventually
 	std::unordered_map<std::string, PerSite> per_site_records;
 
+	using SiteList =
+		boost::intrusive::slist<PerSite,
+					boost::intrusive::member_hook<PerSite,
+								      typename PerSite::ListHook,
+								      &PerSite::list_siblings>,
+					boost::intrusive::cache_last<true>,
+					boost::intrusive::constant_time_size<true>>;
+
+	/**
+	 * A linked list of all sites; this can be used to iterate
+	 * incrementally over all known sites.
+	 */
+	SiteList site_list;
+
 public:
 	explicit Database(size_t max_size, double _per_site_message_rate_limit=-1);
 	~Database() noexcept;
@@ -105,6 +125,7 @@ public:
 	}
 
 	void Clear() noexcept {
+		site_list.clear();
 		per_site_records.clear();
 
 		all_records.clear();
@@ -156,6 +177,10 @@ private:
 						  std::forward_as_tuple(std::forward<S>(site)),
 						  std::forward_as_tuple());
 		auto &per_site = e.first->second;
+
+		if (e.second)
+			site_list.push_back(per_site);
+
 		return per_site;
 	}
 
