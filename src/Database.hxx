@@ -146,12 +146,14 @@ public:
 	std::vector<std::string> CollectSites(const Filter &filter) noexcept;
 
 private:
-	auto &GetPerSite(const std::string &site) noexcept {
-		return per_site_records[site];
+	template<typename S>
+	auto &GetPerSite(S &&site) noexcept {
+		return per_site_records[std::forward<S>(site)];
 	}
 
-	PerSiteRecordList &GetPerSiteRecords(const std::string &site) noexcept {
-		return GetPerSite(site).list;
+	template<typename S>
+	auto &GetPerSiteRecords(S &&site) noexcept {
+		return GetPerSite(std::forward<S>(site)).list;
 	}
 
 	AnyRecordList GetList(Filter &filter) noexcept;
