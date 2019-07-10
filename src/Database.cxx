@@ -171,9 +171,11 @@ Database::Follow(const Filter &filter, AppendListener &l) noexcept
 }
 
 std::vector<std::string>
-Database::CollectSites(const Filter &filter) noexcept
+Database::CollectSites(const Filter &filter,
+		       unsigned max, unsigned skip) noexcept
 {
 	assert(filter.sites.empty());
+	assert(max > 0);
 
 	std::unordered_set<std::string> s;
 	std::vector<std::string> v;
@@ -187,7 +189,15 @@ Database::CollectSites(const Filter &filter) noexcept
 		if (!e.second)
 			continue;
 
+		if (skip > 0) {
+			--skip;
+			continue;
+		}
+
 		v.emplace_back(*e.first);
+
+		if (--max == 0)
+			break;
 	}
 
 	return v;

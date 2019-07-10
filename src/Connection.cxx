@@ -140,18 +140,10 @@ EmplaceMove(std::set<T> &dest, const I begin, const I end)
 
 template<typename T>
 static inline std::set<T>
-VectorWindow(std::vector<T> &&v, size_t offset, size_t count) noexcept
+VectorToSet(std::vector<T> &&v) noexcept
 {
 	std::set<T> result;
-	if (offset < v.size()) {
-		size_t end_offset = offset + count;
-		if (end_offset > v.size())
-			end_offset = v.size();
-
-		EmplaceMove(result, std::next(v.begin(), offset),
-			    std::next(v.begin(), end_offset));
-	}
-
+	EmplaceMove(result, v.begin(), v.end());
 	return result;
 }
 
@@ -164,9 +156,9 @@ Connection::CommitQuery()
 		current.selection.reset(new Selection(db.Follow(current.filter, *this)));
 	} else if (current.HasGroupSite()) {
 		// TODO: cache the CollectSites() result, because it's expensive
-		current.filter.sites = VectorWindow(db.CollectSites(current.filter),
-						    current.group_site.skip_sites,
-						    current.group_site.max_sites);
+		current.filter.sites = VectorToSet(db.CollectSites(current.filter,
+								   current.group_site.max_sites,
+								   current.group_site.skip_sites));
 
 		current.selection.reset(current.filter.sites.empty()
 					? new Selection(AnyRecordList(), Filter())
