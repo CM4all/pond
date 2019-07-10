@@ -32,6 +32,7 @@
 
 #pragma once
 
+#include "FullRecordList.hxx"
 #include "RList.hxx"
 #include "system/LargeAllocation.hxx"
 #include "util/TokenBucket.hxx"

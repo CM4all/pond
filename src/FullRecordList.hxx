@@ -35,85 +35,64 @@
 #include "Record.hxx"
 #include "RSkipDeque.hxx"
 #include "AppendListener.hxx"
-
-#include <boost/intrusive/list.hpp>
+#include "util/VCircularBuffer.hxx"
 
 #include <assert.h>
 
-template<Record::ListHook Record::*list_hook>
-class RecordList {
-	typedef boost::intrusive::list<Record,
-				       boost::intrusive::member_hook<Record,
-								     Record::ListHook,
-								     list_hook>,
-				       boost::intrusive::constant_time_size<false>> List;
-
-	List list;
-
+class FullRecordList : public VCircularBuffer<Record> {
 	RecordSkipDeque skip_deque;
 
 	AppendListenerList append_listeners;
 
 public:
-	RecordList() = default;
+	using VCircularBuffer::VCircularBuffer;
 
-	~RecordList() noexcept {
-		assert(list.empty());
+	~FullRecordList() noexcept {
 		assert(append_listeners.empty());
 	}
 
-	RecordList(const RecordList &) = delete;
-	RecordList &operator=(const RecordList &) = delete;
-
-	typedef typename List::const_iterator const_iterator;
-
-	const_iterator begin() const noexcept {
-		return list.begin();
-	}
-
-	const_iterator end() const noexcept {
-		return list.end();
-	}
-
-	Record &front() noexcept {
-		return list.front();
-	}
-
-	void clear() noexcept {
-		list.clear();
-	}
-
-	template<typename Disposer>
-	void clear_and_dispose(Disposer &&d) noexcept {
-		list.clear_and_dispose(std::forward<Disposer>(d));
-	}
-
-	void push_back(Record &record) noexcept {
-		list.push_back(record);
+	template<typename... Args>
+	reference emplace_back(Args... args) {
+		auto &record =
+			VCircularBuffer::emplace_back(std::forward<Args>(args)...);
 		skip_deque.UpdateNew(record);
 
 		append_listeners.OnAppend(record);
+
+		return record;
+	}
+
+	template<typename C, typename... Args>
+	reference check_emplace_back(C &&check, Args... args) {
+		auto &record =
+			VCircularBuffer::check_emplace_back(std::forward<C>(check),
+							    std::forward<Args>(args)...);
+		skip_deque.UpdateNew(record);
+
+		append_listeners.OnAppend(record);
+
+		return record;
 	}
 
 	const Record *First() const noexcept {
-		return list.empty() ? nullptr : &list.front();
+		return empty() ? nullptr : &front();
 	}
 
 	const Record *Last() const noexcept {
-		return list.empty() ? nullptr : &list.back();
+		return empty() ? nullptr : &back();
 	}
 
 	const Record *Next(const Record &current) const noexcept {
-		auto i = list.iterator_to(current);
+		auto i = iterator_to(current);
 		++i;
-		return i == list.end()
+		return i == end()
 			? nullptr
 			: &*i;
 	}
 
 	gcc_pure
 	const Record *TimeLowerBound(Net::Log::TimePoint since) noexcept {
-		if (list.empty())
+		if (empty())
 			return nullptr;
 
 		skip_deque.FixDeleted(front());
@@ -124,5 +103,3 @@ public:
 		append_listeners.Add(l);
 	}
 };
-
-class PerSiteRecordList : public RecordList<&Record::per_site_list_hook> {};
