@@ -38,8 +38,6 @@
 #include "time/Cast.hxx"
 #include "time/ClockCache.hxx"
 
-#include <unordered_set>
-
 #include <assert.h>
 #include <sys/mman.h>
 
@@ -179,37 +177,4 @@ Database::Select(SiteIterator &_site, const Filter &filter) noexcept
 	Selection selection(site.list, filter);
 	selection.Rewind();
 	return selection;
-}
-
-std::set<std::string>
-Database::CollectSites(const Filter &filter,
-		       unsigned max, unsigned skip) noexcept
-{
-	assert(filter.sites.empty());
-	assert(max > 0);
-
-	std::unordered_set<std::string> s;
-	std::set<std::string> result;
-
-	for (auto i = Select(filter); i; ++i) {
-		const char *site = i->GetParsed().site;
-		if (site == nullptr)
-			continue;
-
-		auto e = s.emplace(site);
-		if (!e.second)
-			continue;
-
-		if (skip > 0) {
-			--skip;
-			continue;
-		}
-
-		result.emplace(*e.first);
-
-		if (--max == 0)
-			break;
-	}
-
-	return result;
 }

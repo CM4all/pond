@@ -40,7 +40,6 @@
 #include <boost/intrusive/slist.hpp>
 
 #include <unordered_map>
-#include <set>
 #include <string>
 
 template<typename T> struct ConstBuffer;
@@ -190,16 +189,6 @@ public:
 	}
 
 	Selection Select(SiteIterator &site, const Filter &filter) noexcept;
-
-	/**
-	 * Collect a list of site names matching the given filter.
-	 *
-	 * @param max return no more than this number of sites
-	 * @param skip skip this number of sites at the beginning
-	 */
-	std::set<std::string> CollectSites(const Filter &filter,
-					   unsigned max,
-					   unsigned skip) noexcept;
 
 private:
 	template<typename S>
