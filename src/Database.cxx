@@ -170,6 +170,17 @@ Database::Follow(const Filter &filter, AppendListener &l) noexcept
 	return selection;
 }
 
+Selection
+Database::Select(SiteIterator &_site, const Filter &filter) noexcept
+{
+	assert(filter.sites.empty());
+
+	auto &site = (PerSite &)_site;
+	Selection selection(site.list, filter);
+	selection.Rewind();
+	return selection;
+}
+
 std::set<std::string>
 Database::CollectSites(const Filter &filter,
 		       unsigned max, unsigned skip) noexcept

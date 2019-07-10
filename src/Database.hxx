@@ -50,6 +50,18 @@ class Selection;
 class AppendListener;
 class AnyRecordList;
 
+/**
+ * This class is used by Database::GetFirstSite() and
+ * Database::GetNextSite() to iterate over all sites.
+ */
+class SiteIterator {
+protected:
+	SiteIterator() noexcept = default;
+	~SiteIterator() noexcept = default;
+	SiteIterator(const SiteIterator &) = delete;
+	SiteIterator &operator=(const SiteIterator &) = delete;
+};
+
 class Database {
 	const LargeAllocation allocation;
 
@@ -64,7 +76,7 @@ class Database {
 	 */
 	FullRecordList all_records;
 
-	struct PerSite {
+	struct PerSite final : SiteIterator {
 		using ListHook =
 			boost::intrusive::slist_member_hook<boost::intrusive::link_mode<boost::intrusive::normal_link>>;
 		ListHook list_siblings;
@@ -159,6 +171,25 @@ public:
 
 	Selection Select(const Filter &filter) noexcept;
 	Selection Follow(const Filter &filter, AppendListener &l) noexcept;
+
+	SiteIterator *GetFirstSite(unsigned skip=0) noexcept {
+		for (auto i = site_list.begin(); i != site_list.end(); ++i)
+			if (skip-- == 0)
+				return &*i;
+
+		return nullptr;
+	}
+
+	SiteIterator *GetNextSite(SiteIterator &_previous) noexcept {
+		auto &previous = (PerSite &)_previous;
+		auto i = site_list.iterator_to(previous);
+		++i;
+		if (i == site_list.end())
+			return nullptr;
+		return &*i;
+	}
+
+	Selection Select(SiteIterator &site, const Filter &filter) noexcept;
 
 	/**
 	 * Collect a list of site names matching the given filter.
