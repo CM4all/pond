@@ -150,8 +150,8 @@ ParseFilterItem(Filter &filter, PondGroupSitePayload &group_site,
 		char *endptr;
 		auto max = strtoul(group_value, &endptr, 10);
 		if (endptr == group_value)
-			throw "Number expected after group_site=";
-		if (max == 0)
+			max = std::numeric_limits<decltype(group_site.max_sites)>::max();
+		else if (max == 0)
 			throw "group_site max must be positive";
 
 		if (*endptr == '@') {
@@ -462,7 +462,7 @@ try {
 			"\n"
 			"\n"
 			"Commands:\n"
-			"  query [--follow] [--raw] [type=http_access|http_error|submission] [site=VALUE] [group_site=MAX[@SKIP]] [since=ISO8601] [until=ISO8601] [date=YYYY-MM-DD] [today]\n"
+			"  query [--follow] [--raw] [type=http_access|http_error|submission] [site=VALUE] [group_site=[MAX][@SKIP]] [since=ISO8601] [until=ISO8601] [date=YYYY-MM-DD] [today]\n"
 			"  stats\n"
 			"  inject <RAWFILE\n"
 			"  clone OTHERSERVER[:PORT]\n",
