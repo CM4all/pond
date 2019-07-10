@@ -173,12 +173,14 @@ The following filters are available:
   is currently no way to filter records with no site at all.
 - :samp:`site=NAME` shows only records of the specified site.  There
   is currently no way to filter records with no site at all.
-- :samp:`group_site=COUNT[@SKIP]` limits the number of distinct sites
-  in the result.  Only records for the first :envvar:`COUNT` sites are
-  returned, and the rest is ignored (in order of appearance in the
-  filtered list).  The option :envvar:`SKIP` parameter may be used to
-  skip a number of sites.  This can be used to receive records for all
-  sites incrementally, until the result is empty.
+- :samp:`group_site=COUNT[@SKIP]` groups all result records by their
+  "site" attribute, i.e. all records with the same site will be
+  returned successively, followed by all records of the next site and
+  so on.  Only records for the first :envvar:`COUNT` sites are
+  returned, and the rest is ignored.  The option :envvar:`SKIP`
+  parameter may be used to skip a number of sites.  This can be used
+  to receive records for all sites incrementally, until the result is
+  empty.
 - :samp:`since=ISO8601` shows only records since the given time stamp.
   See :ref:`timestamps` for details.
 - :samp:`until=ISO8601` shows only records until the given time stamp.

@@ -79,10 +79,12 @@ enum class PondRequestCommand : uint16_t {
 	FILTER_UNTIL = 7,
 
 	/**
-	 * Option for #QUERY which limits the number of distinct sites
-	 * in the response.  This is useful to write site-specific log
-	 * files while keeping only a certain number of files open.
-	 * Payload is #PondGroupSitePayload.
+	 * Group all result records by their "site" attribute,
+	 * i.e. all records with the same site will be returned
+	 * successively, followed by all records of the next site and
+	 * so on.  This is useful to write site-specific log files
+	 * while keeping only a certain number of files open.  Payload
+	 * is #PondGroupSitePayload.
 	 */
 	GROUP_SITE = 8,
 
