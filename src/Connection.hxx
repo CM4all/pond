@@ -47,6 +47,7 @@
 
 class Instance;
 class Selection;
+class SiteIterator;
 class RootLogger;
 template<typename t> struct ConstBuffer;
 
@@ -69,6 +70,11 @@ class Connection final
 		PondGroupSitePayload group_site;
 
 		std::unique_ptr<Selection> selection;
+
+		/**
+		 * The current site being iterated in GROUP_SITE mode.
+		 */
+		SiteIterator *site_iterator;
 
 		std::string address;
 

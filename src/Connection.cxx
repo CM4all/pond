@@ -130,6 +130,38 @@ Connection::Send(uint16_t id, PondResponseCommand command,
 		throw std::runtime_error("Short send");
 }
 
+static SiteIterator *
+FindNonEmpty(Database &db, const Filter &filter, SiteIterator *i) noexcept
+{
+	while (i != nullptr) {
+		auto selection = db.Select(*i, filter);
+		if (selection)
+			break;
+
+		i = db.GetNextSite(*i);
+	}
+
+	return i;
+}
+
+static SiteIterator *
+SkipNonEmpty(Database &db, const Filter &filter, SiteIterator *i,
+	     unsigned n) noexcept
+{
+	if (i == nullptr)
+		return nullptr;
+
+	/* skip empty sites at the beginning */
+	i = FindNonEmpty(db, filter, i);
+
+	/* now skip "n" more sites (ignoring empty sites in
+	   between) */
+	while (i != nullptr && n-- > 0)
+		i = FindNonEmpty(db, filter, db.GetNextSite(*i));
+
+	return i;
+}
+
 inline void
 Connection::CommitQuery()
 {
@@ -138,14 +170,18 @@ Connection::CommitQuery()
 	if (current.follow) {
 		current.selection.reset(new Selection(db.Follow(current.filter, *this)));
 	} else if (current.HasGroupSite()) {
-		// TODO: cache the CollectSites() result, because it's expensive
-		current.filter.sites = db.CollectSites(current.filter,
-						       current.group_site.max_sites,
-						       current.group_site.skip_sites);
+		current.site_iterator = SkipNonEmpty(db, current.filter,
+						     db.GetFirstSite(),
+						     current.group_site.skip_sites);
 
-		current.selection.reset(current.filter.sites.empty()
-					? new Selection(AnyRecordList(), Filter())
-					: new Selection(db.Select(current.filter)));
+		if (current.site_iterator == nullptr) {
+			current.selection.reset(new Selection(AnyRecordList(), Filter()));
+			socket.ScheduleWrite();
+			return;
+		}
+
+		current.selection.reset(new Selection(db.Select(*current.site_iterator,
+								current.filter)));
 		socket.ScheduleWrite();
 	} else {
 		current.selection.reset(new Selection(db.Select(current.filter)));
@@ -456,6 +492,25 @@ Connection::OnBufferedWrite()
 		selection += SendMulti(socket.GetSocket(), current.id, selection);
 		if (selection)
 			return true;
+	}
+
+	if (--current.group_site.max_sites > 0 &&
+	    current.site_iterator != nullptr) {
+		auto &db = instance.GetDatabase();
+		auto next = db.GetNextSite(*current.site_iterator);
+		current.site_iterator = FindNonEmpty(db, current.filter, next);
+		// TODO: max_sites
+		if (current.site_iterator != nullptr) {
+			/* we have another site; return from this
+			   method, leaving the "write" scheduled, so
+			   we'll be called again and this next call
+			   will send the new site's data */
+			selection = db.Select(*current.site_iterator,
+					      current.filter);
+			return true;
+		}
+
+		/* no more sites, end this response */
 	}
 
 	if (current.follow) {
