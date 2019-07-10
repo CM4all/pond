@@ -170,7 +170,7 @@ Database::Follow(const Filter &filter, AppendListener &l) noexcept
 	return selection;
 }
 
-std::vector<std::string>
+std::set<std::string>
 Database::CollectSites(const Filter &filter,
 		       unsigned max, unsigned skip) noexcept
 {
@@ -178,7 +178,7 @@ Database::CollectSites(const Filter &filter,
 	assert(max > 0);
 
 	std::unordered_set<std::string> s;
-	std::vector<std::string> v;
+	std::set<std::string> result;
 
 	for (auto i = Select(filter); i; ++i) {
 		const char *site = i->GetParsed().site;
@@ -194,11 +194,11 @@ Database::CollectSites(const Filter &filter,
 			continue;
 		}
 
-		v.emplace_back(*e.first);
+		result.emplace(*e.first);
 
 		if (--max == 0)
 			break;
 	}
 
-	return v;
+	return result;
 }

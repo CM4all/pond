@@ -37,7 +37,7 @@
 #include "util/TokenBucket.hxx"
 
 #include <unordered_map>
-#include <vector>
+#include <set>
 #include <string>
 
 template<typename T> struct ConstBuffer;
@@ -140,15 +140,13 @@ public:
 
 	/**
 	 * Collect a list of site names matching the given filter.
-	 * They appear in the returned array in the order of
-	 * appearance.
 	 *
 	 * @param max return no more than this number of sites
 	 * @param skip skip this number of sites at the beginning
 	 */
-	std::vector<std::string> CollectSites(const Filter &filter,
-					      unsigned max,
-					      unsigned skip) noexcept;
+	std::set<std::string> CollectSites(const Filter &filter,
+					   unsigned max,
+					   unsigned skip) noexcept;
 
 private:
 	template<typename S>

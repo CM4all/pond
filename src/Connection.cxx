@@ -130,23 +130,6 @@ Connection::Send(uint16_t id, PondResponseCommand command,
 		throw std::runtime_error("Short send");
 }
 
-template<typename T, typename I>
-static inline void
-EmplaceMove(std::set<T> &dest, const I begin, const I end)
-{
-	for (auto i = begin; i != end; ++i)
-		dest.emplace(std::move(*i));
-}
-
-template<typename T>
-static inline std::set<T>
-VectorToSet(std::vector<T> &&v) noexcept
-{
-	std::set<T> result;
-	EmplaceMove(result, v.begin(), v.end());
-	return result;
-}
-
 inline void
 Connection::CommitQuery()
 {
@@ -156,9 +139,9 @@ Connection::CommitQuery()
 		current.selection.reset(new Selection(db.Follow(current.filter, *this)));
 	} else if (current.HasGroupSite()) {
 		// TODO: cache the CollectSites() result, because it's expensive
-		current.filter.sites = VectorToSet(db.CollectSites(current.filter,
-								   current.group_site.max_sites,
-								   current.group_site.skip_sites));
+		current.filter.sites = db.CollectSites(current.filter,
+						       current.group_site.max_sites,
+						       current.group_site.skip_sites);
 
 		current.selection.reset(current.filter.sites.empty()
 					? new Selection(AnyRecordList(), Filter())
