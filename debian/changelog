@@ -4,7 +4,7 @@ cm4all-pond (0.12) unstable; urgency=low
   * database: add missing initialization to rate limiter
   * database: optimize the GROUP_SITE implementation
 
- --   
+ -- Max Kellermann <mk@cm4all.com>  Thu, 11 Jul 2019 11:45:52 +0200
 
 cm4all-pond (0.11) unstable; urgency=low
 
