@@ -33,15 +33,13 @@
 #include "Protocol.hxx"
 #include "Datagram.hxx"
 #include "Client.hxx"
+#include "ResultWriter.hxx"
 #include "Open.hxx"
 #include "Filter.hxx"
 #include "avahi/Check.hxx"
 #include "system/Error.hxx"
-#include "net/SendMessage.hxx"
 #include "net/log/String.hxx"
 #include "net/log/Parser.hxx"
-#include "net/log/Datagram.hxx"
-#include "net/log/OneLine.hxx"
 #include "time/Parser.hxx"
 #include "time/Math.hxx"
 #include "time/Convert.hxx"
@@ -65,46 +63,6 @@ IsFilter(const char *arg, StringView name) noexcept
 	return StringStartsWith(arg, name) && arg[name.size] == '='
 		? arg + name.size + 1
 		: nullptr;
-}
-
-/**
- * Cast this #FileDescriptor to a #SocketDescriptor if it specifies a
- * socket.
- */
-gcc_pure
-static SocketDescriptor
-CheckSocket(FileDescriptor fd)
-{
-	return fd.IsSocket()
-		? SocketDescriptor::FromFileDescriptor(fd)
-		: SocketDescriptor::Undefined();
-}
-
-/**
- * Cast this #FileDescriptor to a #SocketDescriptor if it specifies a
- * packet socket (SOCK_DGRAM or SOCK_SEQPACKET).
- */
-gcc_pure
-static SocketDescriptor
-CheckPacketSocket(FileDescriptor fd)
-{
-	auto s = CheckSocket(fd);
-	if (s.IsDefined() && s.IsStream())
-		s.SetUndefined();
-	return s;
-}
-
-static void
-SendPacket(SocketDescriptor s, ConstBuffer<void> payload)
-{
-	struct iovec vec[] = {
-		{
-			.iov_base = const_cast<void *>(payload.data),
-			.iov_len = payload.size,
-		},
-	};
-
-	SendMessage(s, ConstBuffer<struct iovec>(vec), 0);
 }
 
 static std::chrono::system_clock::time_point
@@ -203,9 +161,6 @@ Query(const PondServerSpecification &server, ConstBuffer<const char *> args)
 	PondGroupSitePayload group_site{0, 0};
 	QueryOptions options;
 
-	const FileDescriptor out_fd(STDOUT_FILENO);
-	auto socket = CheckPacketSocket(out_fd);
-
 	while (!args.empty()) {
 		const char *p = args.shift();
 		try {
@@ -226,6 +181,8 @@ Query(const PondServerSpecification &server, ConstBuffer<const char *> args)
 		client.Send(id, PondRequestCommand::FILTER_SITE, i);
 	const bool single_site = filter.sites.begin() != filter.sites.end() &&
 		std::next(filter.sites.begin()) == filter.sites.end();
+
+	ResultWriter result_writer(options.raw, single_site);
 
 	if (filter.since != Net::Log::TimePoint::min())
 		client.Send(id, PondRequestCommand::FILTER_SINCE, filter.since);
@@ -250,7 +207,7 @@ Query(const PondServerSpecification &server, ConstBuffer<const char *> args)
 			.revents = 0,
 		},
 		{
-			.fd = out_fd.Get(),
+			.fd = result_writer.GetFileDescriptor().Get(),
 			/* only waiting for POLLERR, which is an
 			   output-only flag */
 			.events = 0,
@@ -286,25 +243,8 @@ Query(const PondServerSpecification &server, ConstBuffer<const char *> args)
 			return;
 
 		case PondResponseCommand::LOG_RECORD:
-			if (socket.IsDefined()) {
-				/* if fd2 is a packet socket, send raw
-				   datagrams to it */
-				SendPacket(socket, d.payload);
-				continue;
-			} else if (options.raw) {
-				const PondHeader header{ToBE16(d.id), ToBE16(uint16_t(d.command)), ToBE16(d.payload.size)};
-				if (write(STDOUT_FILENO, &header, sizeof(header)) < 0 ||
-				    write(STDOUT_FILENO, d.payload.data.get(),
-					  d.payload.size) < 0)
-					throw MakeErrno("Failed to write to stdout");
-				continue;
-			}
-
 			try {
-				LogOneLine(out_fd,
-					   Net::Log::ParseDatagram(d.payload.data.get(),
-								   d.payload.data.get() + d.payload.size),
-					   !single_site);
+				result_writer.Write(d);
 			} catch (Net::Log::ProtocolError) {
 				fprintf(stderr, "Failed to parse log record\n");
 			}
