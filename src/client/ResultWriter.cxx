@@ -33,13 +33,19 @@
 #include "ResultWriter.hxx"
 #include "Protocol.hxx"
 #include "system/Error.hxx"
+#include "io/Open.hxx"
 #include "net/SendMessage.hxx"
 #include "net/log/Datagram.hxx"
 #include "net/log/OneLine.hxx"
 #include "net/log/Parser.hxx"
 #include "util/ByteOrder.hxx"
+#include "util/CharUtil.hxx"
 #include "util/ConstBuffer.hxx"
 #include "util/Macros.hxx"
+
+#include <algorithm>
+
+#include <fcntl.h>
 
 /**
  * Cast this #FileDescriptor to a #SocketDescriptor if it specifies a
@@ -68,6 +74,30 @@ CheckPacketSocket(FileDescriptor fd)
 	return s;
 }
 
+static constexpr bool
+IsSafeSiteChar(char ch) noexcept
+{
+	return IsAlphaNumericASCII(ch);
+}
+
+static const char *
+SanitizeSiteName(char *buffer, size_t buffer_size,
+		 const char *site)
+{
+	const size_t site_length = strlen(site);
+	if (site_length == 0 || site_length >= buffer_size)
+		return nullptr;
+
+	char *p = buffer;
+	while (*site != 0) {
+		char ch = *site++;
+		*p++ = IsSafeSiteChar(ch) ? ch : '_';
+	}
+
+	*p = 0;
+	return buffer;
+}
+
 static void
 SendPacket(SocketDescriptor s, ConstBuffer<void> payload)
 {
@@ -81,16 +111,48 @@ SendPacket(SocketDescriptor s, ConstBuffer<void> payload)
 	SendMessage(s, ConstBuffer<struct iovec>(vec), 0);
 }
 
-ResultWriter::ResultWriter(bool _raw, bool _single_site) noexcept
+ResultWriter::ResultWriter(bool _raw, bool _single_site,
+			   const char *const _per_site_append) noexcept
 	:fd(STDOUT_FILENO),
 	 socket(CheckPacketSocket(fd)),
+	 per_site_append(_per_site_append != nullptr
+			 ? OpenPath(_per_site_append, O_DIRECTORY)
+			 : UniqueFileDescriptor{}),
 	 raw(_raw), single_site(_single_site)
 {
+	if (per_site_append.IsDefined()) {
+		fd.SetUndefined();
+		socket.SetUndefined();
+	}
 }
 
 void
-ResultWriter::Write(ConstBuffer<void> payload) const
+ResultWriter::Write(ConstBuffer<void> payload)
 {
+	if (per_site_append.IsDefined()) {
+		const auto d = Net::Log::ParseDatagram(payload);
+		if (d.site == nullptr)
+			// TODO: where to log datagrams without a site?
+			return;
+
+		char buffer[sizeof(last_site)];
+		const char *filename = SanitizeSiteName(buffer, sizeof(buffer),
+							d.site);
+		if (filename == nullptr)
+			return;
+
+		if (!per_site_fd.IsDefined() ||
+		    strcmp(last_site, filename) != 0) {
+			per_site_fd = OpenWriteOnly(per_site_append, filename,
+						    O_CREAT|O_APPEND|O_NOFOLLOW);
+			strcpy(last_site, filename);
+		}
+
+		if (!LogOneLine(per_site_fd, d, false))
+			throw MakeErrno("Failed to write");
+		return;
+	}
+
 	if (socket.IsDefined()) {
 		/* if fd2 is a packet socket, send raw
 		   datagrams to it */

@@ -32,7 +32,7 @@
 
 #pragma once
 
-#include "io/FileDescriptor.hxx"
+#include "io/UniqueFileDescriptor.hxx"
 #include "net/SocketDescriptor.hxx"
 
 template<typename t> struct ConstBuffer;
@@ -41,10 +41,20 @@ class ResultWriter {
 	FileDescriptor fd;
 	SocketDescriptor socket;
 
+	/**
+	 * Inside this directory, a file will be appended to for each
+	 * site.
+	 */
+	const UniqueFileDescriptor per_site_append;
+
+	char last_site[256];
+	UniqueFileDescriptor per_site_fd;
+
 	const bool raw, single_site;
 
 public:
-	ResultWriter(bool _raw, bool _single_site) noexcept;
+	ResultWriter(bool _raw, bool _single_site,
+		     const char *const _per_site_append) noexcept;
 
 	ResultWriter(const ResultWriter &) = delete;
 	ResultWriter &operator=(const ResultWriter &) = delete;
@@ -53,5 +63,5 @@ public:
 		return fd;
 	}
 
-	void Write(ConstBuffer<void> payload) const;
+	void Write(ConstBuffer<void> payload);
 };

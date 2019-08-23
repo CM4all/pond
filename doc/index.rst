@@ -163,6 +163,11 @@ The following command-line options are available:
  Write raw :envvar:`LOG_RECORD` packets to standard output instead of
  pretty-printing them as text lines.
 
+.. option:: --per-site-append=DIRECTORY
+
+ Instead of writing to standard output, create one file for each site
+ in the specified directory.  Existing files will be appended to.
+
 The following filters are available:
 
 - :samp:`type=TYPE` shows only records of the specified type.
