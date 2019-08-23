@@ -49,7 +49,6 @@
 #include "util/StringAPI.hxx"
 #include "util/StringCompare.hxx"
 #include "util/ByteOrder.hxx"
-#include "util/Macros.hxx"
 #include "util/StaticFifoBuffer.hxx"
 
 #include <inttypes.h>
@@ -217,7 +216,7 @@ Query(const PondServerSpecification &server, ConstBuffer<const char *> args)
 
 	while (true) {
 		if (client.IsEmpty()) {
-			if (poll(pfds, ARRAY_SIZE(pfds), -1) < 0)
+			if (poll(pfds, std::size(pfds), -1) < 0)
 				throw MakeErrno("poll() failed");
 
 			if (pfds[1].revents)

@@ -39,7 +39,6 @@
 #include "client/Datagram.hxx"
 #include "net/RConnectSocket.hxx"
 #include "system/Error.hxx"
-#include "util/Macros.hxx"
 #include "util/ScopeExit.hxx"
 
 #include <poll.h>
@@ -67,7 +66,7 @@ ReceiveAndEmplace(Database &db, PondClient &client, uint16_t id,
 
 	while (true) {
 		if (client.IsEmpty()) {
-			if (poll(pfds, ARRAY_SIZE(pfds), -1) < 0)
+			if (poll(pfds, std::size(pfds), -1) < 0)
 				throw MakeErrno("poll() failed");
 
 			if (pfds[1].revents)
