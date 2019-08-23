@@ -145,6 +145,7 @@ ResultWriter::Write(ConstBuffer<void> payload)
 		    strcmp(last_site, filename) != 0) {
 			per_site_fd = OpenWriteOnly(per_site_append, filename,
 						    O_CREAT|O_APPEND|O_NOFOLLOW);
+			fd = per_site_append;
 			strcpy(last_site, filename);
 		}
 
