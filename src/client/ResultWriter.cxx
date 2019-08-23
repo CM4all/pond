@@ -31,7 +31,7 @@
  */
 
 #include "ResultWriter.hxx"
-#include "Datagram.hxx"
+#include "Protocol.hxx"
 #include "system/Error.hxx"
 #include "net/SendMessage.hxx"
 #include "net/log/Datagram.hxx"
@@ -89,24 +89,24 @@ ResultWriter::ResultWriter(bool _raw, bool _single_site) noexcept
 }
 
 void
-ResultWriter::Write(const PondDatagram &d) const
+ResultWriter::Write(ConstBuffer<void> payload) const
 {
 	if (socket.IsDefined()) {
 		/* if fd2 is a packet socket, send raw
 		   datagrams to it */
-		SendPacket(socket, d.payload);
+		SendPacket(socket, payload);
 		return;
 	} else if (raw) {
-		const PondHeader header{ToBE16(d.id), ToBE16(uint16_t(d.command)), ToBE16(d.payload.size)};
+		const uint16_t id = 1;
+		const auto command = PondResponseCommand::LOG_RECORD;
+		const PondHeader header{ToBE16(id), ToBE16(uint16_t(command)), ToBE16(payload.size)};
 		if (write(STDOUT_FILENO, &header, sizeof(header)) < 0 ||
-		    write(STDOUT_FILENO, d.payload.data.get(),
-			  d.payload.size) < 0)
+		    write(STDOUT_FILENO, payload.data, payload.size) < 0)
 			throw MakeErrno("Failed to write to stdout");
 		return;
 	}
 
 	LogOneLine(fd,
-		   Net::Log::ParseDatagram(d.payload.data.get(),
-					   d.payload.data.get() + d.payload.size),
+		   Net::Log::ParseDatagram(payload),
 		   !single_site);
 }

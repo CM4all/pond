@@ -35,7 +35,7 @@
 #include "io/FileDescriptor.hxx"
 #include "net/SocketDescriptor.hxx"
 
-struct PondDatagram;
+template<typename t> struct ConstBuffer;
 
 class ResultWriter {
 	FileDescriptor fd;
@@ -53,5 +53,5 @@ public:
 		return fd;
 	}
 
-	void Write(const PondDatagram &d) const;
+	void Write(ConstBuffer<void> payload) const;
 };

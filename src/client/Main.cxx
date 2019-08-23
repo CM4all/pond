@@ -244,7 +244,7 @@ Query(const PondServerSpecification &server, ConstBuffer<const char *> args)
 
 		case PondResponseCommand::LOG_RECORD:
 			try {
-				result_writer.Write(d);
+				result_writer.Write(d.payload);
 			} catch (Net::Log::ProtocolError) {
 				fprintf(stderr, "Failed to parse log record\n");
 			}
