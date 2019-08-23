@@ -156,9 +156,12 @@ ResultWriter::Write(ConstBuffer<void> payload)
 
 		if (!per_site_fd.IsDefined() ||
 		    strcmp(last_site, filename) != 0) {
-			/* flush data belonging into the currently
-			   open output file */
-			Flush();
+			if (per_site_fd.IsDefined()) {
+				/* flush data belonging into the currently
+				   open output file */
+				Flush();
+				per_site_fd.Close();
+			}
 
 			per_site_fd = OpenWriteOnly(per_site_append, filename,
 						    O_CREAT|O_APPEND|O_NOFOLLOW);
