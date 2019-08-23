@@ -106,7 +106,8 @@ ResultWriter::Write(ConstBuffer<void> payload) const
 		return;
 	}
 
-	LogOneLine(fd,
-		   Net::Log::ParseDatagram(payload),
-		   !single_site);
+	if (!LogOneLine(fd,
+			Net::Log::ParseDatagram(payload),
+			!single_site))
+		throw MakeErrno("Failed to write");
 }
