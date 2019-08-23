@@ -64,4 +64,6 @@ public:
 	}
 
 	void Write(ConstBuffer<void> payload);
+
+	void Flush();
 };

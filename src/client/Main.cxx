@@ -252,6 +252,7 @@ Query(const PondServerSpecification &server, ConstBuffer<const char *> args)
 						 d.payload.ToString().c_str());
 
 		case PondResponseCommand::END:
+			result_writer.Flush();
 			return;
 
 		case PondResponseCommand::LOG_RECORD:
@@ -267,6 +268,8 @@ Query(const PondServerSpecification &server, ConstBuffer<const char *> args)
 			throw "Unexpected response packet";
 		}
 	}
+
+	result_writer.Flush();
 }
 
 static void

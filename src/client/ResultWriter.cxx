@@ -174,3 +174,8 @@ ResultWriter::Write(ConstBuffer<void> payload)
 			!single_site))
 		throw MakeErrno("Failed to write");
 }
+
+void
+ResultWriter::Flush()
+{
+}
