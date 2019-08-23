@@ -127,6 +127,18 @@ ResultWriter::ResultWriter(bool _raw, bool _single_site,
 }
 
 void
+ResultWriter::Append(const Net::Log::Datagram &d, bool site)
+{
+	if (buffer_fill > sizeof(buffer) - 16384)
+		Flush();
+
+	char *end = FormatOneLine(buffer + buffer_fill,
+				  sizeof(buffer) - buffer_fill,
+				  d, site);
+	buffer_fill = end - buffer;
+}
+
+void
 ResultWriter::Write(ConstBuffer<void> payload)
 {
 	if (per_site_append.IsDefined()) {
@@ -135,22 +147,26 @@ ResultWriter::Write(ConstBuffer<void> payload)
 			// TODO: where to log datagrams without a site?
 			return;
 
-		char buffer[sizeof(last_site)];
-		const char *filename = SanitizeSiteName(buffer, sizeof(buffer),
+		char filename_buffer[sizeof(last_site)];
+		const char *filename = SanitizeSiteName(filename_buffer,
+							sizeof(filename_buffer),
 							d.site);
 		if (filename == nullptr)
 			return;
 
 		if (!per_site_fd.IsDefined() ||
 		    strcmp(last_site, filename) != 0) {
+			/* flush data belonging into the currently
+			   open output file */
+			Flush();
+
 			per_site_fd = OpenWriteOnly(per_site_append, filename,
 						    O_CREAT|O_APPEND|O_NOFOLLOW);
-			fd = per_site_append;
+			fd = per_site_fd;
 			strcpy(last_site, filename);
 		}
 
-		if (!LogOneLine(per_site_fd, d, false))
-			throw MakeErrno("Failed to write");
+		Append(d, false);
 		return;
 	}
 
@@ -169,13 +185,26 @@ ResultWriter::Write(ConstBuffer<void> payload)
 		return;
 	}
 
-	if (!LogOneLine(fd,
-			Net::Log::ParseDatagram(payload),
-			!single_site))
-		throw MakeErrno("Failed to write");
+	Append(Net::Log::ParseDatagram(payload), !single_site);
 }
 
 void
 ResultWriter::Flush()
 {
+	if (buffer_fill == 0)
+		return;
+
+	assert(fd.IsDefined());
+
+	for (size_t i = 0; i < buffer_fill;) {
+		ssize_t nbytes = fd.Write(buffer + i, buffer_fill - i);
+		if (nbytes < 0)
+			throw MakeErrno("Failed to write");
+		if (nbytes == 0)
+			throw std::runtime_error("Failed to write");
+
+		i += nbytes;
+	}
+
+	buffer_fill = 0;
 }

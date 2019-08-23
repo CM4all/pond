@@ -229,8 +229,20 @@ Query(const PondServerSpecification &server, ConstBuffer<const char *> args)
 
 	while (true) {
 		if (client.IsEmpty()) {
-			if (poll(pfds, std::size(pfds), -1) < 0)
+			/* if there is data in the buffer, flush it
+			   after 100ms */
+			int timeout = result_writer.IsEmpty() ? -1 : 100;
+
+			int result = poll(pfds, std::size(pfds), timeout);
+			if (result < 0)
 				throw MakeErrno("poll() failed");
+
+			if (result == 0) {
+				/* no new data after 100ms: flush the
+				   buffer and keep on waiting */
+				result_writer.Flush();
+				continue;
+			}
 
 			if (pfds[1].revents)
 				/* the output pipe/socket was closed (probably
