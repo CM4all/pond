@@ -170,14 +170,10 @@ ResultWriter::Write(ConstBuffer<void> payload)
 		}
 
 		Append(d, false);
-		return;
-	}
-
-	if (socket.IsDefined()) {
+	} else if (socket.IsDefined()) {
 		/* if fd2 is a packet socket, send raw
 		   datagrams to it */
 		SendPacket(socket, payload);
-		return;
 	} else if (raw) {
 		const uint16_t id = 1;
 		const auto command = PondResponseCommand::LOG_RECORD;
@@ -185,10 +181,8 @@ ResultWriter::Write(ConstBuffer<void> payload)
 		if (write(STDOUT_FILENO, &header, sizeof(header)) < 0 ||
 		    write(STDOUT_FILENO, payload.data, payload.size) < 0)
 			throw MakeErrno("Failed to write to stdout");
-		return;
-	}
-
-	Append(Net::Log::ParseDatagram(payload), !single_site);
+	} else
+		Append(Net::Log::ParseDatagram(payload), !single_site);
 }
 
 void
