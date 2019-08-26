@@ -82,6 +82,7 @@ struct QueryOptions {
 
 	bool follow = false;
 	bool raw = false;
+	bool anonymize = false;
 };
 
 static void
@@ -153,6 +154,8 @@ ParseFilterItem(Filter &filter, PondGroupSitePayload &group_site,
 		options.follow = true;
 	else if (StringIsEqual(p, "--raw"))
 		options.raw = true;
+	else if (StringIsEqual(p, "--anonymize"))
+		options.anonymize = true;
 	else
 		throw "Unrecognized query argument";
 }
@@ -193,7 +196,8 @@ Query(const PondServerSpecification &server, ConstBuffer<const char *> args)
 	const bool single_site = filter.sites.begin() != filter.sites.end() &&
 		std::next(filter.sites.begin()) == filter.sites.end();
 
-	ResultWriter result_writer(options.raw, single_site,
+	ResultWriter result_writer(options.raw, options.anonymize,
+				   single_site,
 				   options.per_site_append);
 
 	if (filter.since != Net::Log::TimePoint::min())
@@ -429,7 +433,7 @@ try {
 			"\n"
 			"\n"
 			"Commands:\n"
-			"  query [--follow] [--raw] [type=http_access|http_error|submission] [site=VALUE] [group_site=[MAX][@SKIP]] [since=ISO8601] [until=ISO8601] [date=YYYY-MM-DD] [today]\n"
+			"  query [--follow] [--raw] [--anonymize] [type=http_access|http_error|submission] [site=VALUE] [group_site=[MAX][@SKIP]] [since=ISO8601] [until=ISO8601] [date=YYYY-MM-DD] [today]\n"
 			"  stats\n"
 			"  inject <RAWFILE\n"
 			"  clone OTHERSERVER[:PORT]\n",

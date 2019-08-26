@@ -51,13 +51,13 @@ class ResultWriter {
 	char last_site[256];
 	UniqueFileDescriptor per_site_fd;
 
-	const bool raw, single_site;
+	const bool raw, anonymize, single_site;
 
 	size_t buffer_fill = 0;
 	char buffer[65536];
 
 public:
-	ResultWriter(bool _raw, bool _single_site,
+	ResultWriter(bool _raw, bool _anonymize, bool _single_site,
 		     const char *const _per_site_append) noexcept;
 
 	ResultWriter(const ResultWriter &) = delete;

@@ -111,14 +111,15 @@ SendPacket(SocketDescriptor s, ConstBuffer<void> payload)
 	SendMessage(s, ConstBuffer<struct iovec>(vec), 0);
 }
 
-ResultWriter::ResultWriter(bool _raw, bool _single_site,
+ResultWriter::ResultWriter(bool _raw, bool _anonymize, bool _single_site,
 			   const char *const _per_site_append) noexcept
 	:fd(STDOUT_FILENO),
 	 socket(CheckPacketSocket(fd)),
 	 per_site_append(_per_site_append != nullptr
 			 ? OpenPath(_per_site_append, O_DIRECTORY)
 			 : UniqueFileDescriptor{}),
-	 raw(_raw), single_site(_single_site)
+	 raw(_raw), anonymize(_anonymize),
+	 single_site(_single_site)
 {
 	if (per_site_append.IsDefined()) {
 		fd.SetUndefined();
@@ -134,7 +135,7 @@ ResultWriter::Append(const Net::Log::Datagram &d, bool site)
 
 	char *end = FormatOneLine(buffer + buffer_fill,
 				  sizeof(buffer) - buffer_fill,
-				  d, site);
+				  d, site, anonymize);
 	buffer_fill = end - buffer;
 }
 

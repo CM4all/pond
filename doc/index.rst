@@ -163,6 +163,12 @@ The following command-line options are available:
  Write raw :envvar:`LOG_RECORD` packets to standard output instead of
  pretty-printing them as text lines.
 
+.. option:: --anonymize
+
+ Anonymize the client IP address by zeroing a portion at the
+ end.  This doesn't work in "raw" mode and doesn't affect IP addresses
+ inside log messages.
+
 .. option:: --per-site-append=DIRECTORY
 
  Instead of writing to standard output, create one file for each site
