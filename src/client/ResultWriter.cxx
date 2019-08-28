@@ -124,6 +124,8 @@ ResultWriter::ResultWriter(bool _raw, bool _anonymize, bool _single_site,
 	if (per_site_append.IsDefined()) {
 		fd.SetUndefined();
 		socket.SetUndefined();
+	} else {
+		output_stream = std::make_unique<FdOutputStream>(fd);
 	}
 }
 
@@ -166,7 +168,7 @@ ResultWriter::Write(ConstBuffer<void> payload)
 
 			per_site_fd = OpenWriteOnly(per_site_append, filename,
 						    O_CREAT|O_APPEND|O_NOFOLLOW);
-			fd = per_site_fd;
+			output_stream = std::make_unique<FdOutputStream>(per_site_fd);
 			strcpy(last_site, filename);
 		}
 
@@ -179,9 +181,8 @@ ResultWriter::Write(ConstBuffer<void> payload)
 		const uint16_t id = 1;
 		const auto command = PondResponseCommand::LOG_RECORD;
 		const PondHeader header{ToBE16(id), ToBE16(uint16_t(command)), ToBE16(payload.size)};
-		if (write(STDOUT_FILENO, &header, sizeof(header)) < 0 ||
-		    write(STDOUT_FILENO, payload.data, payload.size) < 0)
-			throw MakeErrno("Failed to write to stdout");
+		output_stream->Write(&header, sizeof(header));
+		output_stream->Write(payload.data, payload.size);
 	} else
 		Append(Net::Log::ParseDatagram(payload), !single_site);
 }
@@ -192,17 +193,8 @@ ResultWriter::Flush()
 	if (buffer_fill == 0)
 		return;
 
-	assert(fd.IsDefined());
+	assert(output_stream);
 
-	for (size_t i = 0; i < buffer_fill;) {
-		ssize_t nbytes = fd.Write(buffer + i, buffer_fill - i);
-		if (nbytes < 0)
-			throw MakeErrno("Failed to write");
-		if (nbytes == 0)
-			throw std::runtime_error("Failed to write");
-
-		i += nbytes;
-	}
-
+	output_stream->Write(buffer, buffer_fill);
 	buffer_fill = 0;
 }

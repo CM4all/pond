@@ -33,7 +33,10 @@
 #pragma once
 
 #include "io/UniqueFileDescriptor.hxx"
+#include "io/FdOutputStream.hxx"
 #include "net/SocketDescriptor.hxx"
+
+#include <memory>
 
 template<typename t> struct ConstBuffer;
 namespace Net::Log { struct Datagram; }
@@ -41,6 +44,8 @@ namespace Net::Log { struct Datagram; }
 class ResultWriter {
 	FileDescriptor fd;
 	SocketDescriptor socket;
+
+	std::unique_ptr<FdOutputStream> output_stream;
 
 	/**
 	 * Inside this directory, a file will be appended to for each
