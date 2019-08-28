@@ -33,13 +33,13 @@
 #pragma once
 
 #include "io/UniqueFileDescriptor.hxx"
-#include "io/FdOutputStream.hxx"
 #include "net/SocketDescriptor.hxx"
 
 #include <memory>
 
 template<typename t> struct ConstBuffer;
 namespace Net::Log { struct Datagram; }
+class FdOutputStream;
 
 class ResultWriter {
 	FileDescriptor fd;
@@ -64,6 +64,7 @@ class ResultWriter {
 public:
 	ResultWriter(bool _raw, bool _anonymize, bool _single_site,
 		     const char *const _per_site_append) noexcept;
+	~ResultWriter() noexcept;
 
 	ResultWriter(const ResultWriter &) = delete;
 	ResultWriter &operator=(const ResultWriter &) = delete;

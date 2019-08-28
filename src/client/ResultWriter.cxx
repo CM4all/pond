@@ -33,6 +33,7 @@
 #include "ResultWriter.hxx"
 #include "Protocol.hxx"
 #include "system/Error.hxx"
+#include "io/FdOutputStream.hxx"
 #include "io/Open.hxx"
 #include "net/SendMessage.hxx"
 #include "net/log/Datagram.hxx"
@@ -128,6 +129,8 @@ ResultWriter::ResultWriter(bool _raw, bool _anonymize, bool _single_site,
 		output_stream = std::make_unique<FdOutputStream>(fd);
 	}
 }
+
+ResultWriter::~ResultWriter() noexcept = default;
 
 void
 ResultWriter::Append(const Net::Log::Datagram &d, bool site)
