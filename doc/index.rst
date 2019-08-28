@@ -163,6 +163,10 @@ The following command-line options are available:
  Write raw :envvar:`LOG_RECORD` packets to standard output instead of
  pretty-printing them as text lines.
 
+.. option:: --gzip
+
+ Compress the output with ``gzip``.
+
 .. option:: --anonymize
 
  Anonymize the client IP address by zeroing a portion at the

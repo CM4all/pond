@@ -39,13 +39,17 @@
 
 template<typename t> struct ConstBuffer;
 namespace Net::Log { struct Datagram; }
+class OutputStream;
 class FdOutputStream;
+class GzipOutputStream;
 
 class ResultWriter {
 	FileDescriptor fd;
 	SocketDescriptor socket;
 
-	std::unique_ptr<FdOutputStream> output_stream;
+	OutputStream *output_stream;
+	std::unique_ptr<FdOutputStream> fd_output_stream;
+	std::unique_ptr<GzipOutputStream> gzip_output_stream;
 
 	/**
 	 * Inside this directory, a file will be appended to for each
@@ -56,13 +60,13 @@ class ResultWriter {
 	char last_site[256];
 	UniqueFileDescriptor per_site_fd;
 
-	const bool raw, anonymize, single_site;
+	const bool raw, gzip, anonymize, single_site;
 
 	size_t buffer_fill = 0;
 	char buffer[65536];
 
 public:
-	ResultWriter(bool _raw, bool _anonymize, bool _single_site,
+	ResultWriter(bool _raw, bool _gzip, bool _anonymize, bool _single_site,
 		     const char *const _per_site_append) noexcept;
 	~ResultWriter() noexcept;
 
@@ -82,5 +86,7 @@ public:
 	void Flush();
 
 private:
+	void FlushBuffer();
+
 	void Append(const Net::Log::Datagram &d, bool site);
 };

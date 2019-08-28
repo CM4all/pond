@@ -108,6 +108,7 @@ subdir('libcommon/src/event')
 subdir('libcommon/src/net')
 subdir('libcommon/src/event/net')
 subdir('libcommon/src/avahi')
+subdir('libcommon/src/zlib')
 
 executable('cm4all-pond',
   'src/Main.cxx',
@@ -153,6 +154,7 @@ executable('cm4all-pond-client',
     event_net_dep,
     http_dep,
     avahi_dep,
+    zlib_dep,
   ],
   install: true)
 

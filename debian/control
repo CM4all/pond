@@ -11,6 +11,7 @@ Build-Depends: debhelper (>= 12~),
  libboost-filesystem-dev (>= 1.54),
  libsystemd-dev,
  libavahi-client-dev,
+ libz-dev,
  python3-sphinx
 Standards-Version: 4.0.0
 Vcs-Browser: https://github.com/CM4all/pond

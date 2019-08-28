@@ -82,6 +82,7 @@ struct QueryOptions {
 
 	bool follow = false;
 	bool raw = false;
+	bool gzip = false;
 	bool anonymize = false;
 };
 
@@ -154,6 +155,8 @@ ParseFilterItem(Filter &filter, PondGroupSitePayload &group_site,
 		options.follow = true;
 	else if (StringIsEqual(p, "--raw"))
 		options.raw = true;
+	else if (StringIsEqual(p, "--gzip"))
+		options.gzip = true;
 	else if (StringIsEqual(p, "--anonymize"))
 		options.anonymize = true;
 	else
@@ -196,7 +199,8 @@ Query(const PondServerSpecification &server, ConstBuffer<const char *> args)
 	const bool single_site = filter.sites.begin() != filter.sites.end() &&
 		std::next(filter.sites.begin()) == filter.sites.end();
 
-	ResultWriter result_writer(options.raw, options.anonymize,
+	ResultWriter result_writer(options.raw, options.gzip,
+				   options.anonymize,
 				   single_site,
 				   options.per_site_append);
 

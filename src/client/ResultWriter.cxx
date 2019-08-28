@@ -33,6 +33,7 @@
 #include "ResultWriter.hxx"
 #include "Protocol.hxx"
 #include "system/Error.hxx"
+#include "zlib/GzipOutputStream.hxx"
 #include "io/FdOutputStream.hxx"
 #include "io/Open.hxx"
 #include "net/SendMessage.hxx"
@@ -112,21 +113,28 @@ SendPacket(SocketDescriptor s, ConstBuffer<void> payload)
 	SendMessage(s, ConstBuffer<struct iovec>(vec), 0);
 }
 
-ResultWriter::ResultWriter(bool _raw, bool _anonymize, bool _single_site,
+ResultWriter::ResultWriter(bool _raw, bool _gzip,
+			   bool _anonymize, bool _single_site,
 			   const char *const _per_site_append) noexcept
 	:fd(STDOUT_FILENO),
 	 socket(CheckPacketSocket(fd)),
 	 per_site_append(_per_site_append != nullptr
 			 ? OpenPath(_per_site_append, O_DIRECTORY)
 			 : UniqueFileDescriptor{}),
-	 raw(_raw), anonymize(_anonymize),
+	 raw(_raw), gzip(_gzip), anonymize(_anonymize),
 	 single_site(_single_site)
 {
 	if (per_site_append.IsDefined()) {
 		fd.SetUndefined();
 		socket.SetUndefined();
 	} else {
-		output_stream = std::make_unique<FdOutputStream>(fd);
+		fd_output_stream = std::make_unique<FdOutputStream>(fd);
+		output_stream = fd_output_stream.get();
+
+		if (gzip) {
+			gzip_output_stream = std::make_unique<GzipOutputStream>(*output_stream);
+			output_stream = gzip_output_stream.get();
+		}
 	}
 }
 
@@ -136,7 +144,7 @@ void
 ResultWriter::Append(const Net::Log::Datagram &d, bool site)
 {
 	if (buffer_fill > sizeof(buffer) - 16384)
-		Flush();
+		FlushBuffer();
 
 	char *end = FormatOneLine(buffer + buffer_fill,
 				  sizeof(buffer) - buffer_fill,
@@ -166,12 +174,21 @@ ResultWriter::Write(ConstBuffer<void> payload)
 				/* flush data belonging into the currently
 				   open output file */
 				Flush();
+				gzip_output_stream.reset();
+				fd_output_stream.reset();
 				per_site_fd.Close();
 			}
 
 			per_site_fd = OpenWriteOnly(per_site_append, filename,
 						    O_CREAT|O_APPEND|O_NOFOLLOW);
-			output_stream = std::make_unique<FdOutputStream>(per_site_fd);
+			fd_output_stream = std::make_unique<FdOutputStream>(per_site_fd);
+			output_stream = fd_output_stream.get();
+
+			if (gzip) {
+				gzip_output_stream = std::make_unique<GzipOutputStream>(*output_stream);
+				output_stream = gzip_output_stream.get();
+			}
+
 			strcpy(last_site, filename);
 		}
 
@@ -191,7 +208,7 @@ ResultWriter::Write(ConstBuffer<void> payload)
 }
 
 void
-ResultWriter::Flush()
+ResultWriter::FlushBuffer()
 {
 	if (buffer_fill == 0)
 		return;
@@ -200,4 +217,13 @@ ResultWriter::Flush()
 
 	output_stream->Write(buffer, buffer_fill);
 	buffer_fill = 0;
+}
+
+void
+ResultWriter::Flush()
+{
+	FlushBuffer();
+
+	if (gzip_output_stream)
+		gzip_output_stream->Flush();
 }
