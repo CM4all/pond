@@ -114,10 +114,13 @@ SendPacket(SocketDescriptor s, ConstBuffer<void> payload)
 }
 
 ResultWriter::ResultWriter(bool _raw, bool _gzip,
-			   bool _anonymize, bool _single_site,
+			   GeoIP *_geoip_v4, GeoIP *_geoip_v6,
+			   bool _anonymize,
+			   bool _single_site,
 			   const char *const _per_site_append) noexcept
 	:fd(STDOUT_FILENO),
 	 socket(CheckPacketSocket(fd)),
+	 geoip_v4(_geoip_v4), geoip_v6(_geoip_v6),
 	 per_site_append(_per_site_append != nullptr
 			 ? OpenPath(_per_site_append, O_DIRECTORY)
 			 : UniqueFileDescriptor{}),
@@ -140,6 +143,20 @@ ResultWriter::ResultWriter(bool _raw, bool _gzip,
 
 ResultWriter::~ResultWriter() noexcept = default;
 
+inline const char *
+ResultWriter::LookupGeoIP(const char *address) const noexcept
+{
+	const char *dot = strchr(address, '.');
+	if (dot != nullptr)
+		return GeoIP_country_code_by_addr(geoip_v4, address);
+
+	const char *colon = strchr(address, ':');
+	if (colon != nullptr)
+		return GeoIP_country_code_by_addr_v6(geoip_v6, address);
+
+	return nullptr;
+}
+
 void
 ResultWriter::Append(const Net::Log::Datagram &d, bool site)
 {
@@ -153,6 +170,17 @@ ResultWriter::Append(const Net::Log::Datagram &d, bool site)
 				  d, site, anonymize);
 	if (end == old_end)
 		return;
+
+	if (geoip_v4 != nullptr) {
+		const char *country = d.remote_host != nullptr
+			? LookupGeoIP(d.remote_host)
+			: nullptr;
+		if (country == nullptr)
+			country = "-";
+
+		*end++ = ' ';
+		end = stpcpy(end, country);
+	}
 
 	*end++ = '\n';
 	buffer_fill = end - buffer;

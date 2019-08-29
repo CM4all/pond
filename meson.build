@@ -75,6 +75,7 @@ add_global_arguments(c_compiler.get_supported_arguments(test_cflags), language: 
 
 boost = dependency('boost', modules: ['system', 'filesystem'], version: '>= 1.54')
 libsystemd = dependency('libsystemd')
+libgeoip = dependency('geoip')
 
 gtest_compile_args = [
   '-Wno-undef',
@@ -150,6 +151,7 @@ executable('cm4all-pond-client',
   'src/client/Open.cxx',
   include_directories: inc,
   dependencies: [
+    libgeoip,
     net_dep,
     event_net_dep,
     http_dep,

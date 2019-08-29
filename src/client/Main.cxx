@@ -49,6 +49,7 @@
 #include "util/StringAPI.hxx"
 #include "util/StringCompare.hxx"
 #include "util/ByteOrder.hxx"
+#include "util/ScopeExit.hxx"
 #include "util/StaticFifoBuffer.hxx"
 
 #include <inttypes.h>
@@ -83,6 +84,7 @@ struct QueryOptions {
 	bool follow = false;
 	bool raw = false;
 	bool gzip = false;
+	bool geoip = false;
 	bool anonymize = false;
 };
 
@@ -157,6 +159,8 @@ ParseFilterItem(Filter &filter, PondGroupSitePayload &group_site,
 		options.raw = true;
 	else if (StringIsEqual(p, "--gzip"))
 		options.gzip = true;
+	else if (StringIsEqual(p, "--geoip"))
+		options.geoip = true;
 	else if (StringIsEqual(p, "--anonymize"))
 		options.anonymize = true;
 	else
@@ -199,7 +203,34 @@ Query(const PondServerSpecification &server, ConstBuffer<const char *> args)
 	const bool single_site = filter.sites.begin() != filter.sites.end() &&
 		std::next(filter.sites.begin()) == filter.sites.end();
 
+	GeoIP *geoip_v4 = nullptr, *geoip_v6 = nullptr;
+
+	AtScopeExit(geoip_v4, geoip_v6) {
+		if (geoip_v4 != nullptr)
+			GeoIP_delete(geoip_v4);
+		if (geoip_v6 != nullptr)
+			GeoIP_delete(geoip_v6);
+	};
+
+	if (options.geoip) {
+		geoip_v4 = GeoIP_open_type(GEOIP_COUNTRY_EDITION,
+					   GEOIP_MEMORY_CACHE);
+		if (geoip_v4 == nullptr)
+			throw std::runtime_error("Failed to open GeoIP country IPv4 database - did you install package geoip-database?");
+
+		GeoIP_set_charset(geoip_v4, GEOIP_CHARSET_UTF8);
+
+		geoip_v6 = GeoIP_open_type(GEOIP_COUNTRY_EDITION_V6,
+					   GEOIP_MEMORY_CACHE);
+		if (geoip_v6 == nullptr)
+			throw std::runtime_error("Failed to open GeoIP country IPv6 database - did you install package geoip-database?");
+
+		GeoIP_set_charset(geoip_v6, GEOIP_CHARSET_UTF8);
+	}
+
+
 	ResultWriter result_writer(options.raw, options.gzip,
+				   geoip_v4, geoip_v6,
 				   options.anonymize,
 				   single_site,
 				   options.per_site_append);
@@ -437,7 +468,7 @@ try {
 			"\n"
 			"\n"
 			"Commands:\n"
-			"  query [--follow] [--raw] [--anonymize] [type=http_access|http_error|submission] [site=VALUE] [group_site=[MAX][@SKIP]] [since=ISO8601] [until=ISO8601] [date=YYYY-MM-DD] [today]\n"
+			"  query [--follow] [--raw] [--gzip] [--geoip] [--anonymize] [type=http_access|http_error|submission] [site=VALUE] [group_site=[MAX][@SKIP]] [since=ISO8601] [until=ISO8601] [date=YYYY-MM-DD] [today]\n"
 			"  stats\n"
 			"  inject <RAWFILE\n"
 			"  clone OTHERSERVER[:PORT]\n",

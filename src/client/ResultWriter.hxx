@@ -35,6 +35,8 @@
 #include "io/UniqueFileDescriptor.hxx"
 #include "net/SocketDescriptor.hxx"
 
+#include <GeoIP.h>
+
 #include <memory>
 
 template<typename t> struct ConstBuffer;
@@ -46,6 +48,8 @@ class GzipOutputStream;
 class ResultWriter {
 	FileDescriptor fd;
 	SocketDescriptor socket;
+
+	GeoIP *const geoip_v4, *const geoip_v6;
 
 	OutputStream *output_stream;
 	std::unique_ptr<FdOutputStream> fd_output_stream;
@@ -66,7 +70,9 @@ class ResultWriter {
 	char buffer[65536];
 
 public:
-	ResultWriter(bool _raw, bool _gzip, bool _anonymize, bool _single_site,
+	ResultWriter(bool _raw, bool _gzip,
+		     GeoIP *_geoip_v4, GeoIP *_geoip_v6, bool _anonymize,
+		     bool _single_site,
 		     const char *const _per_site_append) noexcept;
 	~ResultWriter() noexcept;
 
@@ -87,6 +93,9 @@ public:
 
 private:
 	void FlushBuffer();
+
+	gcc_pure
+	const char *LookupGeoIP(const char *address) const noexcept;
 
 	void Append(const Net::Log::Datagram &d, bool site);
 };

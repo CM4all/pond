@@ -11,6 +11,7 @@ Build-Depends: debhelper (>= 12~),
  libboost-filesystem-dev (>= 1.54),
  libsystemd-dev,
  libavahi-client-dev,
+ libgeoip-dev,
  libz-dev,
  python3-sphinx
 Standards-Version: 4.0.0
@@ -28,7 +29,7 @@ Description: Pond log database server
 Package: cm4all-pond-client
 Architecture: any
 Depends: ${misc:Depends}, ${shlibs:Depends}
-Suggests: avahi-daemon
+Suggests: avahi-daemon, geoip-database
 Description: Pond log database client
  Pond is a volatile round-robin database for log messages.
  .

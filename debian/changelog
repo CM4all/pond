@@ -1,6 +1,7 @@
 cm4all-pond (0.13) unstable; urgency=low
 
   * client: add option "--anonymize"
+  * client: add option "--geoip"
   * client: add option "--gzip"
   * client: add option "--per-site-append"
   * client: optimize text output

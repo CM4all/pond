@@ -167,6 +167,12 @@ The following command-line options are available:
 
  Compress the output with ``gzip``.
 
+.. option:: --geoip
+
+ Look up all IP addresses in the GeoIP database and add a column at
+ the end of each line specifying the country code (or "`-`" if the
+ country is unknown).  This requires the `geoip-database` package.
+
 .. option:: --anonymize
 
  Anonymize the client IP address by zeroing a portion at the
