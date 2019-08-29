@@ -146,9 +146,15 @@ ResultWriter::Append(const Net::Log::Datagram &d, bool site)
 	if (buffer_fill > sizeof(buffer) - 16384)
 		FlushBuffer();
 
-	char *end = FormatOneLine(buffer + buffer_fill,
-				  sizeof(buffer) - buffer_fill,
+	char *old_end = buffer + buffer_fill;
+
+	char *end = FormatOneLine(old_end,
+				  sizeof(buffer) - buffer_fill - 64,
 				  d, site, anonymize);
+	if (end == old_end)
+		return;
+
+	*end++ = '\n';
 	buffer_fill = end - buffer;
 }
 
