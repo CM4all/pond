@@ -57,7 +57,7 @@ class ResultWriter {
 	std::unique_ptr<GzipOutputStream> gzip_output_stream;
 
 	PerSitePath per_site;
-	char last_site[256];
+	char last_site[256] = "";
 	UniqueFileDescriptor per_site_fd;
 
 	const bool raw, gzip, anonymize, single_site;

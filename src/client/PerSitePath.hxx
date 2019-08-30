@@ -51,5 +51,9 @@ public:
 		return directory.IsDefined();
 	}
 
+	/**
+	 * May return an undefined object if this site shall be
+	 * skipped.
+	 */
 	UniqueFileDescriptor Open(const char *site);
 };

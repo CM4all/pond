@@ -200,8 +200,7 @@ ResultWriter::Write(ConstBuffer<void> payload)
 		if (filename == nullptr)
 			return;
 
-		if (!per_site_fd.IsDefined() ||
-		    strcmp(last_site, filename) != 0) {
+		if (strcmp(last_site, filename) != 0) {
 			if (per_site_fd.IsDefined()) {
 				/* flush data belonging into the currently
 				   open output file */
@@ -212,6 +211,10 @@ ResultWriter::Write(ConstBuffer<void> payload)
 			}
 
 			per_site_fd = per_site.Open(filename);
+			if (!per_site_fd.IsDefined())
+				/* skip this site */
+				return;
+
 			fd_output_stream = std::make_unique<FdOutputStream>(per_site_fd);
 			output_stream = fd_output_stream.get();
 
@@ -221,7 +224,9 @@ ResultWriter::Write(ConstBuffer<void> payload)
 			}
 
 			strcpy(last_site, filename);
-		}
+		} else if (!per_site_fd.IsDefined())
+			/* skip this site */
+			return;
 
 		Append(d, false);
 	} else if (socket.IsDefined()) {
