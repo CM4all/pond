@@ -179,10 +179,10 @@ The following command-line options are available:
  end.  This doesn't work in "raw" mode and doesn't affect IP addresses
  inside log messages.
 
-.. option:: --per-site-append=DIRECTORY
+.. option:: --per-site=DIRECTORY
 
  Instead of writing to standard output, create one file for each site
- in the specified directory.  Existing files will be appended to.
+ in the specified directory.  Existing files will be truncated.
 
 The following filters are available:
 

@@ -46,5 +46,5 @@ UniqueFileDescriptor
 PerSitePath::Open(const char *site)
 {
 	return ::OpenWriteOnly(directory, site,
-			       O_CREAT|O_APPEND|O_NOFOLLOW);
+			       O_CREAT|O_TRUNC|O_NOFOLLOW);
 }

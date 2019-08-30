@@ -117,11 +117,11 @@ ResultWriter::ResultWriter(bool _raw, bool _gzip,
 			   GeoIP *_geoip_v4, GeoIP *_geoip_v6,
 			   bool _anonymize,
 			   bool _single_site,
-			   const char *const _per_site_append) noexcept
+			   const char *const _per_site) noexcept
 	:fd(STDOUT_FILENO),
 	 socket(CheckPacketSocket(fd)),
 	 geoip_v4(_geoip_v4), geoip_v6(_geoip_v6),
-	 per_site(_per_site_append),
+	 per_site(_per_site),
 	 raw(_raw), gzip(_gzip), anonymize(_anonymize),
 	 single_site(_single_site)
 {

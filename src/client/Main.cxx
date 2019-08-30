@@ -79,7 +79,7 @@ ParseLocalDate(const char *s)
 }
 
 struct QueryOptions {
-	const char *per_site_append = nullptr;
+	const char *per_site = nullptr;
 
 	bool follow = false;
 	bool raw = false;
@@ -151,8 +151,8 @@ ParseFilterItem(Filter &filter, PondGroupSitePayload &group_site,
 		filter.type = Net::Log::ParseType(type_string);
 		if (filter.type == Net::Log::Type::UNSPECIFIED)
 			throw "Bad type filter";
-	} else if (auto per_site_append = StringAfterPrefix(p, "--per-site-append=")) {
-		options.per_site_append = per_site_append;
+	} else if (auto per_site = StringAfterPrefix(p, "--per-site=")) {
+		options.per_site = per_site;
 	} else if (StringIsEqual(p, "--follow"))
 		options.follow = true;
 	else if (StringIsEqual(p, "--raw"))
@@ -183,10 +183,10 @@ Query(const PondServerSpecification &server, ConstBuffer<const char *> args)
 		}
 	}
 
-	if (options.per_site_append != nullptr &&
+	if (options.per_site != nullptr &&
 	    filter.sites.empty() &&
 	    group_site.max_sites == 0) {
-		/* auto-enable GROUP_SITE if "--per-site-append" was
+		/* auto-enable GROUP_SITE if "--per-site" was
 		   used */
 		group_site.max_sites = ToBE32(std::numeric_limits<decltype(group_site.max_sites)>::max());
 	}
@@ -233,7 +233,7 @@ Query(const PondServerSpecification &server, ConstBuffer<const char *> args)
 				   geoip_v4, geoip_v6,
 				   options.anonymize,
 				   single_site,
-				   options.per_site_append);
+				   options.per_site);
 
 	if (filter.since != Net::Log::TimePoint::min())
 		client.Send(id, PondRequestCommand::FILTER_SINCE, filter.since);
