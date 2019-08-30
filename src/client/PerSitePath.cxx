@@ -32,6 +32,7 @@
 
 #include "PerSitePath.hxx"
 #include "io/Open.hxx"
+#include "system/Error.hxx"
 
 #include <fcntl.h>
 
@@ -44,7 +45,12 @@ PerSitePath::PerSitePath(const char *path) noexcept
 
 UniqueFileDescriptor
 PerSitePath::Open(const char *site)
-{
+try {
 	return ::OpenWriteOnly(directory, site,
-			       O_CREAT|O_TRUNC|O_NOFOLLOW);
+			       O_CREAT|O_EXCL|O_NOFOLLOW);
+ } catch (const std::system_error &e) {
+	if (IsErrno(e, EEXIST))
+		return UniqueFileDescriptor{};
+
+	throw;
 }

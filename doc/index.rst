@@ -182,7 +182,7 @@ The following command-line options are available:
 .. option:: --per-site=DIRECTORY
 
  Instead of writing to standard output, create one file for each site
- in the specified directory.  Existing files will be truncated.
+ in the specified directory.  Existing files will be skipped.
 
 The following filters are available:
 
