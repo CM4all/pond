@@ -31,10 +31,13 @@
  */
 
 #include "PerSitePath.hxx"
+#include "io/FileWriter.hxx"
 #include "io/Open.hxx"
 #include "system/Error.hxx"
+#include "util/RuntimeError.hxx"
 
 #include <fcntl.h>
+#include <sys/stat.h>
 
 PerSitePath::PerSitePath(const char *path) noexcept
 	:directory(path != nullptr
@@ -43,14 +46,18 @@ PerSitePath::PerSitePath(const char *path) noexcept
 {
 }
 
-UniqueFileDescriptor
+FileWriter
 PerSitePath::Open(const char *site)
-try {
-	return ::OpenWriteOnly(directory, site,
-			       O_CREAT|O_EXCL|O_NOFOLLOW);
- } catch (const std::system_error &e) {
-	if (IsErrno(e, EEXIST))
-		return UniqueFileDescriptor{};
+{
+	struct stat st;
+	if (fstatat(directory.Get(), site, &st, AT_SYMLINK_NOFOLLOW) == 0) {
+		if (S_ISREG(st.st_mode))
+			/* exists already: skip */
+			return {};
+		else
+			throw FormatRuntimeError("Exists, but is not a regular file: %s", site);
+	} else if (errno != ENOENT)
+		throw FormatErrno("Failed to check output file: %s", site);
 
-	throw;
+	return FileWriter(directory, site);
 }

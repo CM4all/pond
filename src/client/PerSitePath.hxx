@@ -34,6 +34,8 @@
 
 #include "io/UniqueFileDescriptor.hxx"
 
+class FileWriter;
+
 class PerSitePath {
 	/**
 	 * Inside this directory, a file will be appended to for each
@@ -55,5 +57,5 @@ public:
 	 * May return an undefined object if this site shall be
 	 * skipped.
 	 */
-	UniqueFileDescriptor Open(const char *site);
+	FileWriter Open(const char *site);
 };

@@ -207,7 +207,7 @@ ResultWriter::Write(ConstBuffer<void> payload)
 				Flush();
 				gzip_output_stream.reset();
 				fd_output_stream.reset();
-				per_site_fd.Close();
+				per_site_fd.Commit();
 			}
 
 			per_site_fd = per_site.Open(filename);
@@ -215,7 +215,7 @@ ResultWriter::Write(ConstBuffer<void> payload)
 				/* skip this site */
 				return;
 
-			fd_output_stream = std::make_unique<FdOutputStream>(per_site_fd);
+			fd_output_stream = std::make_unique<FdOutputStream>(per_site_fd.GetFileDescriptor());
 			output_stream = fd_output_stream.get();
 
 			if (gzip) {

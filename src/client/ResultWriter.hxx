@@ -33,7 +33,8 @@
 #pragma once
 
 #include "PerSitePath.hxx"
-#include "io/UniqueFileDescriptor.hxx"
+#include "io/FileDescriptor.hxx"
+#include "io/FileWriter.hxx"
 #include "net/SocketDescriptor.hxx"
 
 #include <GeoIP.h>
@@ -58,7 +59,7 @@ class ResultWriter {
 
 	PerSitePath per_site;
 	char last_site[256] = "";
-	UniqueFileDescriptor per_site_fd;
+	FileWriter per_site_fd;
 
 	const bool raw, gzip, anonymize, single_site;
 
