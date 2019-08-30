@@ -211,8 +211,7 @@ ResultWriter::Write(ConstBuffer<void> payload)
 				per_site_fd.Close();
 			}
 
-			per_site_fd = per_site.OpenWriteOnly(filename,
-							     O_CREAT|O_APPEND|O_NOFOLLOW);
+			per_site_fd = per_site.Open(filename);
 			fd_output_stream = std::make_unique<FdOutputStream>(per_site_fd);
 			output_stream = fd_output_stream.get();
 

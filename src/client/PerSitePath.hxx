@@ -51,5 +51,5 @@ public:
 		return directory.IsDefined();
 	}
 
-	UniqueFileDescriptor OpenWriteOnly(const char *site, int flags);
+	UniqueFileDescriptor Open(const char *site);
 };

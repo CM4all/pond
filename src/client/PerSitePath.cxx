@@ -43,7 +43,8 @@ PerSitePath::PerSitePath(const char *path) noexcept
 }
 
 UniqueFileDescriptor
-PerSitePath::OpenWriteOnly(const char *site, int flags)
+PerSitePath::Open(const char *site)
 {
-	return ::OpenWriteOnly(directory, site, flags);
+	return ::OpenWriteOnly(directory, site,
+			       O_CREAT|O_APPEND|O_NOFOLLOW);
 }
