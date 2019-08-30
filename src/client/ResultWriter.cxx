@@ -121,13 +121,11 @@ ResultWriter::ResultWriter(bool _raw, bool _gzip,
 	:fd(STDOUT_FILENO),
 	 socket(CheckPacketSocket(fd)),
 	 geoip_v4(_geoip_v4), geoip_v6(_geoip_v6),
-	 per_site_append(_per_site_append != nullptr
-			 ? OpenPath(_per_site_append, O_DIRECTORY)
-			 : UniqueFileDescriptor{}),
+	 per_site(_per_site_append),
 	 raw(_raw), gzip(_gzip), anonymize(_anonymize),
 	 single_site(_single_site)
 {
-	if (per_site_append.IsDefined()) {
+	if (per_site.IsDefined()) {
 		fd.SetUndefined();
 		socket.SetUndefined();
 	} else {
@@ -189,7 +187,7 @@ ResultWriter::Append(const Net::Log::Datagram &d, bool site)
 void
 ResultWriter::Write(ConstBuffer<void> payload)
 {
-	if (per_site_append.IsDefined()) {
+	if (per_site.IsDefined()) {
 		const auto d = Net::Log::ParseDatagram(payload);
 		if (d.site == nullptr)
 			// TODO: where to log datagrams without a site?
@@ -213,8 +211,8 @@ ResultWriter::Write(ConstBuffer<void> payload)
 				per_site_fd.Close();
 			}
 
-			per_site_fd = OpenWriteOnly(per_site_append, filename,
-						    O_CREAT|O_APPEND|O_NOFOLLOW);
+			per_site_fd = per_site.OpenWriteOnly(filename,
+							     O_CREAT|O_APPEND|O_NOFOLLOW);
 			fd_output_stream = std::make_unique<FdOutputStream>(per_site_fd);
 			output_stream = fd_output_stream.get();
 

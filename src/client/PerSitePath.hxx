@@ -32,66 +32,24 @@
 
 #pragma once
 
-#include "PerSitePath.hxx"
 #include "io/UniqueFileDescriptor.hxx"
-#include "net/SocketDescriptor.hxx"
 
-#include <GeoIP.h>
-
-#include <memory>
-
-template<typename t> struct ConstBuffer;
-namespace Net::Log { struct Datagram; }
-class OutputStream;
-class FdOutputStream;
-class GzipOutputStream;
-
-class ResultWriter {
-	FileDescriptor fd;
-	SocketDescriptor socket;
-
-	GeoIP *const geoip_v4, *const geoip_v6;
-
-	OutputStream *output_stream;
-	std::unique_ptr<FdOutputStream> fd_output_stream;
-	std::unique_ptr<GzipOutputStream> gzip_output_stream;
-
-	PerSitePath per_site;
-	char last_site[256];
-	UniqueFileDescriptor per_site_fd;
-
-	const bool raw, gzip, anonymize, single_site;
-
-	size_t buffer_fill = 0;
-	char buffer[65536];
+class PerSitePath {
+	/**
+	 * Inside this directory, a file will be appended to for each
+	 * site.
+	 */
+	const UniqueFileDescriptor directory;
 
 public:
-	ResultWriter(bool _raw, bool _gzip,
-		     GeoIP *_geoip_v4, GeoIP *_geoip_v6, bool _anonymize,
-		     bool _single_site,
-		     const char *const _per_site_append) noexcept;
-	~ResultWriter() noexcept;
+	explicit PerSitePath(const char *path) noexcept;
 
-	ResultWriter(const ResultWriter &) = delete;
-	ResultWriter &operator=(const ResultWriter &) = delete;
+	PerSitePath(const PerSitePath &) = delete;
+	PerSitePath &operator=(const PerSitePath &) = delete;
 
-	FileDescriptor GetFileDescriptor() const noexcept {
-		return fd;
+	bool IsDefined() const noexcept {
+		return directory.IsDefined();
 	}
 
-	bool IsEmpty() const noexcept {
-		return buffer_fill == 0;
-	}
-
-	void Write(ConstBuffer<void> payload);
-
-	void Flush();
-
-private:
-	void FlushBuffer();
-
-	gcc_pure
-	const char *LookupGeoIP(const char *address) const noexcept;
-
-	void Append(const Net::Log::Datagram &d, bool site);
+	UniqueFileDescriptor OpenWriteOnly(const char *site, int flags);
 };
