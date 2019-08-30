@@ -16,9 +16,18 @@ LimitNPROC=1
 # enable crash dumps
 LimitCORE=infinity
 
-ProtectSystem=full
+# Resource limits
+TasksMax=16
+LimitNOFILE=16384
+
+# Paranoid security settings
 NoNewPrivileges=true
+ProtectSystem=full
+ProtectHome=yes
+ProtectKernelTunables=yes
+ProtectControlGroups=yes
 RestrictAddressFamilies=AF_UNIX AF_INET AF_INET6
+RestrictNamespaces=yes
 
 [Install]
 WantedBy=multi-user.target
