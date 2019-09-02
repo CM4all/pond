@@ -171,7 +171,8 @@ The following command-line options are available:
 
  Look up all IP addresses in the GeoIP database and add a column at
  the end of each line specifying the country code (or "`-`" if the
- country is unknown).  This requires the `geoip-database` package.
+ country is unknown).  This requires the :file:`geoip-database`
+ package.
 
 .. option:: --anonymize
 
