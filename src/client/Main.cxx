@@ -471,6 +471,7 @@ try {
 			"    [--follow]\n"
 			"    [--raw] [--gzip]\n"
 			"    [--geoip] [--anonymize]\n"
+			"    [--per-site=PATH]\n"
 			"    [type=http_access|http_error|submission] [site=VALUE] [group_site=[MAX][@SKIP]]\n"
 			"    [since=ISO8601] [until=ISO8601] [date=YYYY-MM-DD] [today]\n"
 			"  stats\n"
