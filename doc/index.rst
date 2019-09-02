@@ -241,6 +241,7 @@ Examples of accepted `ISO8601
 - :samp:`2019-02-04T16:46:41+0200` (with time zone offset)
 - :samp:`2019-02-04T16:46:41+02:00` (with time zone offset)
 - :samp:`2019-02-04T16:46` (seconds omitted)
+- :samp:`2019-02-04T16` (minutes omitted)
 - :samp:`2019-02-04` (time of day omitted)
 
 Other than ISO8601, the following special tokens are understood:
