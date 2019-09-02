@@ -49,15 +49,21 @@ PerSitePath::PerSitePath(const char *path) noexcept
 FileWriter
 PerSitePath::Open(const char *site)
 {
+	FileDescriptor current_directory = directory;
+	const char *current_filename = site;
+
 	struct stat st;
-	if (fstatat(directory.Get(), site, &st, AT_SYMLINK_NOFOLLOW) == 0) {
+	if (fstatat(current_directory.Get(), current_filename,
+		    &st, AT_SYMLINK_NOFOLLOW) == 0) {
 		if (S_ISREG(st.st_mode))
 			/* exists already: skip */
 			return {};
 		else
-			throw FormatRuntimeError("Exists, but is not a regular file: %s", site);
+			throw FormatRuntimeError("Exists, but is not a regular file: %s",
+						 current_filename);
 	} else if (errno != ENOENT)
-		throw FormatErrno("Failed to check output file: %s", site);
+		throw FormatErrno("Failed to check output file: %s",
+				  current_filename);
 
-	return FileWriter(directory, site);
+	return FileWriter(current_directory, current_filename);
 }
