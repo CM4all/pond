@@ -466,9 +466,13 @@ try {
 	if (args.size < 2) {
 		fprintf(stderr, "Usage: %s SERVER[:PORT] COMMAND ...\n"
 			"\n"
-			"\n"
 			"Commands:\n"
-			"  query [--follow] [--raw] [--gzip] [--geoip] [--anonymize] [type=http_access|http_error|submission] [site=VALUE] [group_site=[MAX][@SKIP]] [since=ISO8601] [until=ISO8601] [date=YYYY-MM-DD] [today]\n"
+			"  query\n"
+			"    [--follow]\n"
+			"    [--raw] [--gzip]\n"
+			"    [--geoip] [--anonymize]\n"
+			"    [type=http_access|http_error|submission] [site=VALUE] [group_site=[MAX][@SKIP]]\n"
+			"    [since=ISO8601] [until=ISO8601] [date=YYYY-MM-DD] [today]\n"
 			"  stats\n"
 			"  inject <RAWFILE\n"
 			"  clone OTHERSERVER[:PORT]\n",
