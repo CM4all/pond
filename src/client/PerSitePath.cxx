@@ -40,12 +40,54 @@
 #include <fcntl.h>
 #include <sys/stat.h>
 
-PerSitePath::PerSitePath(const char *path, const char *_filename) noexcept
+PerSitePath::PerSitePath(const char *path, const char *_filename,
+			 bool _nested) noexcept
 	:directory(path != nullptr
 		   ? OpenPath(path, O_DIRECTORY)
 		   : UniqueFileDescriptor{}),
-	 filename(_filename)
+	 filename(_filename),
+	 nested(_nested)
 {
+}
+
+class NestedSiteName {
+	char buffer[64];
+	char tail[3];
+
+public:
+	bool Set(const char *name) noexcept;
+
+	const char *GetParent() const noexcept {
+		return buffer;
+	}
+
+	const char *GetTail() const noexcept {
+		return tail;
+	}
+};
+
+inline bool
+NestedSiteName::Set(const char *name) noexcept
+{
+	size_t length = strlen(name);
+	if (length < 7 || length >= sizeof(buffer))
+		return false;
+
+	char *p = buffer;
+	p = (char *)mempcpy(p, name, length - 6);
+	*p++ = '/';
+	*p++ = name[length - 6];
+	*p++ = name[length - 5];
+	*p++ = '/';
+	*p++ = name[length - 4];
+	*p++ = name[length - 3];
+	*p = 0;
+
+	tail[0] = name[length - 2];
+	tail[1] = name[length - 1];
+	tail[2] = 0;
+
+	return true;
 }
 
 FileWriter
@@ -53,9 +95,18 @@ PerSitePath::Open(const char *site)
 {
 	FileDescriptor current_directory = directory;
 	const char *current_filename = site;
+	NestedSiteName nested_buffer;
+
+	last_directory.Close();
+
+	if (nested && nested_buffer.Set(site)) {
+		last_directory = MakeNestedDirectory(current_directory,
+						     nested_buffer.GetParent());
+		current_directory = last_directory;
+		current_filename = nested_buffer.GetTail();
+	}
 
 	if (filename != nullptr) {
-		last_directory.Close();
 		last_directory = MakeDirectory(current_directory,
 					       current_filename);
 		current_directory = last_directory;

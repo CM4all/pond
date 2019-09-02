@@ -190,6 +190,11 @@ The following command-line options are available:
  Makes :option:`--per-site` create a directory for each site and
  create this file in each of them.
 
+.. option:: --per-site-nested
+
+ Makes :option:`--per-site` create a nested tree of directories
+ instead of having one flat directory entry per site.
+
 The following filters are available:
 
 - :samp:`type=TYPE` shows only records of the specified type.

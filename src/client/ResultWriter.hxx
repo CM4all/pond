@@ -71,7 +71,8 @@ public:
 		     GeoIP *_geoip_v4, GeoIP *_geoip_v6, bool _anonymize,
 		     bool _single_site,
 		     const char *const _per_site,
-		     const char *const _per_site_filename) noexcept;
+		     const char *const _per_site_filename,
+		     bool _per_site_nested) noexcept;
 	~ResultWriter() noexcept;
 
 	ResultWriter(const ResultWriter &) = delete;

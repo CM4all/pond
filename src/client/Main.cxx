@@ -87,6 +87,7 @@ struct QueryOptions {
 	bool gzip = false;
 	bool geoip = false;
 	bool anonymize = false;
+	bool per_site_nested = false;
 };
 
 static void
@@ -158,6 +159,8 @@ ParseFilterItem(Filter &filter, PondGroupSitePayload &group_site,
 		if (options.per_site == nullptr)
 			throw "--per-site-file requires --per-site";
 		options.per_site_filename = per_site_filename;
+	} else if (StringIsEqual(p, "--per-site-nested")) {
+		options.per_site_nested = true;
 	} else if (StringIsEqual(p, "--follow"))
 		options.follow = true;
 	else if (StringIsEqual(p, "--raw"))
@@ -239,7 +242,8 @@ Query(const PondServerSpecification &server, ConstBuffer<const char *> args)
 				   options.anonymize,
 				   single_site,
 				   options.per_site,
-				   options.per_site_filename);
+				   options.per_site_filename,
+				   options.per_site_nested);
 
 	if (filter.since != Net::Log::TimePoint::min())
 		client.Send(id, PondRequestCommand::FILTER_SINCE, filter.since);
@@ -477,7 +481,7 @@ try {
 			"    [--follow]\n"
 			"    [--raw] [--gzip]\n"
 			"    [--geoip] [--anonymize]\n"
-			"    [--per-site=PATH] [--per-site-file=FILENAME]\n"
+			"    [--per-site=PATH] [--per-site-file=FILENAME] [--per-site-nested]\n"
 			"    [type=http_access|http_error|submission] [site=VALUE] [group_site=[MAX][@SKIP]]\n"
 			"    [since=ISO8601] [until=ISO8601] [date=YYYY-MM-DD] [today]\n"
 			"  stats\n"

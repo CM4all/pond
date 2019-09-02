@@ -51,6 +51,8 @@ class PerSitePath {
 	 */
 	const char *const filename;
 
+	const bool nested;
+
 	/**
 	 * This attribute is a klduge to keep the directory file
 	 * handle open for use by FileWriter::Commit().
@@ -58,7 +60,8 @@ class PerSitePath {
 	UniqueFileDescriptor last_directory;
 
 public:
-	PerSitePath(const char *path, const char *_filename) noexcept;
+	PerSitePath(const char *path, const char *_filename,
+		    bool _nested) noexcept;
 
 	PerSitePath(const PerSitePath &) = delete;
 	PerSitePath &operator=(const PerSitePath &) = delete;
