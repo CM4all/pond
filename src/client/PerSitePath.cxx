@@ -32,6 +32,7 @@
 
 #include "PerSitePath.hxx"
 #include "io/FileWriter.hxx"
+#include "io/MakeDirectory.hxx"
 #include "io/Open.hxx"
 #include "system/Error.hxx"
 #include "util/RuntimeError.hxx"
@@ -45,24 +46,6 @@ PerSitePath::PerSitePath(const char *path, const char *_filename) noexcept
 		   : UniqueFileDescriptor{}),
 	 filename(_filename)
 {
-}
-
-static UniqueFileDescriptor
-MakeDirectory(FileDescriptor parent_fd, const char *name)
-{
-	if (mkdirat(parent_fd.Get(), name, 0777) < 0) {
-		const int e = errno;
-		switch (e) {
-		case EEXIST:
-			break;
-
-		default:
-			throw FormatErrno(e, "Failed to create directory '%s'",
-					  name);
-		}
-	}
-
-	return OpenPath(parent_fd, name, O_DIRECTORY);
 }
 
 FileWriter
