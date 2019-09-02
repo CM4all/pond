@@ -80,6 +80,7 @@ ParseLocalDate(const char *s)
 
 struct QueryOptions {
 	const char *per_site = nullptr;
+	const char *per_site_filename = nullptr;
 
 	bool follow = false;
 	bool raw = false;
@@ -153,6 +154,10 @@ ParseFilterItem(Filter &filter, PondGroupSitePayload &group_site,
 			throw "Bad type filter";
 	} else if (auto per_site = StringAfterPrefix(p, "--per-site=")) {
 		options.per_site = per_site;
+	} else if (auto per_site_filename = StringAfterPrefix(p, "--per-site-file=")) {
+		if (options.per_site == nullptr)
+			throw "--per-site-file requires --per-site";
+		options.per_site_filename = per_site_filename;
 	} else if (StringIsEqual(p, "--follow"))
 		options.follow = true;
 	else if (StringIsEqual(p, "--raw"))
@@ -233,7 +238,8 @@ Query(const PondServerSpecification &server, ConstBuffer<const char *> args)
 				   geoip_v4, geoip_v6,
 				   options.anonymize,
 				   single_site,
-				   options.per_site);
+				   options.per_site,
+				   options.per_site_filename);
 
 	if (filter.since != Net::Log::TimePoint::min())
 		client.Send(id, PondRequestCommand::FILTER_SINCE, filter.since);
@@ -471,7 +477,7 @@ try {
 			"    [--follow]\n"
 			"    [--raw] [--gzip]\n"
 			"    [--geoip] [--anonymize]\n"
-			"    [--per-site=PATH]\n"
+			"    [--per-site=PATH] [--per-site-file=FILENAME]\n"
 			"    [type=http_access|http_error|submission] [site=VALUE] [group_site=[MAX][@SKIP]]\n"
 			"    [since=ISO8601] [until=ISO8601] [date=YYYY-MM-DD] [today]\n"
 			"  stats\n"

@@ -38,13 +38,27 @@ class FileWriter;
 
 class PerSitePath {
 	/**
-	 * Inside this directory, a file will be appended to for each
+	 * Inside this directory, a file will be created for each
 	 * site.
 	 */
 	const UniqueFileDescriptor directory;
 
+	/**
+	 * If set, then a new directory is created for each site, and
+	 * this is the filename inside the directory.
+	 *
+	 * The pointed-to string is owned by #QueryOptions.
+	 */
+	const char *const filename;
+
+	/**
+	 * This attribute is a klduge to keep the directory file
+	 * handle open for use by FileWriter::Commit().
+	 */
+	UniqueFileDescriptor last_directory;
+
 public:
-	explicit PerSitePath(const char *path) noexcept;
+	PerSitePath(const char *path, const char *_filename) noexcept;
 
 	PerSitePath(const PerSitePath &) = delete;
 	PerSitePath &operator=(const PerSitePath &) = delete;

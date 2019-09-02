@@ -185,6 +185,11 @@ The following command-line options are available:
  Instead of writing to standard output, create one file for each site
  in the specified directory.  Existing files will be skipped.
 
+.. option:: --per-site-file=FILENAME
+
+ Makes :option:`--per-site` create a directory for each site and
+ create this file in each of them.
+
 The following filters are available:
 
 - :samp:`type=TYPE` shows only records of the specified type.

@@ -39,11 +39,30 @@
 #include <fcntl.h>
 #include <sys/stat.h>
 
-PerSitePath::PerSitePath(const char *path) noexcept
+PerSitePath::PerSitePath(const char *path, const char *_filename) noexcept
 	:directory(path != nullptr
 		   ? OpenPath(path, O_DIRECTORY)
-		   : UniqueFileDescriptor{})
+		   : UniqueFileDescriptor{}),
+	 filename(_filename)
 {
+}
+
+static UniqueFileDescriptor
+MakeDirectory(FileDescriptor parent_fd, const char *name)
+{
+	if (mkdirat(parent_fd.Get(), name, 0777) < 0) {
+		const int e = errno;
+		switch (e) {
+		case EEXIST:
+			break;
+
+		default:
+			throw FormatErrno(e, "Failed to create directory '%s'",
+					  name);
+		}
+	}
+
+	return OpenPath(parent_fd, name, O_DIRECTORY);
 }
 
 FileWriter
@@ -51,6 +70,13 @@ PerSitePath::Open(const char *site)
 {
 	FileDescriptor current_directory = directory;
 	const char *current_filename = site;
+
+	if (filename != nullptr) {
+		last_directory.Close();
+		last_directory = MakeDirectory(directory, current_filename);
+		current_directory = last_directory;
+		current_filename = filename;
+	}
 
 	struct stat st;
 	if (fstatat(current_directory.Get(), current_filename,

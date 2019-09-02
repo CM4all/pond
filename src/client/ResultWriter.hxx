@@ -70,7 +70,8 @@ public:
 	ResultWriter(bool _raw, bool _gzip,
 		     GeoIP *_geoip_v4, GeoIP *_geoip_v6, bool _anonymize,
 		     bool _single_site,
-		     const char *const _per_site) noexcept;
+		     const char *const _per_site,
+		     const char *const _per_site_filename) noexcept;
 	~ResultWriter() noexcept;
 
 	ResultWriter(const ResultWriter &) = delete;
