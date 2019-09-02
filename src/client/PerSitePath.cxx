@@ -56,7 +56,8 @@ PerSitePath::Open(const char *site)
 
 	if (filename != nullptr) {
 		last_directory.Close();
-		last_directory = MakeDirectory(directory, current_filename);
+		last_directory = MakeDirectory(current_directory,
+					       current_filename);
 		current_directory = last_directory;
 		current_filename = filename;
 	}
