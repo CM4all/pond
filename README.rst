@@ -11,10 +11,10 @@ Building Pond
 
 You need:
 
-- a C++14 compliant compiler (e.g. gcc or clang)
+- a C++17 compliant compiler (e.g. gcc or clang)
 - `Boost <http://www.boost.org/>`__
 - `systemd <https://www.freedesktop.org/wiki/Software/systemd/>`__
-- `Meson 0.37 <http://mesonbuild.com/>`__ and `Ninja <https://ninja-build.org/>`__
+- `Meson 0.47 <http://mesonbuild.com/>`__ and `Ninja <https://ninja-build.org/>`__
 
 Run ``meson``::
 
