@@ -78,7 +78,7 @@ Instance::GetStats() const noexcept
 void
 Instance::AddReceiver(const SocketConfig &config)
 {
-	UdpHandler &handler = *this;
+	FullUdpHandler &handler = *this;
 	receivers.emplace_front(event_loop,
 				config.Create(SOCK_DGRAM),
 				MultiReceiveMessage(256, MAX_DATAGRAM_SIZE),

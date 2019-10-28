@@ -56,7 +56,7 @@ class MultiUdpListener;
 class Listener;
 class Connection;
 
-class Instance final : UdpHandler {
+class Instance final : FullUdpHandler {
 	static constexpr size_t MAX_DATAGRAM_SIZE = 4096;
 
 	const RootLogger logger;
@@ -145,7 +145,8 @@ private:
 	void OnReload(int) noexcept;
 
 	/* virtual methods from UdpHandler */
-	bool OnUdpDatagram(const void *data, size_t length,
+	bool OnUdpDatagram(ConstBuffer<void> payload,
+			   WritableBuffer<UniqueFileDescriptor> fds,
 			   SocketAddress address, int uid) override;
 	void OnUdpError(std::exception_ptr ep) noexcept override;
 };
