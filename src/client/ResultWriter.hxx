@@ -33,6 +33,7 @@
 #pragma once
 
 #include "PerSitePath.hxx"
+#include "VisitorTracker.hxx"
 #include "io/FileDescriptor.hxx"
 #include "io/FileWriter.hxx"
 #include "net/SocketDescriptor.hxx"
@@ -61,7 +62,9 @@ class ResultWriter {
 	char last_site[256] = "";
 	FileWriter per_site_fd;
 
-	const bool raw, gzip, anonymize, single_site;
+	VisitorTracker visitor_tracker;
+
+	const bool raw, gzip, anonymize, track_visitors, single_site;
 
 	size_t buffer_fill = 0;
 	char buffer[65536];
@@ -69,6 +72,7 @@ class ResultWriter {
 public:
 	ResultWriter(bool _raw, bool _gzip,
 		     GeoIP *_geoip_v4, GeoIP *_geoip_v6, bool _anonymize,
+		     bool _track_visitors,
 		     bool _single_site,
 		     const char *const _per_site,
 		     const char *const _per_site_filename,

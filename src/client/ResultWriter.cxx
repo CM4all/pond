@@ -116,6 +116,7 @@ SendPacket(SocketDescriptor s, ConstBuffer<void> payload)
 ResultWriter::ResultWriter(bool _raw, bool _gzip,
 			   GeoIP *_geoip_v4, GeoIP *_geoip_v6,
 			   bool _anonymize,
+			   bool _track_visitors,
 			   bool _single_site,
 			   const char *const _per_site,
 			   const char *const _per_site_filename,
@@ -125,6 +126,7 @@ ResultWriter::ResultWriter(bool _raw, bool _gzip,
 	 geoip_v4(_geoip_v4), geoip_v6(_geoip_v6),
 	 per_site(_per_site, _per_site_filename, _per_site_nested),
 	 raw(_raw), gzip(_gzip), anonymize(_anonymize),
+	 track_visitors(_track_visitors),
 	 single_site(_single_site)
 {
 	if (per_site.IsDefined()) {
@@ -182,6 +184,17 @@ ResultWriter::Append(const Net::Log::Datagram &d, bool site)
 		end = stpcpy(end, country);
 	}
 
+	if (d.GuessIsHttpAccess() && track_visitors) {
+		const char *visitor_id =
+			d.remote_host != nullptr && d.HasTimestamp()
+			? visitor_tracker.MakeVisitorId(d.remote_host,
+							d.timestamp)
+			: "-";
+
+		*end++ = ' ';
+		end = stpcpy(end, visitor_id);
+	}
+
 	*end++ = '\n';
 	buffer_fill = end - buffer;
 }
@@ -226,6 +239,11 @@ ResultWriter::Write(ConstBuffer<void> payload)
 			}
 
 			strcpy(last_site, filename);
+
+			/* visitor ids are unique within the output
+			   file, so a new site output file gets new
+			   ids */
+			visitor_tracker.Reset();
 		} else if (!per_site_fd.IsDefined())
 			/* skip this site */
 			return;

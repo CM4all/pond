@@ -180,6 +180,13 @@ The following command-line options are available:
  end.  This doesn't work in "raw" mode and doesn't affect IP addresses
  inside log messages.
 
+.. option:: --track-visitors
+
+ Append a "visitor id" column: each visitor is assigned a unique (and
+ opaque) identification string.  This is useful in combination with
+ :option:`--anonymize`, because after anonymization, visitors cannot
+ be identified anymore.
+
 .. option:: --per-site=DIRECTORY
 
  Instead of writing to standard output, create one file for each site
