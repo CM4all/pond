@@ -171,7 +171,7 @@ ResultWriter::Append(const Net::Log::Datagram &d, bool site)
 	if (end == old_end)
 		return;
 
-	if (geoip_v4 != nullptr) {
+	if (d.GuessIsHttpAccess() && geoip_v4 != nullptr) {
 		const char *country = d.remote_host != nullptr
 			? LookupGeoIP(d.remote_host)
 			: nullptr;
