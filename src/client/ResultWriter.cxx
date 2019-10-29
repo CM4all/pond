@@ -284,6 +284,12 @@ ResultWriter::Finish()
 	Flush();
 
 	if (gzip_output_stream) {
+		/* doing a Z_SYNC_FLUSH now to align the last block on
+		   a byte boundary, which allows simple concatenation
+		   of gzipped files without having to decompress (and
+		   pad) them */
+		gzip_output_stream->SyncFlush();
+
 		gzip_output_stream->Finish();
 		gzip_output_stream.reset();
 	}
