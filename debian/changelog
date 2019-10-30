@@ -7,6 +7,7 @@ cm4all-pond (0.13) unstable; urgency=low
   * client: add option "--per-site"
   * client: optimize text output
   * client: allow omitting minutes in ISO8601 time specification
+  * client: fix crash bug
   * systemd: more resource limits and tighter security setting
 
  --   

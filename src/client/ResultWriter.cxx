@@ -120,7 +120,7 @@ ResultWriter::ResultWriter(bool _raw, bool _gzip,
 			   bool _single_site,
 			   const char *const _per_site,
 			   const char *const _per_site_filename,
-			   bool _per_site_nested) noexcept
+			   bool _per_site_nested)
 	:fd(STDOUT_FILENO),
 	 socket(CheckPacketSocket(fd)),
 	 geoip_v4(_geoip_v4), geoip_v6(_geoip_v6),

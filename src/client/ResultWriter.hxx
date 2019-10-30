@@ -76,7 +76,7 @@ public:
 		     bool _single_site,
 		     const char *const _per_site,
 		     const char *const _per_site_filename,
-		     bool _per_site_nested) noexcept;
+		     bool _per_site_nested);
 	~ResultWriter() noexcept;
 
 	ResultWriter(const ResultWriter &) = delete;

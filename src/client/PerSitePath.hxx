@@ -61,7 +61,7 @@ class PerSitePath {
 
 public:
 	PerSitePath(const char *path, const char *_filename,
-		    bool _nested) noexcept;
+		    bool _nested);
 
 	PerSitePath(const PerSitePath &) = delete;
 	PerSitePath &operator=(const PerSitePath &) = delete;

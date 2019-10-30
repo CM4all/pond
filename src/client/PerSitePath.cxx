@@ -41,7 +41,7 @@
 #include <sys/stat.h>
 
 PerSitePath::PerSitePath(const char *path, const char *_filename,
-			 bool _nested) noexcept
+			 bool _nested)
 	:directory(path != nullptr
 		   ? OpenPath(path, O_DIRECTORY)
 		   : UniqueFileDescriptor{}),
