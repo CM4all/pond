@@ -281,5 +281,5 @@ ResultWriter::Flush()
 	FlushBuffer();
 
 	if (gzip_output_stream)
-		gzip_output_stream->Flush();
+		gzip_output_stream->Finish();
 }
