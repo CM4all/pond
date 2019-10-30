@@ -167,6 +167,8 @@ Connection::CommitQuery()
 {
 	auto &db = instance.GetDatabase();
 
+	current.site_iterator = nullptr;
+
 	if (current.follow) {
 		current.selection.reset(new Selection(db.Follow(current.filter, *this)));
 	} else if (current.HasGroupSite()) {
@@ -494,8 +496,8 @@ Connection::OnBufferedWrite()
 			return true;
 	}
 
-	if (--current.group_site.max_sites > 0 &&
-	    current.site_iterator != nullptr) {
+	if (current.site_iterator != nullptr &&
+	    --current.group_site.max_sites > 0) {
 		auto &db = instance.GetDatabase();
 		auto next = db.GetNextSite(*current.site_iterator);
 		current.site_iterator = FindNonEmpty(db, current.filter, next);
