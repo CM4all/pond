@@ -92,7 +92,16 @@ public:
 
 	void Write(ConstBuffer<void> payload);
 
+	/**
+	 * Flushes pending data.
+	 */
 	void Flush();
+
+	/**
+	 * Finish the current file and commit it to disk.  No more
+	 * data may be written after that.
+	 */
+	void Finish();
 
 private:
 	void FlushBuffer();

@@ -219,7 +219,7 @@ ResultWriter::Write(ConstBuffer<void> payload)
 			if (per_site_fd.IsDefined()) {
 				/* flush data belonging into the currently
 				   open output file */
-				Flush();
+				Finish();
 				gzip_output_stream.reset();
 				fd_output_stream.reset();
 				per_site_fd.Commit();
@@ -279,6 +279,12 @@ void
 ResultWriter::Flush()
 {
 	FlushBuffer();
+}
+
+void
+ResultWriter::Finish()
+{
+	Flush();
 
 	if (gzip_output_stream)
 		gzip_output_stream->Finish();

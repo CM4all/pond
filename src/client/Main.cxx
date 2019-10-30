@@ -317,7 +317,7 @@ Query(const PondServerSpecification &server, ConstBuffer<const char *> args)
 						 d.payload.ToString().c_str());
 
 		case PondResponseCommand::END:
-			result_writer.Flush();
+			result_writer.Finish();
 			return;
 
 		case PondResponseCommand::LOG_RECORD:
@@ -334,7 +334,7 @@ Query(const PondServerSpecification &server, ConstBuffer<const char *> args)
 		}
 	}
 
-	result_writer.Flush();
+	result_writer.Finish();
 }
 
 static void
