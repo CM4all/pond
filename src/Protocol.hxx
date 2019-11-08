@@ -113,6 +113,12 @@ enum class PondRequestCommand : uint16_t {
 	 * Request statistics.  Returns #PondResponseCommand::STATS.
 	 */
 	STATS = 12,
+
+	/**
+	 * Select a portion (window) of the result.  Payload is
+	 * #PondWindowPayload.
+	 */
+	WINDOW = 13,
 };
 
 enum class PondResponseCommand : uint16_t {
@@ -192,4 +198,19 @@ struct PondStatsPayload {
 	 * limits).
 	 */
 	uint64_t n_discarded;
+};
+
+/**
+ * Payload for PondRequestCommand::WINDOW.
+ */
+struct PondWindowPayload {
+	/**
+	 * How many records will be sent at most with this query?
+	 */
+	uint64_t max;
+
+	/**
+	 * How many records will be skipped with this query?
+	 */
+	uint64_t skip;
 };

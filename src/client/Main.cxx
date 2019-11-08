@@ -93,6 +93,7 @@ struct QueryOptions {
 
 static void
 ParseFilterItem(Filter &filter, PondGroupSitePayload &group_site,
+		PondWindowPayload &window,
 		QueryOptions &options,
 		const char *p)
 {
@@ -131,6 +132,28 @@ ParseFilterItem(Filter &filter, PondGroupSitePayload &group_site,
 			throw "Garbage after group_site max";
 
 		group_site.max_sites = ToBE32(max);
+	} else if (auto window_value = IsFilter(p, "window")) {
+		if (window.max != 0)
+			throw "Duplicate window";
+
+		char *endptr;
+		auto max = strtoul(window_value, &endptr, 10);
+		if (endptr == window_value)
+			max = std::numeric_limits<decltype(window.max)>::max();
+		else if (max == 0)
+			throw "window max must be positive";
+
+		if (*endptr == '@') {
+			window_value = endptr + 1;
+			auto skip = strtoul(window_value, &endptr, 10);
+			if (endptr == window_value)
+				throw "Number expected after window=...@";
+
+			window.skip = ToBE64(skip);
+		} else if (*endptr != 0)
+			throw "Garbage after window max";
+
+		window.max = ToBE64(max);
 	} else if (auto since = IsFilter(p, "since")) {
 		auto t = ParseTimePoint(since);
 		filter.since = Net::Log::FromSystem(t.first);
@@ -183,12 +206,14 @@ Query(const PondServerSpecification &server, ConstBuffer<const char *> args)
 {
 	Filter filter;
 	PondGroupSitePayload group_site{0, 0};
+	PondWindowPayload window{};
 	QueryOptions options;
 
 	while (!args.empty()) {
 		const char *p = args.shift();
 		try {
-			ParseFilterItem(filter, group_site, options, p);
+			ParseFilterItem(filter, group_site, window,
+					options, p);
 		} catch (...) {
 			std::throw_with_nested(FormatRuntimeError("Failed to parse '%s'", p));
 		}
@@ -257,6 +282,9 @@ Query(const PondServerSpecification &server, ConstBuffer<const char *> args)
 
 	if (group_site.max_sites != 0)
 		client.SendT(id, PondRequestCommand::GROUP_SITE, group_site);
+
+	if (window.max != 0)
+		client.SendT(id, PondRequestCommand::WINDOW, window);
 
 	if (options.follow)
 		client.Send(id, PondRequestCommand::FOLLOW);

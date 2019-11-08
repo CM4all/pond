@@ -69,6 +69,8 @@ class Connection final
 
 		PondGroupSitePayload group_site;
 
+		PondWindowPayload window;
+
 		std::unique_ptr<Selection> selection;
 
 		/**
@@ -102,6 +104,10 @@ class Connection final
 
 		bool HasGroupSite() const noexcept {
 			return group_site.max_sites > 0;
+		}
+
+		bool HasWindow() const noexcept {
+			return window.max > 0;
 		}
 
 		void Clear();

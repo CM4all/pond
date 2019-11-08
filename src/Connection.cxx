@@ -48,6 +48,7 @@ Connection::Request::Clear()
 	command = PondRequestCommand::NOP;
 	filter = Filter();
 	group_site.max_sites = 0;
+	window.max = 0;
 	follow = false;
 	selection.reset();
 	address.clear();
@@ -334,6 +335,9 @@ try {
 		if (current.HasGroupSite())
 			throw SimplePondError{"FOLLOW and GROUP_SITE are mutually exclusive"};
 
+		if (current.HasWindow())
+			throw SimplePondError{"FOLLOW and WINDOW are mutually exclusive"};
+
 		if (!payload.empty())
 			throw SimplePondError{"Malformed FOLLOW"};
 
@@ -400,6 +404,32 @@ try {
 		}
 
 		return BufferedResult::AGAIN_EXPECT;
+
+	case PondRequestCommand::WINDOW:
+		if (!current.MatchId(id) ||
+		    current.command != PondRequestCommand::QUERY)
+			throw SimplePondError{"Misplaced WINDOW"};
+
+		if (current.follow)
+			throw SimplePondError{"FOLLOW and WINDOW are mutually exclusive"};
+
+		if (current.HasWindow())
+			throw SimplePondError{"Duplicate WINDOW"};
+
+		if (payload.size != sizeof(current.window))
+			throw SimplePondError{"Malformed WINDOW"};
+
+		{
+			const auto &src =
+				*(const PondWindowPayload *)payload.data;
+			current.window.max = FromBE64(src.max);
+			current.window.skip = FromBE64(src.skip);
+
+			if (current.window.max <= 0)
+				throw SimplePondError{"Malformed WINDOW"};
+		}
+
+		return BufferedResult::AGAIN_EXPECT;
 	}
 
 	throw SimplePondError{"Command not implemented"};
@@ -442,12 +472,15 @@ Connection::OnBufferedClosed() noexcept
 
 static size_t
 SendMulti(SocketDescriptor s, uint16_t id,
-	  Selection selection)
+	  Selection selection, uint64_t max_records)
 {
 	constexpr size_t CAPACITY = 256;
 
 	std::array<PondIovec, CAPACITY> vecs;
 	std::array<struct mmsghdr, CAPACITY> msgs;
+
+	if (max_records > CAPACITY)
+		max_records = CAPACITY;
 
 	size_t n = 0;
 	do {
@@ -467,7 +500,7 @@ SendMulti(SocketDescriptor s, uint16_t id,
 
 		++n;
 		++selection;
-	} while (selection && n < CAPACITY);
+	} while (selection && n < max_records);
 
 	int result = sendmmsg(s.Get(), &msgs.front(), n,
 			      MSG_DONTWAIT|MSG_NOSIGNAL);
@@ -490,8 +523,40 @@ Connection::OnBufferedWrite()
 	auto &selection = *current.selection;
 	selection.FixDeleted();
 
+	/* handle window.skip */
+	uint64_t max_records = std::numeric_limits<uint64_t>::max();
+	if (current.HasWindow()) {
+		unsigned n_skipped = 0;
+		while (selection && current.window.skip > 0) {
+			if (++n_skipped > 1024 * 1024)
+				/* yield to avoid DoS by a huge number
+				   of skips */
+				return true;
+
+			++selection;
+			--current.window.skip;
+		}
+
+		max_records = current.window.max;
+	}
+
 	if (selection) {
-		selection += SendMulti(socket.GetSocket(), current.id, selection);
+		size_t n = SendMulti(socket.GetSocket(), current.id,
+				     selection, max_records);
+
+		if (current.HasWindow()) {
+			current.window.max -= n;
+			if (current.window.max == 0) {
+				Send(current.id, PondResponseCommand::END,
+				     nullptr);
+				assert(!AppendListener::IsRegistered());
+				current.Clear();
+				socket.UnscheduleWrite();
+				return true;
+			}
+		}
+
+		selection += n;
 		if (selection)
 			return true;
 	}

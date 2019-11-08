@@ -229,6 +229,9 @@ The following filters are available:
 - :samp:`date=YYYY-MM-DD` is a shortcut which shows records on a
   certain date (according to the client's time zone)
 - :samp:`today` is a shortcut which shows records only of today
+- :samp:`window=COUNT[@SKIP]` selects a portion (window) of the
+  result.  Can limit the number of records and skip a number of
+  records at the beginning.
 
 The client displays records in the standard one-line format by
 default.  If standard output is connected to a datagram or seqpacket
