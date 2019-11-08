@@ -49,7 +49,7 @@ class PondClient {
 
 	uint16_t last_id = 0;
 
-	StaticFifoBuffer<uint8_t, 65536> input;
+	StaticFifoBuffer<uint8_t, 256 * 1024> input;
 
 public:
 	explicit PondClient(UniqueSocketDescriptor &&_fd) noexcept
