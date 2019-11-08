@@ -148,6 +148,8 @@ Instance::OnExit() noexcept
 	shutdown_listener.Disable();
 	sighup_event.Disable();
 
+	max_age_timer.Cancel();
+
 	avahi_client.Close();
 
 	receivers.clear();
