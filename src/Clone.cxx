@@ -38,13 +38,15 @@
 #include "client/Open.hxx"
 #include "client/Datagram.hxx"
 #include "net/RConnectSocket.hxx"
+#include "net/log/Parser.hxx"
 #include "system/Error.hxx"
 #include "util/ScopeExit.hxx"
 
 #include <poll.h>
 
+template<typename L>
 static void
-ReceiveAndEmplace(Database &db, PondClient &client, uint16_t id,
+ReceiveAndEmplace(L &&logger, Database &db, PondClient &client, uint16_t id,
 		  SocketDescriptor peer_socket)
 {
 	bool pending_clear = true;
@@ -99,7 +101,12 @@ ReceiveAndEmplace(Database &db, PondClient &client, uint16_t id,
 				db.Clear();
 			}
 
-			db.Emplace({d.payload.data.get(), d.payload.size});
+			try {
+				db.Emplace({d.payload.data.get(), d.payload.size});
+			} catch (const Net::Log::ProtocolError &) {
+				logger(3, "Failed to parse datagram during CLONE: ",
+				       std::current_exception());
+			}
 			break;
 
 		case PondResponseCommand::STATS:
@@ -108,8 +115,9 @@ ReceiveAndEmplace(Database &db, PondClient &client, uint16_t id,
 	}
 }
 
+template<typename L>
 static void
-ConnectReceiveAndEmplace(Database &db, const char *address,
+ConnectReceiveAndEmplace(L &&logger, Database &db, const char *address,
 			 SocketDescriptor peer_socket)
 {
 	PondClient client(ResolveConnectStreamSocket(address,
@@ -118,7 +126,7 @@ ConnectReceiveAndEmplace(Database &db, const char *address,
 	client.Send(id, PondRequestCommand::QUERY);
 	client.Send(id, PondRequestCommand::COMMIT);
 
-	ReceiveAndEmplace(db, client, id, peer_socket);
+	ReceiveAndEmplace(std::forward<L>(logger), db, client, id, peer_socket);
 }
 
 void
@@ -133,7 +141,7 @@ try {
 	instance.DisableZeroconf();
 	AtScopeExit(&instance=instance) { instance.EnableZeroconf(); };
 
-	ConnectReceiveAndEmplace(instance.GetDatabase(),
+	ConnectReceiveAndEmplace(logger, instance.GetDatabase(),
 				 current.address.c_str(),
 				 socket.GetSocket());
 
