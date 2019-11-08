@@ -3,6 +3,7 @@ cm4all-pond (0.13) unstable; urgency=low
   * fix crash bug
   * fix shutdown stall bug
   * malformed datagrams during CLONE are non-fatal
+  * fix huge pages
   * client: add option "--anonymize"
   * client: add option "--track-visitors"
   * client: add option "--geoip"

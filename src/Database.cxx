@@ -47,7 +47,8 @@ Database::Database(size_t max_size, double _per_site_message_rate_limit)
 	 per_site_message_burst(10 * per_site_message_rate_limit), // TODO: make burst configurable
 	 all_records({allocation.get(), allocation.size()})
 {
-	int advice = MADV_DONTFORK|MADV_HUGEPAGE;
+	madvise(allocation.get(), allocation.size(), MADV_DONTFORK);
+	madvise(allocation.get(), allocation.size(), MADV_HUGEPAGE);
 
 	if (max_size > 2ull * 1024 * 1024 * 1024)
 		/* exclude database memory from core dumps if it's
@@ -55,9 +56,7 @@ Database::Database(size_t max_size, double _per_site_message_rate_limit)
 		   section usually doesn't fit in the core dump
 		   partition, which would effectively make core dumps
 		   impossible */
-		advice |= MADV_DONTDUMP;
-
-	madvise(allocation.get(), allocation.size(), advice);
+		madvise(allocation.get(), allocation.size(), MADV_DONTDUMP);
 }
 
 Database::~Database() noexcept
