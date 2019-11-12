@@ -15,7 +15,7 @@ cm4all-pond (0.13) unstable; urgency=low
   * protocol: command WINDOW
   * systemd: more resource limits and tighter security setting
 
- --   
+ -- Max Kellermann <mk@cm4all.com>  Tue, 12 Nov 2019 20:04:56 +0100
 
 cm4all-pond (0.12) unstable; urgency=low
 
