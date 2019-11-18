@@ -62,6 +62,13 @@ class ResultWriter {
 	char last_site[256] = "";
 	FileWriter per_site_fd;
 
+	/**
+	 * The mode to be applied to new files; this is a workaround
+	 * for buggy Linux kernels which fail to apply the umask when
+	 * O_TMPFILE is used.
+	 */
+	int file_mode = -1;
+
 	VisitorTracker visitor_tracker;
 
 	const bool raw, gzip, anonymize, track_visitors, single_site;

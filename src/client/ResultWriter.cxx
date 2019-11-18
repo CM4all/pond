@@ -132,6 +132,11 @@ ResultWriter::ResultWriter(bool _raw, bool _gzip,
 	if (per_site.IsDefined()) {
 		fd.SetUndefined();
 		socket.SetUndefined();
+
+		const auto u = umask(0222);
+		umask(u);
+
+		file_mode = 0666 & ~u;
 	} else {
 		fd_output_stream = std::make_unique<FdOutputStream>(fd);
 		output_stream = fd_output_stream.get();
@@ -226,6 +231,13 @@ ResultWriter::Write(ConstBuffer<void> payload)
 			if (!per_site_fd.IsDefined())
 				/* skip this site */
 				return;
+
+			if (file_mode >= 0)
+				/* work around a Linux kernel bug
+				   which fails to apply the umask when
+				   O_TMPFILE is used */
+				fchmod(per_site_fd.GetFileDescriptor().Get(),
+				       file_mode);
 
 			fd_output_stream = std::make_unique<FdOutputStream>(per_site_fd.GetFileDescriptor());
 			output_stream = fd_output_stream.get();
