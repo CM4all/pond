@@ -41,7 +41,7 @@ VisitorTracker::MakeVisitorId(const char *remote_host,
 	auto i = m.emplace(remote_host, Visitor{});
 
 	if (i.second || !i.first->second.CheckTimestamp(timestamp)) {
-		const uint64_t id = ++last_id;
+		const uint64_t id = NewVisitorId();
 		char buffer[64];
 		snprintf(buffer, sizeof(buffer), "%" PRIx64, id);
 		i.first->second.id = buffer;

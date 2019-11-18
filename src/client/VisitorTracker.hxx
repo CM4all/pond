@@ -67,4 +67,9 @@ public:
 		m.clear();
 		last_id = 0;
 	}
+
+private:
+	uint64_t NewVisitorId() noexcept {
+		return ++last_id;
+	}
 };
