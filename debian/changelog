@@ -1,6 +1,7 @@
 cm4all-pond (0.14) unstable; urgency=low
 
   * client: grow gzip output buffer to 64 kB
+  * client: generate random visitor ids to allow concatenation
 
  --   
 

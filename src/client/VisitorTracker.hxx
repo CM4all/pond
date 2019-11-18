@@ -56,7 +56,7 @@ class VisitorTracker {
 
 	std::unordered_map<std::string, Visitor> m;
 
-	uint64_t last_id = 0;
+	uint64_t last_id = RandomVisitorId();
 
 public:
 	gcc_pure
@@ -65,11 +65,15 @@ public:
 
 	void Reset() noexcept {
 		m.clear();
-		last_id = 0;
+
+		/* not resetting last_id here because we just continue
+		   our random sequence in the next file */
 	}
 
 private:
 	uint64_t NewVisitorId() noexcept {
 		return ++last_id;
 	}
+
+	static uint64_t RandomVisitorId() noexcept;
 };
