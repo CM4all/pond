@@ -31,11 +31,11 @@
  */
 
 #include "VisitorTracker.hxx"
+#include "system/Urandom.hxx"
 
 #include <chrono>
 
 #include <inttypes.h>
-#include <sys/random.h>
 
 const char *
 VisitorTracker::MakeVisitorId(const char *remote_host,
@@ -59,10 +59,14 @@ uint64_t
 VisitorTracker::RandomVisitorId() noexcept
 {
 	uint64_t result;
-	ssize_t nbytes = getrandom(&result, sizeof(result), 0);
-	if (nbytes < (ssize_t)result)
+
+	try {
+		UrandomFill(&result, sizeof(result));
+	} catch (...) {
 		/* getrandom() didn't work: fall back to the
 		   high-resolution clock, which is good enough */
 		result ^= std::chrono::high_resolution_clock::now().time_since_epoch().count();
+	}
+
 	return result;
 }
