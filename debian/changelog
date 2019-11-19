@@ -4,7 +4,7 @@ cm4all-pond (0.14) unstable; urgency=low
   * client: generate random visitor ids to allow concatenation
   * client: work around Linux kernel bug failing to apply umask
 
- --   
+ -- Max Kellermann <mk@cm4all.com>  Tue, 19 Nov 2019 09:51:37 +0100
 
 cm4all-pond (0.13) unstable; urgency=low
 
