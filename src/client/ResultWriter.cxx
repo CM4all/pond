@@ -50,6 +50,18 @@
 #include <fcntl.h>
 
 /**
+ * Drop all entries of this file from the page cache.  This avoids
+ * cluttering the page cache with data we'll never need again.
+ */
+static void
+DropPageCache(FileDescriptor fd) noexcept
+{
+	const auto size = fd.GetSize();
+	if (size > 0)
+		posix_fadvise(fd.Get(), 0, size, POSIX_FADV_DONTNEED);
+}
+
+/**
  * Cast this #FileDescriptor to a #SocketDescriptor if it specifies a
  * socket.
  */
@@ -308,6 +320,13 @@ ResultWriter::Finish()
 
 	fd_output_stream.reset();
 
-	if (per_site_fd.IsDefined())
+	if (per_site_fd.IsDefined()) {
+		/* if we're writing one file per site, most likely we
+		   won't need to read those files soon, let's avoid
+		   cluttering the page cache by dropping those
+		   pages */
+		DropPageCache(per_site_fd.GetFileDescriptor());
+
 		per_site_fd.Commit();
+	}
 }
