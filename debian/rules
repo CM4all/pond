@@ -3,6 +3,7 @@
 
 MESON_OPTIONS = \
 	-Ddocumentation=enabled \
+	--warnlevel=2 \
 	--werror
 
 %:
