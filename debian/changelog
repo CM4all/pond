@@ -1,6 +1,7 @@
 cm4all-pond (0.15) unstable; urgency=low
 
   * client: drop per-site output files from the kernel page cache
+  * client: allow omitting field separators in ISO8601 specifications
 
  --   
 
