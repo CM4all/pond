@@ -30,7 +30,7 @@ master_doc = 'index'
 
 # General information about the project.
 project = 'Pond'
-copyright = '2017 Content Management AG'
+copyright = '2017-2020 CM4all GmbH'
 author = 'Max Kellermann'
 
 # The version info for the project you're documenting, acts as replacement for
