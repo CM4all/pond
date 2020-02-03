@@ -42,6 +42,7 @@
 #include "net/RConnectSocket.hxx"
 
 #include <list>
+#include <stdexcept>
 
 #include <assert.h>
 

@@ -36,6 +36,7 @@
 #include "util/ConstBuffer.hxx"
 
 #include <memory>
+#include <string>
 
 struct PondDatagram {
 	uint16_t id;
