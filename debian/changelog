@@ -4,7 +4,7 @@ cm4all-pond (0.15) unstable; urgency=low
   * client: allow omitting field separators in ISO8601 specifications
   * client: IPv6 anonymization clears the lower 88 bit instead of 64 bit
 
- --   
+ -- Max Kellermann <mk@cm4all.com>  Wed, 05 Feb 2020 13:59:58 +0100
 
 cm4all-pond (0.14) unstable; urgency=low
 
