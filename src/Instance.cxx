@@ -109,7 +109,8 @@ Instance::AddListener(const ListenerConfig &config)
 				: config.interface.c_str();
 
 			avahi_client.AddService(config.zeroconf_service.c_str(),
-						interface, local_address);
+						interface, local_address,
+						config.v6only);
 		}
 	}
 }
