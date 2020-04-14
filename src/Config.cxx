@@ -37,6 +37,7 @@
 #include "io/FileLineParser.hxx"
 #include "io/ConfigParser.hxx"
 #include "pg/Interval.hxx"
+#include "util/StringAPI.hxx"
 #include "util/StringParser.hxx"
 
 void
@@ -100,15 +101,15 @@ PondConfigParser::Database::ParseLine(FileLineParser &line)
 {
 	const char *word = line.ExpectWord();
 
-	if (strcmp(word, "size") == 0) {
+	if (StringIsEqual(word, "size")) {
 		config.size = ParseSize(line.ExpectValueAndEnd());
 		if (config.size < 64 * 1024)
 			throw LineParser::Error("Database size is too small");
-	} else if (strcmp(word, "max_age") == 0) {
+	} else if (StringIsEqual(word, "max_age")) {
 		config.max_age = Pg::ParseIntervalS(line.ExpectValueAndEnd());
 		if (config.max_age <= std::chrono::system_clock::duration::zero())
 			throw LineParser::Error("max_age too small");
-	} else if (strcmp(word, "per_site_message_rate_limit") == 0) {
+	} else if (StringIsEqual(word, "per_site_message_rate_limit")) {
 		config.per_site_message_rate_limit = ParsePositiveLong(line.ExpectValueAndEnd());
 	} else
 		throw LineParser::Error("Unknown option");
@@ -119,10 +120,10 @@ PondConfigParser::Receiver::ParseLine(FileLineParser &line)
 {
 	const char *word = line.ExpectWord();
 
-	if (strcmp(word, "bind") == 0) {
+	if (StringIsEqual(word, "bind")) {
 		config.bind_address = ParseSocketAddress(line.ExpectValueAndEnd(),
 							 5479, true);
-	} else if (strcmp(word, "v6only") == 0) {
+	} else if (StringIsEqual(word, "v6only")) {
 		const bool value = line.NextBool();
 		line.ExpectEnd();
 
@@ -130,10 +131,10 @@ PondConfigParser::Receiver::ParseLine(FileLineParser &line)
 			throw std::runtime_error("Explicitly disabling v6only is not implemented");
 
 		config.v6only = value;
-	} else if (strcmp(word, "multicast_group") == 0) {
+	} else if (StringIsEqual(word, "multicast_group")) {
 		config.multicast_group = ParseSocketAddress(line.ExpectValueAndEnd(),
 							    0, false);
-	} else if (strcmp(word, "interface") == 0) {
+	} else if (StringIsEqual(word, "interface")) {
 		config.interface = line.ExpectValueAndEnd();
 	} else
 		throw LineParser::Error("Unknown option");
@@ -157,12 +158,12 @@ PondConfigParser::Listener::ParseLine(FileLineParser &line)
 {
 	const char *word = line.ExpectWord();
 
-	if (strcmp(word, "bind") == 0) {
+	if (StringIsEqual(word, "bind")) {
 		config.bind_address = ParseSocketAddress(line.ExpectValueAndEnd(),
 							 POND_DEFAULT_PORT, true);
-	} else if (strcmp(word, "interface") == 0) {
+	} else if (StringIsEqual(word, "interface")) {
 		config.interface = line.ExpectValueAndEnd();
-	} else if (strcmp(word, "zeroconf_service") == 0) {
+	} else if (StringIsEqual(word, "zeroconf_service")) {
 		config.zeroconf_service = MakeZeroconfServiceType(line.ExpectValueAndEnd(),
 								  "_tcp");
 	} else
@@ -187,13 +188,13 @@ PondConfigParser::ParseLine2(FileLineParser &line)
 {
 	const char *word = line.ExpectWord();
 
-	if (strcmp(word, "receiver") == 0) {
+	if (StringIsEqual(word, "receiver")) {
 		line.ExpectSymbolAndEol('{');
 		SetChild(std::make_unique<Receiver>(config));
-	} else if (strcmp(word, "listener") == 0) {
+	} else if (StringIsEqual(word, "listener")) {
 		line.ExpectSymbolAndEol('{');
 		SetChild(std::make_unique<Listener>(config));
-	} else if (strcmp(word, "database") == 0) {
+	} else if (StringIsEqual(word, "database")) {
 		line.ExpectSymbolAndEol('{');
 		SetChild(std::make_unique<Database>(config.database));
 	} else
