@@ -45,6 +45,9 @@ Config::Check()
 {
 	if (receivers.empty())
 		throw std::runtime_error("No 'receiver' configured");
+
+	if (auto_clone && !HasZeroconfListener())
+		throw LineParser::Error("'auto_clone' requires a Zeroconf listener");
 }
 
 class PondConfigParser final : public NestedConfigParser {
@@ -197,6 +200,11 @@ PondConfigParser::ParseLine2(FileLineParser &line)
 	} else if (StringIsEqual(word, "database")) {
 		line.ExpectSymbolAndEol('{');
 		SetChild(std::make_unique<Database>(config.database));
+	} else if (StringIsEqual(word, "auto_clone")) {
+		const bool value = line.NextBool();
+		line.ExpectEnd();
+
+		config.auto_clone = value;
 	} else
 		throw LineParser::Error("Unknown option");
 }

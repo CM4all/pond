@@ -51,9 +51,19 @@ Example::
     bind "/run/cm4all/pond/socket"
   }
 
+  auto_clone "yes"
+
 The last two :samp:`listener` blocks configure local sockets, the
 first one with an abstract address, and the second one with a socket
 path.
+
+Global Options
+--------------
+
+- ``auto_clone`` attempts to find another Pond server and clones its
+  database.  This requires Zeroconf and will delay startup until the
+  clone is complete, which can take a very long time when the database
+  is large.
 
 ``database``
 ------------

@@ -32,6 +32,7 @@
 
 #include "Instance.hxx"
 #include "Config.hxx"
+#include "AutoClone.hxx"
 #include "system/SetupProcess.hxx"
 #include "system/ProcessName.hxx"
 #include "util/PrintException.hxx"
@@ -46,6 +47,12 @@ Run(const Config &config)
 	SetupProcess();
 
 	Instance instance(config);
+
+	if (config.auto_clone)
+		instance.SetBlockingOperation(std::make_unique<AutoCloneOperation>(instance,
+										   instance.GetDatabase(),
+										   instance.GetAvahiClient(),
+										   *config.GetZeroconfListener()));
 
 	for (const auto &i : config.receivers)
 		instance.AddReceiver(i);

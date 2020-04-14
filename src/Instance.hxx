@@ -124,6 +124,10 @@ public:
 	gcc_pure
 	PondStatsPayload GetStats() const noexcept;
 
+	auto &GetAvahiClient() noexcept {
+		return avahi_client;
+	}
+
 	void EnableZeroconf() noexcept {
 		avahi_client.ShowServices();
 	}

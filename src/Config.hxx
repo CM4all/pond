@@ -65,7 +65,21 @@ struct Config {
 
 	std::forward_list<ListenerConfig> listeners;
 
+	bool auto_clone = false;
+
 	void Check();
+
+	const ListenerConfig *GetZeroconfListener() const noexcept {
+		for (const auto &i : listeners)
+			if (!i.zeroconf_service.empty())
+				return &i;
+
+		return nullptr;
+	}
+
+	bool HasZeroconfListener() const noexcept {
+		return GetZeroconfListener() != nullptr;
+	}
 };
 
 /**
