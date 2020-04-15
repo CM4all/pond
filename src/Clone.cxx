@@ -135,6 +135,9 @@ try {
 	if (!IsLocalAdmin())
 		throw SimplePondError{"Forbiddden"};
 
+	if (instance.IsBlocked())
+		throw SimplePondError{"Blocked"};
+
 	/* cloning can take a long time, and during that time, this
 	   server is unavailable; better unregister it so clients
 	   don't try to use it */

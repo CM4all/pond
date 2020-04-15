@@ -32,6 +32,7 @@
 
 #pragma once
 
+#include "BlockingOperation.hxx"
 #include "Database.hxx"
 #include "avahi/Client.hxx"
 #include "event/Loop.hxx"
@@ -44,6 +45,7 @@
 #include <boost/intrusive/list.hpp>
 
 #include <forward_list>
+#include <memory>
 
 #include <stdint.h>
 
@@ -56,7 +58,7 @@ class MultiUdpListener;
 class Listener;
 class Connection;
 
-class Instance final : FullUdpHandler {
+class Instance final : FullUdpHandler, BlockingOperationHandler {
 	static constexpr size_t MAX_DATAGRAM_SIZE = 4096;
 
 	const RootLogger logger;
@@ -76,6 +78,13 @@ class Instance final : FullUdpHandler {
 	boost::intrusive::list<Connection,
 			       boost::intrusive::base_hook<boost::intrusive::list_base_hook<boost::intrusive::link_mode<boost::intrusive::auto_unlink>>>,
 			       boost::intrusive::constant_time_size<false>> connections;
+
+	/**
+	 * An operation which blocks this daemon; Zeroconf
+	 * announcements and all receivers will be disabled while it
+	 * runs.  For example, this could be a CLONE.
+	 */
+	std::unique_ptr<BlockingOperation> blocking_operation;
 
 	const std::chrono::system_clock::duration max_age{};
 
@@ -127,6 +136,12 @@ public:
 	void AddListener(const ListenerConfig &config);
 	void AddConnection(UniqueSocketDescriptor &&fd) noexcept;
 
+	bool IsBlocked() const noexcept {
+		return !!blocking_operation;
+	}
+
+	void SetBlockingOperation(std::unique_ptr<BlockingOperation> op) noexcept;
+
 	void Dispatch() noexcept {
 		event_loop.Dispatch();
 	}
@@ -149,4 +164,7 @@ private:
 			   WritableBuffer<UniqueFileDescriptor> fds,
 			   SocketAddress address, int uid) override;
 	void OnUdpError(std::exception_ptr ep) noexcept override;
+
+	/* virtual methods from BlockingOperationHandler */
+	void OnOperationFinished() noexcept override;
 };

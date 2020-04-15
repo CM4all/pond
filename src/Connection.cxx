@@ -389,6 +389,9 @@ try {
 	case PondRequestCommand::INJECT_LOG_RECORD:
 		// TODO: check if client is privileged
 
+		if (instance.IsBlocked())
+			throw SimplePondError{"Blocked"};
+
 		try {
 			instance.GetDatabase().Emplace({(const uint8_t *)payload.data,
 						payload.size});

@@ -41,6 +41,8 @@
 #include "util/ByteOrder.hxx"
 #include "util/DeleteDisposer.hxx"
 
+#include <cassert>
+
 #include <sys/socket.h>
 #include <signal.h>
 #include <unistd.h>
@@ -120,6 +122,26 @@ Instance::AddConnection(UniqueSocketDescriptor &&fd) noexcept
 {
 	auto *c = new Connection(*this, std::move(fd));
 	connections.push_front(*c);
+}
+
+void
+Instance::SetBlockingOperation(std::unique_ptr<BlockingOperation> op) noexcept
+{
+	assert(!blocking_operation);
+
+	DisableZeroconf();
+
+	blocking_operation = std::move(op);
+}
+
+void
+Instance::OnOperationFinished() noexcept
+{
+	assert(blocking_operation);
+
+	blocking_operation.reset();
+
+	EnableZeroconf();
 }
 
 void

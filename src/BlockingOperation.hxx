@@ -30,52 +30,14 @@
  * OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#include "Instance.hxx"
-#include "event/net/UdpListener.hxx"
-#include "net/UniqueSocketDescriptor.hxx"
-#include "net/SocketConfig.hxx"
-#include "net/log/Parser.hxx"
-#include "util/PrintException.hxx"
+#pragma once
 
-bool
-Instance::OnUdpDatagram(ConstBuffer<void> payload,
-			WritableBuffer<UniqueFileDescriptor> fds,
-			SocketAddress address, int uid)
-{
-	(void)fds;
-	(void)address;
-	(void)uid;
+class BlockingOperationHandler {
+public:
+	virtual void OnOperationFinished() noexcept = 0;
+};
 
-	if (IsBlocked())
-		/* ignore incoming datagrams while the CLONE runs */
-		return true;
-
-	++n_received;
-
-	if (payload.size == MAX_DATAGRAM_SIZE) {
-		/* this datagram was probably truncated, so don't
-		   bother parsing it */
-		++n_malformed;
-		return true;
-	}
-
-	try {
-		const auto *r =
-			database.CheckEmplace(ConstBuffer<uint8_t>::FromVoid(payload),
-					      event_loop.GetSteadyClockCache());
-		if (r == nullptr)
-			++n_discarded;
-	} catch (Net::Log::ProtocolError) {
-		++n_malformed;
-	}
-
-	MaybeScheduleMaxAgeTimer();
-
-	return true;
-}
-
-void
-Instance::OnUdpError(std::exception_ptr ep) noexcept
-{
-	logger(1, "UDP receiver error: ", ep);
-}
+class BlockingOperation {
+public:
+	virtual ~BlockingOperation() noexcept = default;
+};
