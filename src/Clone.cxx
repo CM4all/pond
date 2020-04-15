@@ -35,7 +35,7 @@
 #include "Port.hxx"
 #include "Error.hxx"
 #include "Instance.hxx"
-#include "client/Client.hxx"
+#include "client/Async.hxx"
 #include "client/Open.hxx"
 #include "client/Datagram.hxx"
 #include "net/RConnectSocket.hxx"
@@ -43,16 +43,14 @@
 #include "system/Error.hxx"
 #include "util/ScopeExit.hxx"
 
-class CloneOperation final : public BlockingOperation {
+class CloneOperation final : public BlockingOperation, PondAsyncClientHandler {
 	const LLogger logger;
 
 	BlockingOperationHandler &handler;
 
 	Database &db;
 
-	PondClient client;
-
-	SocketEvent socket_event;
+	PondAsyncClient client;
 
 	const uint16_t id;
 
@@ -64,71 +62,67 @@ public:
 		       EventLoop &event_loop,
 		       UniqueSocketDescriptor &&socket)
 		:logger("clone"), handler(_handler), db(_db),
-		 client(std::move(socket)),
-		 socket_event(event_loop, BIND_THIS_METHOD(OnSocketReady),
-			      client.GetSocket()),
+		 client(event_loop, std::move(socket), *this),
 		 id(client.MakeId())
 	{
 		client.Send(id, PondRequestCommand::QUERY);
 		client.Send(id, PondRequestCommand::COMMIT);
-
-		socket_event.ScheduleRead();
 	}
 
 private:
-	void OnSocketReady(unsigned events) noexcept;
+	/* virtual methods from class PondAsyncClientHandler */
+	void OnPondDatagram(uint16_t id, PondResponseCommand command,
+			    ConstBuffer<void> payload) override;
+
+	void OnPondError(std::exception_ptr e) noexcept override {
+		logger(1, "CLONE error: ", e);
+		handler.OnOperationFinished();
+	}
 };
 
+static std::string
+ToString(ConstBuffer<void> b) noexcept
+{
+	return std::string((const char *)b.data, b.size);
+}
+
 void
-CloneOperation::OnSocketReady(unsigned events) noexcept
-try {
-	if (events & SocketEvent::ERROR)
-		throw MakeErrno(socket_event.GetSocket().GetError(),
-				"Socket error");
+CloneOperation::OnPondDatagram(uint16_t _id, PondResponseCommand command,
+			       ConstBuffer<void> payload)
+{
+	if (_id != id)
+		return;
 
-	if (events & SocketEvent::HANGUP)
-		throw std::runtime_error("Hangup");
+	switch (command) {
+	case PondResponseCommand::NOP:
+		break;
 
-	do {
-		const auto d = client.Receive();
-		if (d.id != id)
-			continue;
+	case PondResponseCommand::ERROR:
+		throw std::runtime_error(ToString(payload));
 
-		switch (d.command) {
-		case PondResponseCommand::NOP:
-			break;
+	case PondResponseCommand::END:
+		handler.OnOperationFinished();
+		return;
 
-		case PondResponseCommand::ERROR:
-			throw std::runtime_error(d.payload.ToString());
-
-		case PondResponseCommand::END:
-			handler.OnOperationFinished();
-			return;
-
-		case PondResponseCommand::LOG_RECORD:
-			if (pending_clear) {
-				/* postpone the Clear() call until we
-				   have received at least one
-				   datagram */
-				pending_clear = false;
-				db.Clear();
-			}
-
-			try {
-				db.Emplace({d.payload.data.get(), d.payload.size});
-			} catch (const Net::Log::ProtocolError &) {
-				logger(3, "Failed to parse datagram during CLONE: ",
-				       std::current_exception());
-			}
-			break;
-
-		case PondResponseCommand::STATS:
-			throw std::runtime_error("Unexpected response packet");
+	case PondResponseCommand::LOG_RECORD:
+		if (pending_clear) {
+			/* postpone the Clear() call until we have
+			   received at least one datagram */
+			pending_clear = false;
+			db.Clear();
 		}
-	} while (!client.IsEmpty());
-} catch (...) {
-	logger(1, "CLONE error: ", std::current_exception());
-	handler.OnOperationFinished();
+
+		try {
+			db.Emplace(ConstBuffer<uint8_t>::FromVoid(payload));
+		} catch (const Net::Log::ProtocolError &) {
+			logger(3, "Failed to parse datagram during CLONE: ",
+			       std::current_exception());
+		}
+		break;
+
+	case PondResponseCommand::STATS:
+		throw std::runtime_error("Unexpected response packet");
+	}
 }
 
 void
