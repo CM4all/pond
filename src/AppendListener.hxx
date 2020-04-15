@@ -43,7 +43,8 @@ class Record;
  */
 class AppendListener {
 	friend class AppendListenerList;
-	typedef boost::intrusive::list_member_hook<boost::intrusive::link_mode<boost::intrusive::auto_unlink>> SiblingsHook;
+	using SiblingsHook =
+		boost::intrusive::list_member_hook<boost::intrusive::link_mode<boost::intrusive::auto_unlink>>;
 	SiblingsHook siblings;
 
 public:

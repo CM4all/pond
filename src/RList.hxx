@@ -42,11 +42,12 @@
 
 template<Record::ListHook Record::*list_hook>
 class RecordList {
-	typedef boost::intrusive::list<Record,
+	using List =
+		boost::intrusive::list<Record,
 				       boost::intrusive::member_hook<Record,
 								     Record::ListHook,
 								     list_hook>,
-				       boost::intrusive::constant_time_size<false>> List;
+				       boost::intrusive::constant_time_size<false>>;
 
 	List list;
 
@@ -65,7 +66,7 @@ public:
 	RecordList(const RecordList &) = delete;
 	RecordList &operator=(const RecordList &) = delete;
 
-	typedef typename List::const_iterator const_iterator;
+	using const_iterator = typename List::const_iterator;
 
 	const_iterator begin() const noexcept {
 		return list.begin();

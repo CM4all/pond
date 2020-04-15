@@ -39,7 +39,8 @@
 
 class Record final {
 public:
-	typedef boost::intrusive::list_member_hook<boost::intrusive::link_mode<boost::intrusive::auto_unlink>> ListHook;
+	using ListHook =
+		boost::intrusive::list_member_hook<boost::intrusive::link_mode<boost::intrusive::auto_unlink>>;
 	ListHook per_site_list_hook;
 
 private:
