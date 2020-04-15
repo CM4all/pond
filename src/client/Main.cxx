@@ -501,6 +501,17 @@ Clone(const PondServerSpecification &server, ConstBuffer<const char *> args)
 	}
 }
 
+static void
+Cancel(const PondServerSpecification &server, ConstBuffer<const char *> args)
+{
+	if (!args.empty())
+		throw "Bad arguments";
+
+	PondClient client(PondConnect(server));
+	const auto id = client.MakeId();
+	client.Send(id, PondRequestCommand::CANCEL_OPERATION);
+}
+
 int
 main(int argc, char **argv)
 try {
@@ -518,7 +529,8 @@ try {
 			"    [since=ISO8601] [until=ISO8601] [date=YYYY-MM-DD] [today]\n"
 			"  stats\n"
 			"  inject <RAWFILE\n"
-			"  clone OTHERSERVER[:PORT]\n",
+			"  clone OTHERSERVER[:PORT]\n"
+			"  cancel\n",
 			argv[0]);
 		return EXIT_FAILURE;
 	}
@@ -541,6 +553,9 @@ try {
 		return EXIT_SUCCESS;
 	} else if (StringIsEqual(command, "clone")) {
 		Clone(server, args);
+		return EXIT_SUCCESS;
+	} else if (StringIsEqual(command, "cancel")) {
+		Cancel(server, args);
 		return EXIT_SUCCESS;
 	} else {
 		fprintf(stderr, "Unknown command: %s\n", command);

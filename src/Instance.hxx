@@ -142,6 +142,10 @@ public:
 
 	void SetBlockingOperation(std::unique_ptr<BlockingOperation> op) noexcept;
 
+	void CancelBlockingOperation() noexcept {
+		blocking_operation.reset();
+	}
+
 	void Dispatch() noexcept {
 		event_loop.Dispatch();
 	}

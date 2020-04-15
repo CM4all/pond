@@ -119,6 +119,11 @@ enum class PondRequestCommand : uint16_t {
 	 * #PondWindowPayload.
 	 */
 	WINDOW = 13,
+
+	/**
+	 * Cancel the currently running #BlockingOperation.
+	 */
+	CANCEL_OPERATION = 14,
 };
 
 enum class PondResponseCommand : uint16_t {

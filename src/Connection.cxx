@@ -433,6 +433,10 @@ try {
 		}
 
 		return BufferedResult::AGAIN_EXPECT;
+
+	case PondRequestCommand::CANCEL_OPERATION:
+		instance.CancelBlockingOperation();
+		return BufferedResult::AGAIN_EXPECT;
 	}
 
 	throw SimplePondError{"Command not implemented"};
