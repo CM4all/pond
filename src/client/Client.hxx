@@ -32,15 +32,10 @@
 
 #pragma once
 
-#include "Protocol.hxx"
-#include "net/log/Chrono.hxx"
+#include "Send.hxx"
 #include "net/UniqueSocketDescriptor.hxx"
-#include "util/ConstBuffer.hxx"
-#include "util/StringView.hxx"
 #include "util/ByteOrder.hxx"
 #include "util/StaticFifoBuffer.hxx"
-
-#include <string>
 
 struct PondDatagram;
 
@@ -65,45 +60,19 @@ public:
 		return ++last_id;
 	}
 
-	void Send(uint16_t id, PondRequestCommand command,
-		  ConstBuffer<void> payload=nullptr);
+	void Send(uint16_t id, PondRequestCommand command) {
+		SendPondRequest(fd, id, command);
+	}
+
+	template<typename T>
+	void Send(uint16_t id, PondRequestCommand command, T &&payload) {
+		SendPondRequest(fd, id, command, std::forward<T>(payload));
+	}
 
 	template<typename T>
 	void SendT(uint16_t id, PondRequestCommand command,
 		   const T &payload) {
-		Send(id, command,
-		     ConstBuffer<void>(&payload, sizeof(payload)));
-	}
-
-	void Send(uint16_t id, PondRequestCommand command,
-		  StringView payload) {
-		Send(id, command, payload.ToVoid());
-	}
-
-	void Send(uint16_t id, PondRequestCommand command,
-		  const std::string &payload) {
-		Send(id, command, StringView(payload.data(), payload.size()));
-	}
-
-	void Send(uint16_t id, PondRequestCommand command,
-		  const char *payload) {
-		Send(id, command, StringView(payload));
-	}
-
-	void Send(uint16_t id, PondRequestCommand command,
-		  uint64_t payload) {
-		uint64_t be = ToBE64(payload);
-		Send(id, command, ConstBuffer<void>(&be, sizeof(be)));
-	}
-
-	void Send(uint16_t id, PondRequestCommand command,
-		  Net::Log::Duration payload) {
-		Send(id, command, payload.count());
-	}
-
-	void Send(uint16_t id, PondRequestCommand command,
-		  Net::Log::TimePoint payload) {
-		Send(id, command, payload.time_since_epoch());
+		SendPondRequestT(fd, id, command, payload);
 	}
 
 	bool IsEmpty() const noexcept {
