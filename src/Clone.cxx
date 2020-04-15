@@ -31,6 +31,7 @@
  */
 
 #include "Connection.hxx"
+#include "BlockingOperation.hxx"
 #include "Port.hxx"
 #include "Error.hxx"
 #include "Instance.hxx"
@@ -42,42 +43,53 @@
 #include "system/Error.hxx"
 #include "util/ScopeExit.hxx"
 
-#include <poll.h>
+class CloneOperation final : public BlockingOperation {
+	const LLogger logger;
 
-template<typename L>
-static void
-ReceiveAndEmplace(L &&logger, Database &db, PondClient &client, uint16_t id,
-		  SocketDescriptor peer_socket)
-{
+	BlockingOperationHandler &handler;
+
+	Database &db;
+
+	PondClient client;
+
+	SocketEvent socket_event;
+
+	const uint16_t id;
+
 	bool pending_clear = true;
 
-	struct pollfd pfds[] = {
-		{
-			/* waiting for messages from the Pond
-			   server */
-			.fd = client.GetSocket().Get(),
-			.events = POLLIN,
-			.revents = 0,
-		},
-		{
-			.fd = peer_socket.Get(),
-			.events = POLLIN,
-			.revents = 0,
-		},
-	};
+public:
+	CloneOperation(BlockingOperationHandler &_handler,
+		       Database &_db,
+		       EventLoop &event_loop,
+		       UniqueSocketDescriptor &&socket)
+		:logger("clone"), handler(_handler), db(_db),
+		 client(std::move(socket)),
+		 socket_event(event_loop, BIND_THIS_METHOD(OnSocketReady),
+			      client.GetSocket()),
+		 id(client.MakeId())
+	{
+		client.Send(id, PondRequestCommand::QUERY);
+		client.Send(id, PondRequestCommand::COMMIT);
 
-	while (true) {
-		if (client.IsEmpty()) {
-			if (poll(pfds, std::size(pfds), -1) < 0)
-				throw MakeErrno("poll() failed");
+		socket_event.ScheduleRead();
+	}
 
-			if (pfds[1].revents)
-				/* our client has sent another packet or has
-				   closed the connection; cancel this
-				   operation */
-				break;
-		}
+private:
+	void OnSocketReady(unsigned events) noexcept;
+};
 
+void
+CloneOperation::OnSocketReady(unsigned events) noexcept
+try {
+	if (events & SocketEvent::ERROR)
+		throw MakeErrno(socket_event.GetSocket().GetError(),
+				"Socket error");
+
+	if (events & SocketEvent::HANGUP)
+		throw std::runtime_error("Hangup");
+
+	do {
 		const auto d = client.Receive();
 		if (d.id != id)
 			continue;
@@ -90,6 +102,7 @@ ReceiveAndEmplace(L &&logger, Database &db, PondClient &client, uint16_t id,
 			throw std::runtime_error(d.payload.ToString());
 
 		case PondResponseCommand::END:
+			handler.OnOperationFinished();
 			return;
 
 		case PondResponseCommand::LOG_RECORD:
@@ -112,21 +125,10 @@ ReceiveAndEmplace(L &&logger, Database &db, PondClient &client, uint16_t id,
 		case PondResponseCommand::STATS:
 			throw std::runtime_error("Unexpected response packet");
 		}
-	}
-}
-
-template<typename L>
-static void
-ConnectReceiveAndEmplace(L &&logger, Database &db, const char *address,
-			 SocketDescriptor peer_socket)
-{
-	PondClient client(ResolveConnectStreamSocket(address,
-						     POND_DEFAULT_PORT));
-	const auto id = client.MakeId();
-	client.Send(id, PondRequestCommand::QUERY);
-	client.Send(id, PondRequestCommand::COMMIT);
-
-	ReceiveAndEmplace(std::forward<L>(logger), db, client, id, peer_socket);
+	} while (!client.IsEmpty());
+} catch (...) {
+	logger(1, "CLONE error: ", std::current_exception());
+	handler.OnOperationFinished();
 }
 
 void
@@ -138,15 +140,11 @@ try {
 	if (instance.IsBlocked())
 		throw SimplePondError{"Blocked"};
 
-	/* cloning can take a long time, and during that time, this
-	   server is unavailable; better unregister it so clients
-	   don't try to use it */
-	instance.DisableZeroconf();
-	AtScopeExit(&instance=instance) { instance.EnableZeroconf(); };
-
-	ConnectReceiveAndEmplace(logger, instance.GetDatabase(),
-				 current.address.c_str(),
-				 socket.GetSocket());
+	instance.SetBlockingOperation(std::make_unique<CloneOperation>(instance,
+								       instance.GetDatabase(),
+								       GetEventLoop(),
+								       ResolveConnectStreamSocket(current.address.c_str(),
+												  POND_DEFAULT_PORT)));
 
 	Send(current.id, PondResponseCommand::END, nullptr);
 	current.Clear();

@@ -58,7 +58,7 @@ class MultiUdpListener;
 class Listener;
 class Connection;
 
-class Instance final : FullUdpHandler, BlockingOperationHandler {
+class Instance final : FullUdpHandler, public BlockingOperationHandler {
 	static constexpr size_t MAX_DATAGRAM_SIZE = 4096;
 
 	const RootLogger logger;

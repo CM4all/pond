@@ -272,9 +272,14 @@ Pond server::
 
 This asks the local Pond server (listening on abstract socket
 :file:`@pond`) to download the whole database from the Pond daemon on
-host :samp:`other.pond.server`.  The operation will block until the
-clone has completed; during that time, the local Pond server will not
-accept any new data on its :samp:`receiver`.
+host :samp:`other.pond.server`.
+
+The operation will run asynchronously, and the client will return
+immediately; during the clone, the local Pond server will not accept
+any new data on its :samp:`receiver`.  It can be canceled at any time
+by typing::
+
+  cm4all-pond-client @pond cancel
 
 This command is experimental, and should not be used for regular
 operation.  It may change or be removed at any time.

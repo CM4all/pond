@@ -128,6 +128,10 @@ public:
 		delete this;
 	}
 
+	auto &GetEventLoop() const noexcept {
+		return socket.GetEventLoop();
+	}
+
 private:
 	bool IsLocalAdmin() const noexcept;
 
