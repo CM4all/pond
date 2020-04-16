@@ -4,7 +4,7 @@ cm4all-pond (0.16) unstable; urgency=low
   * make CLONE asynchronous
   * add option "auto_clone"
 
- --   
+ -- Max Kellermann <mk@cm4all.com>  Thu, 16 Apr 2020 12:06:52 +0200
 
 cm4all-pond (0.15) unstable; urgency=low
 
