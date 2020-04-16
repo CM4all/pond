@@ -45,8 +45,10 @@ class PondAsyncClientHandler {
 public:
 	/**
 	 * Exceptions thrown by this method will be passed on OnPondError().
+	 *
+	 * @return if the #PondAsyncClient has been destroyed
 	 */
-	virtual void OnPondDatagram(uint16_t id, PondResponseCommand command,
+	virtual bool OnPondDatagram(uint16_t id, PondResponseCommand command,
 				    ConstBuffer<void> payload) = 0;
 
 	virtual void OnPondError(std::exception_ptr e) noexcept = 0;

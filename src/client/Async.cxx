@@ -66,9 +66,10 @@ try {
 
 		input.Consume(sizeof(header) + payload.size);
 
-		handler.OnPondDatagram(FromBE16(header.id),
-				       PondResponseCommand(FromBE16(header.command)),
-				       payload);
+		if (!handler.OnPondDatagram(FromBE16(header.id),
+					    PondResponseCommand(FromBE16(header.command)),
+					    payload))
+			return;
 	}
 } catch (...) {
 	handler.OnPondError(std::current_exception());

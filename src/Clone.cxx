@@ -71,7 +71,7 @@ public:
 
 private:
 	/* virtual methods from class PondAsyncClientHandler */
-	void OnPondDatagram(uint16_t id, PondResponseCommand command,
+	bool OnPondDatagram(uint16_t id, PondResponseCommand command,
 			    ConstBuffer<void> payload) override;
 
 	void OnPondError(std::exception_ptr e) noexcept override {
@@ -86,12 +86,12 @@ ToString(ConstBuffer<void> b) noexcept
 	return std::string((const char *)b.data, b.size);
 }
 
-void
+bool
 CloneOperation::OnPondDatagram(uint16_t _id, PondResponseCommand command,
 			       ConstBuffer<void> payload)
 {
 	if (_id != id)
-		return;
+		return true;
 
 	switch (command) {
 	case PondResponseCommand::NOP:
@@ -102,7 +102,7 @@ CloneOperation::OnPondDatagram(uint16_t _id, PondResponseCommand command,
 
 	case PondResponseCommand::END:
 		handler.OnOperationFinished();
-		return;
+		return false;
 
 	case PondResponseCommand::LOG_RECORD:
 		if (pending_clear) {
@@ -123,6 +123,8 @@ CloneOperation::OnPondDatagram(uint16_t _id, PondResponseCommand command,
 	case PondResponseCommand::STATS:
 		throw std::runtime_error("Unexpected response packet");
 	}
+
+	return true;
 }
 
 void
