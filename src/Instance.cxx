@@ -171,6 +171,8 @@ Instance::OnExit() noexcept
 	shutdown_listener.Disable();
 	sighup_event.Disable();
 
+	blocking_operation.reset();
+
 	max_age_timer.Cancel();
 
 	avahi_client.Close();
