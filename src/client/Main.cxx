@@ -201,6 +201,15 @@ ParseFilterItem(Filter &filter, PondGroupSitePayload &group_site,
 		throw "Unrecognized query argument";
 }
 
+static constexpr auto
+MakePollfd(FileDescriptor fd, short events) noexcept
+{
+	struct pollfd pfd{};
+	pfd.fd = fd.Get();
+	pfd.events = events;
+	return pfd;
+}
+
 static void
 Query(const PondServerSpecification &server, ConstBuffer<const char *> args)
 {
@@ -292,20 +301,12 @@ Query(const PondServerSpecification &server, ConstBuffer<const char *> args)
 	client.Send(id, PondRequestCommand::COMMIT);
 
 	struct pollfd pfds[] = {
-		{
-			/* waiting for messages from the Pond
-			   server */
-			.fd = client.GetSocket().Get(),
-			.events = POLLIN,
-			.revents = 0,
-		},
-		{
-			.fd = result_writer.GetFileDescriptor().Get(),
-			/* only waiting for POLLERR, which is an
-			   output-only flag */
-			.events = 0,
-			.revents = 0,
-		},
+		/* waiting for messages from the Pond server */
+		MakePollfd(client.GetSocket().ToFileDescriptor(), POLLIN),
+		MakePollfd(result_writer.GetFileDescriptor(),
+			   /* only waiting for POLLERR, which is an
+			      output-only flag */
+			   0),
 	};
 
 	while (true) {
