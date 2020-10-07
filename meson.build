@@ -25,6 +25,7 @@ common_flags = [
   '-Wredundant-decls', '-Wno-long-long', '-Wundef',
   '-Wunused',
   '-Wundef',
+  '-Wvla',
 ]
 
 if debug
