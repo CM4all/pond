@@ -41,8 +41,7 @@
 #include "event/TimerEvent.hxx"
 #include "event/net/UdpHandler.hxx"
 #include "io/Logger.hxx"
-
-#include <boost/intrusive/list.hpp>
+#include "util/IntrusiveList.hxx"
 
 #include <forward_list>
 #include <memory>
@@ -75,9 +74,7 @@ class Instance final : FullUdpHandler, public BlockingOperationHandler {
 	std::forward_list<MultiUdpListener> receivers;
 	std::forward_list<Listener> listeners;
 
-	boost::intrusive::list<Connection,
-			       boost::intrusive::base_hook<boost::intrusive::list_base_hook<boost::intrusive::link_mode<boost::intrusive::auto_unlink>>>,
-			       boost::intrusive::constant_time_size<false>> connections;
+	IntrusiveList<Connection> connections;
 
 	/**
 	 * An operation which blocks this daemon; Zeroconf

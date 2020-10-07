@@ -37,8 +37,7 @@
 #include "AppendListener.hxx"
 #include "net/UniqueSocketDescriptor.hxx"
 #include "event/net/BufferedSocket.hxx"
-
-#include <boost/intrusive/list_hook.hpp>
+#include "util/IntrusiveList.hxx"
 
 #include <memory>
 #include <string>
@@ -52,7 +51,7 @@ class RootLogger;
 template<typename t> struct ConstBuffer;
 
 class Connection final
-	: public boost::intrusive::list_base_hook<boost::intrusive::link_mode<boost::intrusive::auto_unlink>>,
+	: public AutoUnlinkIntrusiveListHook,
 	BufferedSocketHandler, AppendListener {
 
 	Instance &instance;
