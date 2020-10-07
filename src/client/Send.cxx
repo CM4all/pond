@@ -31,6 +31,7 @@
  */
 
 #include "Send.hxx"
+#include "io/Iovec.hxx"
 #include "net/SendMessage.hxx"
 #include "system/Error.hxx"
 
@@ -47,14 +48,8 @@ SendPondRequest(SocketDescriptor s, uint16_t id, PondRequestCommand command,
 	header.size = ToBE16(payload.size);
 
 	struct iovec vec[] = {
-		{
-			.iov_base = &header,
-			.iov_len = sizeof(header),
-		},
-		{
-			.iov_base = const_cast<void *>(payload.data),
-			.iov_len = payload.size,
-		},
+		MakeIovecT(header),
+		MakeIovec(payload),
 	};
 
 	auto nbytes = SendMessage(s, ConstBuffer<struct iovec>(vec, 1u + !payload.empty()), 0);

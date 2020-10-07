@@ -35,6 +35,7 @@
 #include "system/Error.hxx"
 #include "zlib/GzipOutputStream.hxx"
 #include "io/FdOutputStream.hxx"
+#include "io/Iovec.hxx"
 #include "io/Open.hxx"
 #include "net/SendMessage.hxx"
 #include "net/log/Datagram.hxx"
@@ -116,10 +117,7 @@ static void
 SendPacket(SocketDescriptor s, ConstBuffer<void> payload)
 {
 	struct iovec vec[] = {
-		{
-			.iov_base = const_cast<void *>(payload.data),
-			.iov_len = payload.size,
-		},
+		MakeIovec(payload),
 	};
 
 	SendMessage(s, ConstBuffer<struct iovec>(vec), 0);
