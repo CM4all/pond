@@ -1,6 +1,6 @@
 cm4all-pond (0.17) unstable; urgency=low
 
-  * 
+  * fix payload corruption while receiving multiple datagrams
 
  --   
 
