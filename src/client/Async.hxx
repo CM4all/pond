@@ -78,8 +78,7 @@ public:
 	}
 
 	~PondAsyncClient() noexcept {
-		s.Cancel();
-		s.ReleaseSocket().Close();
+		s.Close();
 	}
 
 	SocketDescriptor GetSocket() {
