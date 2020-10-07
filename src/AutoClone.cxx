@@ -59,7 +59,7 @@ GetAvahiIfIndex(const ListenerConfig &listener)
 }
 
 class AutoCloneOperation::Server final
-	: public boost::intrusive::list_base_hook<boost::intrusive::link_mode<boost::intrusive::auto_unlink>>,
+	: public AutoUnlinkIntrusiveListHook,
 	  ConnectSocketHandler, PondAsyncClientHandler
 {
 	LLogger logger;
@@ -319,8 +319,7 @@ AutoCloneOperation::OnServerError(Server &server,
 {
 	logger(2, "Server '", server.GetKey(), "' failed: ", e);
 
-	servers.erase_and_dispose(servers.iterator_to(server),
-				  DeleteDisposer{});
+	delete &server;
 
 	if (!timeout_event.IsPending()) {
 		/* we were already cloning, so this is the final

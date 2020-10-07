@@ -37,8 +37,7 @@
 #include "avahi/ExplorerListener.hxx"
 #include "event/TimerEvent.hxx"
 #include "io/Logger.hxx"
-
-#include <boost/intrusive/list.hpp>
+#include "util/IntrusiveList.hxx"
 
 struct ListenerConfig;
 class EventLoop;
@@ -58,10 +57,7 @@ class AutoCloneOperation final : public BlockingOperation, AvahiServiceExplorerL
 
 	class Server;
 
-	using ServerList =
-		boost::intrusive::list<Server,
-				       boost::intrusive::base_hook<boost::intrusive::list_base_hook<boost::intrusive::link_mode<boost::intrusive::normal_link>>>,
-				       boost::intrusive::constant_time_size<false>>;
+	using ServerList = IntrusiveList<Server>;
 
 	ServerList servers;
 
