@@ -2,7 +2,7 @@ cm4all-pond (0.17) unstable; urgency=low
 
   * fix payload corruption while receiving multiple datagrams
 
- --   
+ -- Max Kellermann <mk@cm4all.com>  Wed, 07 Oct 2020 13:52:09 +0200
 
 cm4all-pond (0.16) unstable; urgency=low
 
