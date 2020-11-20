@@ -7,12 +7,7 @@ project('CM4all Pond', ['c', 'cpp'], version: '0.18',
   ],
 )
 
-# TODO: use get_option('b_ndebug'), but that doesn't work with Meson 0.37.1
-if get_option('buildtype') == 'debug'
-  debug = true
-else
-  debug = false
-endif
+debug = get_option('b_ndebug') != 'true'
 
 compiler = meson.get_compiler('cpp')
 c_compiler = meson.get_compiler('c')
