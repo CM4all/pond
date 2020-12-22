@@ -79,7 +79,6 @@ add_global_arguments(common_flags, language: 'cpp')
 add_global_arguments(compiler.get_supported_arguments(test_cxxflags), language: 'cpp')
 add_global_arguments(c_compiler.get_supported_arguments(test_cflags), language: 'c')
 
-boost = dependency('boost', modules: ['system', 'filesystem'], version: '>= 1.54')
 libsystemd = dependency('libsystemd')
 libgeoip = dependency('geoip')
 
