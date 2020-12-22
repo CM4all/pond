@@ -23,10 +23,6 @@ common_flags = [
   '-Wvla',
 ]
 
-if debug
-  common_flags += ['-DPOISON']
-endif
-
 test_common_flags = [
   '-fvisibility=hidden',
 ]
