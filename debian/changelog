@@ -1,6 +1,6 @@
 cm4all-pond (0.19) unstable; urgency=low
 
-  * 
+  * debian/control: require debhelper 13.3 for dh_installsysusers
 
  --   
 
