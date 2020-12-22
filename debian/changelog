@@ -1,3 +1,9 @@
+cm4all-pond (0.19) unstable; urgency=low
+
+  * 
+
+ --   
+
 cm4all-pond (0.18) unstable; urgency=low
 
   * meson.build: disable ld.so lazy binding and enable relro
