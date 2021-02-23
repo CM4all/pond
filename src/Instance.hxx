@@ -34,8 +34,6 @@
 
 #include "BlockingOperation.hxx"
 #include "Database.hxx"
-#include "avahi/Client.hxx"
-#include "avahi/Publisher.hxx"
 #include "event/Loop.hxx"
 #include "event/ShutdownListener.hxx"
 #include "event/SignalEvent.hxx"
@@ -57,6 +55,7 @@ class UniqueSocketDescriptor;
 class MultiUdpListener;
 class Listener;
 class Connection;
+namespace Avahi { class Client; class Publisher; }
 
 class Instance final : FullUdpHandler, public BlockingOperationHandler {
 	static constexpr size_t MAX_DATAGRAM_SIZE = 4096;
@@ -70,8 +69,8 @@ class Instance final : FullUdpHandler, public BlockingOperationHandler {
 	ShutdownListener shutdown_listener;
 	SignalEvent sighup_event;
 
-	Avahi::Client avahi_client{event_loop};
-	Avahi::Publisher avahi_publisher{avahi_client, "Pond"};
+	std::unique_ptr<Avahi::Client> avahi_client;
+	std::unique_ptr<Avahi::Publisher> avahi_publisher;
 
 	std::forward_list<MultiUdpListener> receivers;
 	std::forward_list<Listener> listeners;
@@ -123,17 +122,11 @@ public:
 	gcc_pure
 	PondStatsPayload GetStats() const noexcept;
 
-	auto &GetAvahiClient() noexcept {
-		return avahi_client;
-	}
+	Avahi::Client &GetAvahiClient();
+	Avahi::Publisher &GetAvahiPublisher();
 
-	void EnableZeroconf() noexcept {
-		avahi_publisher.ShowServices();
-	}
-
-	void DisableZeroconf() noexcept {
-		avahi_publisher.HideServices();
-	}
+	void EnableZeroconf() noexcept;
+	void DisableZeroconf() noexcept;
 
 	void AddReceiver(const SocketConfig &config);
 	void AddListener(const ListenerConfig &config);

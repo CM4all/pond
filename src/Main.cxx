@@ -33,6 +33,8 @@
 #include "Instance.hxx"
 #include "Config.hxx"
 #include "AutoClone.hxx"
+#include "avahi/Client.hxx"
+#include "avahi/Publisher.hxx"
 #include "system/SetupProcess.hxx"
 #include "system/ProcessName.hxx"
 #include "util/PrintException.hxx"

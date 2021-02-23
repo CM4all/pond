@@ -35,6 +35,8 @@
 #include "Listener.hxx"
 #include "Connection.hxx"
 #include "Protocol.hxx"
+#include "avahi/Client.hxx"
+#include "avahi/Publisher.hxx"
 #include "event/net/MultiUdpListener.hxx"
 #include "net/SocketConfig.hxx"
 #include "net/StaticSocketAddress.hxx"
@@ -76,6 +78,39 @@ Instance::GetStats() const noexcept
 	return s;
 }
 
+Avahi::Client &
+Instance::GetAvahiClient()
+{
+	if (!avahi_client)
+		avahi_client = std::make_unique<Avahi::Client>(event_loop);
+
+	return *avahi_client;
+}
+
+Avahi::Publisher &
+Instance::GetAvahiPublisher()
+{
+	if (!avahi_publisher)
+		avahi_publisher = std::make_unique<Avahi::Publisher>(GetAvahiClient(),
+								     "Pond");
+
+	return *avahi_publisher;
+}
+
+inline void
+Instance::EnableZeroconf() noexcept
+{
+	if (avahi_publisher)
+		avahi_publisher->ShowServices();
+}
+
+inline void
+Instance::DisableZeroconf() noexcept
+{
+	if (avahi_publisher)
+		avahi_publisher->HideServices();
+}
+
 void
 Instance::AddReceiver(const SocketConfig &config)
 {
@@ -109,9 +144,9 @@ Instance::AddListener(const ListenerConfig &config)
 				? nullptr
 				: config.interface.c_str();
 
-			avahi_publisher.AddService(config.zeroconf_service.c_str(),
-						   interface, local_address,
-						   config.v6only);
+			GetAvahiPublisher().AddService(config.zeroconf_service.c_str(),
+						       interface, local_address,
+						       config.v6only);
 		}
 	}
 }
@@ -174,7 +209,8 @@ Instance::OnExit() noexcept
 
 	max_age_timer.Cancel();
 
-	avahi_client.Close();
+	avahi_publisher.reset();
+	avahi_client.reset();
 
 	receivers.clear();
 
