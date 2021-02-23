@@ -33,6 +33,7 @@
 #pragma once
 
 #include "BlockingOperation.hxx"
+#include "avahi/ErrorHandler.hxx"
 #include "avahi/Explorer.hxx"
 #include "avahi/ExplorerListener.hxx"
 #include "event/CoarseTimerEvent.hxx"
@@ -44,7 +45,9 @@ class EventLoop;
 class Database;
 namespace Avahi { class Client; }
 
-class AutoCloneOperation final : public BlockingOperation, Avahi::ServiceExplorerListener {
+class AutoCloneOperation final : public BlockingOperation,
+				 Avahi::ServiceExplorerListener,
+				 Avahi::ErrorHandler {
 	LLogger logger;
 
 	BlockingOperationHandler &handler;
@@ -85,4 +88,7 @@ private:
 			      SocketAddress address) noexcept override;
 
 	void OnAvahiRemoveObject(const std::string &) noexcept override {}
+
+	/* virtual methods from class Avahi::ErrorHandler */
+	bool OnAvahiError(std::exception_ptr e) noexcept override;
 };

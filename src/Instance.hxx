@@ -34,6 +34,7 @@
 
 #include "BlockingOperation.hxx"
 #include "Database.hxx"
+#include "avahi/ErrorHandler.hxx"
 #include "event/Loop.hxx"
 #include "event/ShutdownListener.hxx"
 #include "event/SignalEvent.hxx"
@@ -57,7 +58,8 @@ class Listener;
 class Connection;
 namespace Avahi { class Client; class Publisher; struct Service; }
 
-class Instance final : FullUdpHandler, public BlockingOperationHandler {
+class Instance final : FullUdpHandler, public BlockingOperationHandler,
+		       Avahi::ErrorHandler {
 	static constexpr size_t MAX_DATAGRAM_SIZE = 4096;
 
 	const RootLogger logger;
@@ -166,4 +168,7 @@ private:
 
 	/* virtual methods from BlockingOperationHandler */
 	void OnOperationFinished() noexcept override;
+
+	/* virtual methods from class Avahi::ErrorHandler */
+	bool OnAvahiError(std::exception_ptr e) noexcept override;
 };

@@ -43,6 +43,7 @@
 #include "net/StaticSocketAddress.hxx"
 #include "util/ByteOrder.hxx"
 #include "util/DeleteDisposer.hxx"
+#include "util/PrintException.hxx"
 
 #include <cassert>
 
@@ -82,8 +83,11 @@ Instance::GetStats() const noexcept
 Avahi::Client &
 Instance::GetAvahiClient()
 {
-	if (!avahi_client)
-		avahi_client = std::make_unique<Avahi::Client>(event_loop);
+	if (!avahi_client) {
+		Avahi::ErrorHandler &error_handler = *this;
+		avahi_client = std::make_unique<Avahi::Client>(event_loop,
+							       error_handler);
+	}
 
 	return *avahi_client;
 }
@@ -96,9 +100,11 @@ Instance::EnableZeroconf() noexcept
 	if (avahi_services.empty())
 		return;
 
+	Avahi::ErrorHandler &error_handler = *this;
 	avahi_publisher = std::make_unique<Avahi::Publisher>(GetAvahiClient(),
 							     "Pond",
-							     std::move(avahi_services));
+							     std::move(avahi_services),
+							     error_handler);
 }
 
 void
@@ -212,4 +218,11 @@ Instance::OnExit() noexcept
 void
 Instance::OnReload(int) noexcept
 {
+}
+
+bool
+Instance::OnAvahiError(std::exception_ptr e) noexcept
+{
+	PrintException(e);
+	return true;
 }

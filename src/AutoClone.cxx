@@ -254,7 +254,8 @@ AutoCloneOperation::AutoCloneOperation(BlockingOperationHandler &_handler,
 		  GetAvahiIfIndex(listener),
 		  AVAHI_PROTO_UNSPEC,
 		  listener.zeroconf_service.c_str(),
-		  nullptr),
+		  nullptr,
+		  *this),
 	 timeout_event(avahi_client.GetEventLoop(),
 		       BIND_THIS_METHOD(OnTimeout))
 {
@@ -337,4 +338,11 @@ AutoCloneOperation::OnAvahiNewObject(const std::string &key,
 	auto *server = new Server(*this, db, key);
 	servers.push_back(*server);
 	server->Connect(address);
+}
+
+bool
+AutoCloneOperation::OnAvahiError(std::exception_ptr e) noexcept
+{
+	logger(2, e);
+	return false;
 }

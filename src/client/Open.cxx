@@ -33,6 +33,7 @@
 #include "Open.hxx"
 #include "Port.hxx"
 #include "avahi/Client.hxx"
+#include "avahi/ErrorHandler.hxx"
 #include "avahi/Explorer.hxx"
 #include "avahi/ExplorerListener.hxx"
 #include "event/Loop.hxx"
@@ -49,7 +50,10 @@
 static constexpr Event::Duration CONNECT_TIMEOUT = std::chrono::seconds(30);
 
 class ConnectZeroconfOperation final
-	: Avahi::ServiceExplorerListener, ConnectSocketHandler {
+	: Avahi::ServiceExplorerListener, Avahi::ErrorHandler,
+	  ConnectSocketHandler {
+
+	Avahi::Client client;
 
 	Avahi::ServiceExplorer explorer;
 	CoarseTimerEvent explorer_timeout;
@@ -72,13 +76,15 @@ class ConnectZeroconfOperation final
 	std::exception_ptr error;
 
 public:
-	ConnectZeroconfOperation(Avahi::Client &client,
+	ConnectZeroconfOperation(EventLoop &event_loop,
 				 const char *service_name) noexcept
-		:explorer(client, *this,
+		:client(event_loop, *this),
+		 explorer(client, *this,
 			  AVAHI_IF_UNSPEC,
 			  AVAHI_PROTO_UNSPEC,
 			  service_name,
-			  nullptr),
+			  nullptr,
+			  *this),
 		 explorer_timeout(client.GetEventLoop(),
 				  BIND_THIS_METHOD(OnExplorerTimeout)),
 		 connect(client.GetEventLoop(), *this) {
@@ -125,6 +131,14 @@ private:
 		}
 	}
 
+	/* virtual methods from class Avahi::ErrorHandler */
+	bool OnAvahiError(std::exception_ptr e) noexcept override {
+		if (!error)
+			error = std::move(e);
+		GetEventLoop().Break();
+		return false;
+	}
+
 	/* virtual methods from class ConnectSocketHandler */
 	void OnSocketConnectSuccess(UniqueSocketDescriptor fd) noexcept override {
 		result = std::move(fd);
@@ -147,8 +161,7 @@ static UniqueSocketDescriptor
 ConnectZeroconf(const char *service_name)
 {
 	EventLoop event_loop;
-	Avahi::Client client(event_loop);
-	ConnectZeroconfOperation operation(client, service_name);
+	ConnectZeroconfOperation operation(event_loop, service_name);
 	event_loop.Dispatch();
 	return operation.GetResult();
 }
