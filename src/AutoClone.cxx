@@ -246,7 +246,7 @@ AutoCloneOperation::Server::OnPondDatagram(uint16_t _id,
 
 AutoCloneOperation::AutoCloneOperation(BlockingOperationHandler &_handler,
 				       Database &_db,
-				       MyAvahiClient &avahi_client,
+				       Avahi::Client &avahi_client,
 				       const ListenerConfig &listener) noexcept
 	:logger("auto_clone"), handler(_handler),
 	 db(_db),

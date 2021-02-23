@@ -49,9 +49,9 @@
 static constexpr Event::Duration CONNECT_TIMEOUT = std::chrono::seconds(30);
 
 class ConnectZeroconfOperation final
-	: AvahiServiceExplorerListener, ConnectSocketHandler {
+	: Avahi::ServiceExplorerListener, ConnectSocketHandler {
 
-	AvahiServiceExplorer explorer;
+	Avahi::ServiceExplorer explorer;
 	CoarseTimerEvent explorer_timeout;
 
 	struct Server {
@@ -72,7 +72,7 @@ class ConnectZeroconfOperation final
 	std::exception_ptr error;
 
 public:
-	ConnectZeroconfOperation(MyAvahiClient &client,
+	ConnectZeroconfOperation(Avahi::Client &client,
 				 const char *service_name) noexcept
 		:explorer(client, *this,
 			  AVAHI_IF_UNSPEC,
@@ -147,7 +147,7 @@ static UniqueSocketDescriptor
 ConnectZeroconf(const char *service_name)
 {
 	EventLoop event_loop;
-	MyAvahiClient client(event_loop, "PondClient");
+	Avahi::Client client(event_loop, "PondClient");
 	ConnectZeroconfOperation operation(client, service_name);
 	event_loop.Dispatch();
 	return operation.GetResult();

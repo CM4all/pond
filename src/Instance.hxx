@@ -69,7 +69,7 @@ class Instance final : FullUdpHandler, public BlockingOperationHandler {
 	ShutdownListener shutdown_listener;
 	SignalEvent sighup_event;
 
-	MyAvahiClient avahi_client;
+	Avahi::Client avahi_client;
 
 	std::forward_list<MultiUdpListener> receivers;
 	std::forward_list<Listener> listeners;

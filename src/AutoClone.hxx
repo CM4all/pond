@@ -42,16 +42,16 @@
 struct ListenerConfig;
 class EventLoop;
 class Database;
-class MyAvahiClient;
+namespace Avahi { class Client; }
 
-class AutoCloneOperation final : public BlockingOperation, AvahiServiceExplorerListener {
+class AutoCloneOperation final : public BlockingOperation, Avahi::ServiceExplorerListener {
 	LLogger logger;
 
 	BlockingOperationHandler &handler;
 
 	Database &db;
 
-	AvahiServiceExplorer explorer;
+	Avahi::ServiceExplorer explorer;
 
 	CoarseTimerEvent timeout_event;
 
@@ -64,7 +64,7 @@ class AutoCloneOperation final : public BlockingOperation, AvahiServiceExplorerL
 public:
 	AutoCloneOperation(BlockingOperationHandler &_handler,
 			   Database &_db,
-			   MyAvahiClient &avahi_client,
+			   Avahi::Client &avahi_client,
 			   const ListenerConfig &listener) noexcept;
 
 	~AutoCloneOperation() noexcept override;
