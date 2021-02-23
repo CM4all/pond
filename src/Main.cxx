@@ -33,8 +33,7 @@
 #include "Instance.hxx"
 #include "Config.hxx"
 #include "AutoClone.hxx"
-#include "avahi/Client.hxx"
-#include "avahi/Publisher.hxx"
+#include "avahi/Service.hxx"
 #include "system/SetupProcess.hxx"
 #include "system/ProcessName.hxx"
 #include "util/PrintException.hxx"
@@ -61,6 +60,9 @@ Run(const Config &config)
 
 	for (const auto &i : config.listeners)
 		instance.AddListener(i);
+
+	if (!config.auto_clone)
+		instance.EnableZeroconf();
 
 	/* tell systemd we're ready */
 	sd_notify(0, "READY=1");

@@ -55,7 +55,7 @@ class UniqueSocketDescriptor;
 class MultiUdpListener;
 class Listener;
 class Connection;
-namespace Avahi { class Client; class Publisher; }
+namespace Avahi { class Client; class Publisher; struct Service; }
 
 class Instance final : FullUdpHandler, public BlockingOperationHandler {
 	static constexpr size_t MAX_DATAGRAM_SIZE = 4096;
@@ -70,6 +70,7 @@ class Instance final : FullUdpHandler, public BlockingOperationHandler {
 	SignalEvent sighup_event;
 
 	std::unique_ptr<Avahi::Client> avahi_client;
+	std::forward_list<Avahi::Service> avahi_services;
 	std::unique_ptr<Avahi::Publisher> avahi_publisher;
 
 	std::forward_list<MultiUdpListener> receivers;
@@ -123,10 +124,8 @@ public:
 	PondStatsPayload GetStats() const noexcept;
 
 	Avahi::Client &GetAvahiClient();
-	Avahi::Publisher &GetAvahiPublisher();
 
 	void EnableZeroconf() noexcept;
-	void DisableZeroconf() noexcept;
 
 	void AddReceiver(const SocketConfig &config);
 	void AddListener(const ListenerConfig &config);

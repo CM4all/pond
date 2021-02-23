@@ -37,6 +37,7 @@
 #include "Protocol.hxx"
 #include "avahi/Client.hxx"
 #include "avahi/Publisher.hxx"
+#include "avahi/Service.hxx"
 #include "event/net/MultiUdpListener.hxx"
 #include "net/SocketConfig.hxx"
 #include "net/StaticSocketAddress.hxx"
@@ -87,28 +88,17 @@ Instance::GetAvahiClient()
 	return *avahi_client;
 }
 
-Avahi::Publisher &
-Instance::GetAvahiPublisher()
-{
-	if (!avahi_publisher)
-		avahi_publisher = std::make_unique<Avahi::Publisher>(GetAvahiClient(),
-								     "Pond");
-
-	return *avahi_publisher;
-}
-
 inline void
 Instance::EnableZeroconf() noexcept
 {
-	if (avahi_publisher)
-		avahi_publisher->ShowServices();
-}
+	assert(!avahi_publisher);
 
-inline void
-Instance::DisableZeroconf() noexcept
-{
-	if (avahi_publisher)
-		avahi_publisher->HideServices();
+	if (avahi_services.empty())
+		return;
+
+	avahi_publisher = std::make_unique<Avahi::Publisher>(GetAvahiClient(),
+							     "Pond",
+							     std::move(avahi_services));
 }
 
 void
@@ -144,9 +134,9 @@ Instance::AddListener(const ListenerConfig &config)
 				? nullptr
 				: config.interface.c_str();
 
-			GetAvahiPublisher().AddService(config.zeroconf_service.c_str(),
-						       interface, local_address,
-						       config.v6only);
+			avahi_services.emplace_front(config.zeroconf_service.c_str(),
+						     interface, local_address,
+						     config.v6only);
 		}
 	}
 }
@@ -162,8 +152,7 @@ void
 Instance::SetBlockingOperation(std::unique_ptr<BlockingOperation> op) noexcept
 {
 	assert(!blocking_operation);
-
-	DisableZeroconf();
+	assert(!avahi_publisher);
 
 	blocking_operation = std::move(op);
 }
@@ -172,6 +161,7 @@ void
 Instance::OnOperationFinished() noexcept
 {
 	assert(blocking_operation);
+	assert(!avahi_publisher);
 
 	blocking_operation.reset();
 
