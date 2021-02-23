@@ -36,7 +36,7 @@
 #include "avahi/Explorer.hxx"
 #include "avahi/ExplorerListener.hxx"
 #include "event/Loop.hxx"
-#include "event/TimerEvent.hxx"
+#include "event/CoarseTimerEvent.hxx"
 #include "event/net/ConnectSocket.hxx"
 #include "net/UniqueSocketDescriptor.hxx"
 #include "net/RConnectSocket.hxx"
@@ -52,7 +52,7 @@ class ConnectZeroconfOperation final
 	: AvahiServiceExplorerListener, ConnectSocketHandler {
 
 	AvahiServiceExplorer explorer;
-	TimerEvent explorer_timeout;
+	CoarseTimerEvent explorer_timeout;
 
 	struct Server {
 		std::string key;

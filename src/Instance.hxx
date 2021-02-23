@@ -38,7 +38,7 @@
 #include "event/Loop.hxx"
 #include "event/ShutdownListener.hxx"
 #include "event/SignalEvent.hxx"
-#include "event/TimerEvent.hxx"
+#include "event/CoarseTimerEvent.hxx"
 #include "event/net/UdpHandler.hxx"
 #include "io/Logger.hxx"
 #include "util/IntrusiveList.hxx"
@@ -89,7 +89,7 @@ class Instance final : FullUdpHandler, public BlockingOperationHandler {
 	 * This timer deletes old records once a minute if a #max_age
 	 * was configured.
 	 */
-	TimerEvent max_age_timer;
+	CoarseTimerEvent max_age_timer;
 
 	Database database;
 

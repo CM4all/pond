@@ -35,7 +35,7 @@
 #include "BlockingOperation.hxx"
 #include "avahi/Explorer.hxx"
 #include "avahi/ExplorerListener.hxx"
-#include "event/TimerEvent.hxx"
+#include "event/CoarseTimerEvent.hxx"
 #include "io/Logger.hxx"
 #include "util/IntrusiveList.hxx"
 
@@ -53,7 +53,7 @@ class AutoCloneOperation final : public BlockingOperation, AvahiServiceExplorerL
 
 	AvahiServiceExplorer explorer;
 
-	TimerEvent timeout_event;
+	CoarseTimerEvent timeout_event;
 
 	class Server;
 
