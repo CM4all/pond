@@ -140,7 +140,7 @@ public:
 
 private:
 	/* virtual methods from class ConnectSocketHandler */
-	void OnSocketConnectSuccess(UniqueSocketDescriptor &&fd) noexcept override {
+	void OnSocketConnectSuccess(UniqueSocketDescriptor fd) noexcept override {
 		assert(state == State::CONNECT);
 		state = State::STATS;
 

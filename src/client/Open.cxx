@@ -126,7 +126,7 @@ private:
 	}
 
 	/* virtual methods from class ConnectSocketHandler */
-	void OnSocketConnectSuccess(UniqueSocketDescriptor &&fd) noexcept override {
+	void OnSocketConnectSuccess(UniqueSocketDescriptor fd) noexcept override {
 		result = std::move(fd);
 		GetEventLoop().Break();
 	}
