@@ -52,7 +52,6 @@ static constexpr Event::Duration max_age_interval = std::chrono::minutes(1);
 Instance::Instance(const Config &config)
 	:shutdown_listener(event_loop, BIND_THIS_METHOD(OnExit)),
 	 sighup_event(event_loop, SIGHUP, BIND_THIS_METHOD(OnReload)),
-	 avahi_client(event_loop, "Pond"),
 	 max_age(config.database.max_age),
 	 max_age_timer(event_loop, BIND_THIS_METHOD(OnMaxAgeTimer)),
 	 database(config.database.size,
@@ -110,9 +109,9 @@ Instance::AddListener(const ListenerConfig &config)
 				? nullptr
 				: config.interface.c_str();
 
-			avahi_client.AddService(config.zeroconf_service.c_str(),
-						interface, local_address,
-						config.v6only);
+			avahi_publisher.AddService(config.zeroconf_service.c_str(),
+						   interface, local_address,
+						   config.v6only);
 		}
 	}
 }

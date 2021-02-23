@@ -35,6 +35,7 @@
 #include "BlockingOperation.hxx"
 #include "Database.hxx"
 #include "avahi/Client.hxx"
+#include "avahi/Publisher.hxx"
 #include "event/Loop.hxx"
 #include "event/ShutdownListener.hxx"
 #include "event/SignalEvent.hxx"
@@ -69,7 +70,8 @@ class Instance final : FullUdpHandler, public BlockingOperationHandler {
 	ShutdownListener shutdown_listener;
 	SignalEvent sighup_event;
 
-	Avahi::Client avahi_client;
+	Avahi::Client avahi_client{event_loop};
+	Avahi::Publisher avahi_publisher{avahi_client, "Pond"};
 
 	std::forward_list<MultiUdpListener> receivers;
 	std::forward_list<Listener> listeners;
@@ -126,11 +128,11 @@ public:
 	}
 
 	void EnableZeroconf() noexcept {
-		avahi_client.ShowServices();
+		avahi_publisher.ShowServices();
 	}
 
 	void DisableZeroconf() noexcept {
-		avahi_client.HideServices();
+		avahi_publisher.HideServices();
 	}
 
 	void AddReceiver(const SocketConfig &config);

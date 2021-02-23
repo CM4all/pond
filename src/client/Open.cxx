@@ -147,7 +147,7 @@ static UniqueSocketDescriptor
 ConnectZeroconf(const char *service_name)
 {
 	EventLoop event_loop;
-	Avahi::Client client(event_loop, "PondClient");
+	Avahi::Client client(event_loop);
 	ConnectZeroconfOperation operation(client, service_name);
 	event_loop.Dispatch();
 	return operation.GetResult();
