@@ -88,7 +88,7 @@ Instance::GetAvahiClient()
 	return *avahi_client;
 }
 
-inline void
+void
 Instance::EnableZeroconf() noexcept
 {
 	assert(!avahi_publisher);
