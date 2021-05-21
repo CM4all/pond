@@ -3,7 +3,7 @@ cm4all-pond (0.19) unstable; urgency=low
   * client: fix libavahi-client timeouts
   * debian/control: require debhelper 13.3 for dh_installsysusers
 
- --   
+ -- Max Kellermann <mk@cm4all.com>  Fri, 21 May 2021 19:01:39 +0200
 
 cm4all-pond (0.18) unstable; urgency=low
 
