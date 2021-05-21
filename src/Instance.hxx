@@ -58,7 +58,7 @@ class Listener;
 class Connection;
 namespace Avahi { class Client; class Publisher; struct Service; }
 
-class Instance final : FullUdpHandler, public BlockingOperationHandler,
+class Instance final : UdpHandler, public BlockingOperationHandler,
 		       Avahi::ErrorHandler {
 	static constexpr size_t MAX_DATAGRAM_SIZE = 4096;
 
