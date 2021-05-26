@@ -76,7 +76,7 @@ Connection::~Connection()
 bool
 Connection::IsLocalAdmin() const noexcept
 {
-	const auto cred = socket.GetSocket().GetPeerCredentials();
+	const auto cred = GetSocket().GetPeerCredentials();
 	return cred.pid != -1 && (cred.uid == 0 || cred.uid == geteuid());
 }
 
@@ -548,7 +548,7 @@ Connection::OnBufferedWrite()
 	}
 
 	if (selection) {
-		size_t n = SendMulti(socket.GetSocket(), current.id,
+		size_t n = SendMulti(GetSocket(), current.id,
 				     selection, max_records);
 
 		if (current.HasWindow()) {

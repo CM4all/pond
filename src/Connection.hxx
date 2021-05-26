@@ -132,6 +132,10 @@ public:
 	}
 
 private:
+	SocketDescriptor GetSocket() const noexcept {
+		return socket.GetSocket();
+	}
+
 	bool IsLocalAdmin() const noexcept;
 
 	void Send(uint16_t id, PondResponseCommand command,
