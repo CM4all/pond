@@ -565,11 +565,13 @@ Connection::OnBufferedWrite()
 			   call */
 			return true;
 
-		if (!current.IsDefined())
+		if (!current.IsDefined()) {
 			/* the response was already finished (when the
 			   send_queue was filled), and there's nothing
 			   left to do */
+			socket.UnscheduleWrite();
 			return true;
+		}
 	}
 
 	assert(current.command == PondRequestCommand::QUERY);
