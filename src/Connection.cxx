@@ -34,6 +34,7 @@
 #include "Error.hxx"
 #include "Instance.hxx"
 #include "Selection.hxx"
+#include "io/Iovec.hxx"
 #include "net/log/Parser.hxx"
 #include "system/Error.hxx"
 #include "util/ByteOrder.hxx"
@@ -109,10 +110,8 @@ MakeIovec(PondIovec &pi,
 	  ConstBuffer<void> payload)
 {
 	pi.header = MakeHeader(id, command, payload.size);
-	pi.vec[0].iov_base = const_cast<void *>((const void *)&pi.header);
-	pi.vec[0].iov_len = sizeof(pi.header);
-	pi.vec[1].iov_base = const_cast<void *>(payload.data);
-	pi.vec[1].iov_len = payload.size;
+	pi.vec[0] = MakeIovecT(pi.header);
+	pi.vec[1] = MakeIovec(payload);
 	return 1u + !payload.empty();
 }
 
