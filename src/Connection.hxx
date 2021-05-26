@@ -35,6 +35,7 @@
 #include "Protocol.hxx"
 #include "Filter.hxx"
 #include "AppendListener.hxx"
+#include "SendQueue.hxx"
 #include "net/UniqueSocketDescriptor.hxx"
 #include "event/net/BufferedSocket.hxx"
 #include "util/IntrusiveList.hxx"
@@ -58,6 +59,8 @@ class Connection final
 	const RootLogger &logger;
 
 	BufferedSocket socket;
+
+	SendQueue send_queue;
 
 	struct Request {
 		uint16_t id = 0;

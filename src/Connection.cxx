@@ -102,6 +102,17 @@ struct PondIovec {
 	constexpr size_t GetTotalSize() const {
 		return vec[0].iov_len + vec[1].iov_len;
 	}
+
+	void Queue(SendQueue &queue, std::size_t sent) noexcept {
+		for (const auto &i : vec) {
+			if (sent < i.iov_len) {
+				queue.Push(i, sent);
+				sent = 0;
+			} else {
+				sent -= i.iov_len;
+			}
+		}
+	}
 };
 
 static unsigned
@@ -121,6 +132,23 @@ Connection::Send(uint16_t id, PondResponseCommand command,
 {
 	PondIovec pi;
 	const auto n = MakeIovec(pi, id, command, payload);
+
+	if (!send_queue.empty()) {
+		/* some data is still queued due to EAGAIN; instead of
+		   sending directly (which will fail with EAGAIN),
+		   push it to the end of the send queue */
+
+		if (current.command != PondRequestCommand::QUERY ||
+		    command != PondResponseCommand::END)
+			/* allow queueing only if this is an attempt
+			   to send an END packet to finish a QUERY
+			   response */
+			throw std::runtime_error("Pipelining not supported");
+
+		for (const auto &i : pi.vec)
+			send_queue.Push(i);
+		return;
+	}
 
 	ssize_t nbytes = socket.WriteV(&pi.vec.front(), n);
 	if (nbytes < 0)
@@ -476,9 +504,13 @@ Connection::OnBufferedClosed() noexcept
 	return false;
 }
 
+/**
+ * @param queue push remaining data of a short send to this queue
+ */
 static size_t
 SendMulti(SocketDescriptor s, uint16_t id,
-	  Selection selection, uint64_t max_records)
+	  Selection selection, uint64_t max_records,
+	  SendQueue &queue)
 {
 	constexpr size_t CAPACITY = 256;
 
@@ -516,13 +548,30 @@ SendMulti(SocketDescriptor s, uint16_t id,
 		throw MakeErrno("Failed to send");
 	}
 
-	// TODO: check for short send in each msg?
+	if (result > 0)
+		/* if the last send was short, enqueue the remaining
+		   data */
+		vecs[result - 1].Queue(queue, msgs[result - 1].msg_len);
+
 	return result;
 }
 
 bool
 Connection::OnBufferedWrite()
 {
+	if (!send_queue.empty()) {
+		if (!send_queue.Flush(GetSocket()))
+			/* still not empty, try again in the next
+			   call */
+			return true;
+
+		if (!current.IsDefined())
+			/* the response was already finished (when the
+			   send_queue was filled), and there's nothing
+			   left to do */
+			return true;
+	}
+
 	assert(current.command == PondRequestCommand::QUERY);
 	assert(current.selection);
 
@@ -548,7 +597,8 @@ Connection::OnBufferedWrite()
 
 	if (selection) {
 		size_t n = SendMulti(GetSocket(), current.id,
-				     selection, max_records);
+				     selection, max_records,
+				     send_queue);
 
 		if (current.HasWindow()) {
 			current.window.max -= n;
@@ -557,7 +607,8 @@ Connection::OnBufferedWrite()
 				     nullptr);
 				assert(!AppendListener::IsRegistered());
 				current.Clear();
-				socket.UnscheduleWrite();
+				if (send_queue.empty())
+					socket.UnscheduleWrite();
 				return true;
 			}
 		}
@@ -594,7 +645,8 @@ Connection::OnBufferedWrite()
 		current.Clear();
 	}
 
-	socket.UnscheduleWrite();
+	if (send_queue.empty())
+		socket.UnscheduleWrite();
 	return true;
 }
 
