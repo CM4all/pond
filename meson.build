@@ -94,6 +94,7 @@ subdir('libcommon/src/zlib')
 
 executable('cm4all-pond',
   'src/Main.cxx',
+  'src/CommandLine.cxx',
   'src/Instance.cxx',
   'src/Receiver.cxx',
   'src/Listener.cxx',
