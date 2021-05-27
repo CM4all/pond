@@ -128,6 +128,7 @@ public:
 	Avahi::Client &GetAvahiClient();
 
 	void EnableZeroconf() noexcept;
+	void DisableZeroconf() noexcept;
 
 	void AddReceiver(const SocketConfig &config);
 	void AddListener(const ListenerConfig &config);

@@ -1,6 +1,7 @@
 cm4all-pond (0.21) unstable; urgency=low
 
   * server: retry short send, fixes "Failed to parse log record" errors
+  * server: fix assertion failure on CLONE
 
  --   
 

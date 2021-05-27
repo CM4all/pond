@@ -100,11 +100,21 @@ Instance::EnableZeroconf() noexcept
 	if (avahi_services.empty())
 		return;
 
+	/* note: avahi_services is passed as a copy because we may
+	   need to disable and re-enable Zeroconf for a manual CLONE
+	   operation */
+
 	Avahi::ErrorHandler &error_handler = *this;
 	avahi_publisher = std::make_unique<Avahi::Publisher>(GetAvahiClient(),
 							     "Pond",
-							     std::move(avahi_services),
+							     avahi_services,
 							     error_handler);
+}
+
+void
+Instance::DisableZeroconf() noexcept
+{
+	avahi_publisher.reset();
 }
 
 void
@@ -158,7 +168,8 @@ void
 Instance::SetBlockingOperation(std::unique_ptr<BlockingOperation> op) noexcept
 {
 	assert(!blocking_operation);
-	assert(!avahi_publisher);
+
+	DisableZeroconf();
 
 	blocking_operation = std::move(op);
 }
