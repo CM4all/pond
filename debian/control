@@ -12,6 +12,7 @@ Build-Depends: debhelper (>= 13~),
  libsystemd-dev,
  libavahi-client-dev,
  libgeoip-dev,
+ libgtest-dev,
  libz-dev,
  python3-sphinx
 Standards-Version: 4.0.0

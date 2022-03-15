@@ -1,6 +1,6 @@
 cm4all-pond (0.22) unstable; urgency=low
 
-  * 
+  * debian: add missing GTest build dependency
 
  --   
 
