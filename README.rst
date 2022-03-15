@@ -5,6 +5,9 @@ Pond
 receives log datagrams and keeps them around for a while, to allow its
 clients to query them.
 
+For more information, `read the manual
+<https://pond.readthedocs.io/en/latest/>`__ in the `doc` directory.
+
 
 Building Pond
 -------------
