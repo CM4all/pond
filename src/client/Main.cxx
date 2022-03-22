@@ -36,7 +36,7 @@
 #include "ResultWriter.hxx"
 #include "Open.hxx"
 #include "Filter.hxx"
-#include "avahi/Check.hxx"
+#include "lib/avahi/Check.hxx"
 #include "system/Error.hxx"
 #include "net/log/String.hxx"
 #include "net/log/Parser.hxx"

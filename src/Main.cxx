@@ -34,7 +34,7 @@
 #include "CommandLine.hxx"
 #include "Config.hxx"
 #include "AutoClone.hxx"
-#include "avahi/Service.hxx"
+#include "lib/avahi/Service.hxx"
 #include "system/SetupProcess.hxx"
 #include "system/ProcessName.hxx"
 #include "util/PrintException.hxx"

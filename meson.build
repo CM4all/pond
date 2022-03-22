@@ -89,8 +89,8 @@ subdir('libcommon/src/system')
 subdir('libcommon/src/event')
 subdir('libcommon/src/net')
 subdir('libcommon/src/event/net')
-subdir('libcommon/src/avahi')
-subdir('libcommon/src/zlib')
+subdir('libcommon/src/lib/avahi')
+subdir('libcommon/src/lib/zlib')
 
 executable('cm4all-pond',
   'src/Main.cxx',

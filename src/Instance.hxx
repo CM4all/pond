@@ -34,7 +34,7 @@
 
 #include "BlockingOperation.hxx"
 #include "Database.hxx"
-#include "avahi/ErrorHandler.hxx"
+#include "lib/avahi/ErrorHandler.hxx"
 #include "event/Loop.hxx"
 #include "event/ShutdownListener.hxx"
 #include "event/SignalEvent.hxx"

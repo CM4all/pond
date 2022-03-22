@@ -32,7 +32,7 @@
 
 #include "Config.hxx"
 #include "Port.hxx"
-#include "avahi/Check.hxx"
+#include "lib/avahi/Check.hxx"
 #include "net/Parser.hxx"
 #include "io/FileLineParser.hxx"
 #include "io/ConfigParser.hxx"

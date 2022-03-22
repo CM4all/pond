@@ -33,7 +33,7 @@
 #include "ResultWriter.hxx"
 #include "Protocol.hxx"
 #include "system/Error.hxx"
-#include "zlib/GzipOutputStream.hxx"
+#include "lib/zlib/GzipOutputStream.hxx"
 #include "io/FdOutputStream.hxx"
 #include "io/Iovec.hxx"
 #include "io/Open.hxx"

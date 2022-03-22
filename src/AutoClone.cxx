@@ -34,7 +34,7 @@
 #include "Config.hxx"
 #include "Database.hxx"
 #include "client/Async.hxx"
-#include "avahi/Client.hxx"
+#include "lib/avahi/Client.hxx"
 #include "event/net/ConnectSocket.hxx"
 #include "net/log/Parser.hxx"
 #include "system/Error.hxx"

@@ -33,9 +33,9 @@
 #pragma once
 
 #include "BlockingOperation.hxx"
-#include "avahi/ErrorHandler.hxx"
-#include "avahi/Explorer.hxx"
-#include "avahi/ExplorerListener.hxx"
+#include "lib/avahi/ErrorHandler.hxx"
+#include "lib/avahi/Explorer.hxx"
+#include "lib/avahi/ExplorerListener.hxx"
 #include "event/CoarseTimerEvent.hxx"
 #include "io/Logger.hxx"
 #include "util/IntrusiveList.hxx"
