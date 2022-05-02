@@ -14,13 +14,20 @@ c_compiler = meson.get_compiler('c')
 
 common_flags = [
   '-D_GNU_SOURCE',
-  '-Wwrite-strings', '-Wcast-qual', '-Wcast-align', '-Wfloat-equal',
+  '-Wcast-align',
+  '-Wcast-qual',
+  '-Wfloat-equal',
+  '-Wmissing-declarations',
+  '-Wmissing-format-attribute',
+  '-Wmissing-noreturn',
+  '-Wredundant-decls',
   '-Wshadow',
-  '-Wmissing-declarations', '-Wmissing-noreturn', '-Wmissing-format-attribute',
-  '-Wredundant-decls', '-Wno-long-long', '-Wundef',
-  '-Wunused',
   '-Wundef',
+  '-Wunused',
   '-Wvla',
+  '-Wwrite-strings',
+
+  '-Wno-long-long',
 ]
 
 test_common_flags = [
@@ -62,10 +69,11 @@ test_cxxflags = test_common_flags + [
 ]
 
 test_cflags = test_common_flags + [
-  '-Wmissing-prototypes', '-Wstrict-prototypes',
-  '-Wbad-function-cast',
   '-Waggregate-return',
+  '-Wbad-function-cast',
+  '-Wmissing-prototypes',
   '-Wnested-externs',
+  '-Wstrict-prototypes',
 ]
 
 add_global_arguments(common_flags, language: 'c')
