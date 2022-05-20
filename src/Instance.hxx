@@ -162,8 +162,8 @@ private:
 	void OnReload(int) noexcept;
 
 	/* virtual methods from UdpHandler */
-	bool OnUdpDatagram(ConstBuffer<void> payload,
-			   WritableBuffer<UniqueFileDescriptor> fds,
+	bool OnUdpDatagram(std::span<const std::byte> payload,
+			   std::span<UniqueFileDescriptor> fds,
 			   SocketAddress address, int uid) override;
 	void OnUdpError(std::exception_ptr ep) noexcept override;
 

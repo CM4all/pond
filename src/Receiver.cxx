@@ -38,8 +38,8 @@
 #include "util/PrintException.hxx"
 
 bool
-Instance::OnUdpDatagram(ConstBuffer<void> payload,
-			WritableBuffer<UniqueFileDescriptor> fds,
+Instance::OnUdpDatagram(std::span<const std::byte> payload,
+			std::span<UniqueFileDescriptor> fds,
 			SocketAddress address, int uid)
 {
 	(void)fds;
@@ -52,7 +52,7 @@ Instance::OnUdpDatagram(ConstBuffer<void> payload,
 
 	++n_received;
 
-	if (payload.size == MAX_DATAGRAM_SIZE) {
+	if (payload.size() == MAX_DATAGRAM_SIZE) {
 		/* this datagram was probably truncated, so don't
 		   bother parsing it */
 		++n_malformed;
@@ -61,7 +61,7 @@ Instance::OnUdpDatagram(ConstBuffer<void> payload,
 
 	try {
 		const auto *r =
-			database.CheckEmplace(ConstBuffer<std::byte>::FromVoid(payload),
+			database.CheckEmplace(payload,
 					      event_loop.GetSteadyClockCache());
 		if (r == nullptr)
 			++n_discarded;
