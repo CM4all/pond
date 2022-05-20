@@ -45,7 +45,7 @@ Database::Database(size_t max_size, double _per_site_message_rate_limit)
 	:allocation(AlignHugePageUp(max_size)),
 	 per_site_message_rate_limit(_per_site_message_rate_limit),
 	 per_site_message_burst(10 * per_site_message_rate_limit), // TODO: make burst configurable
-	 all_records({allocation.get(), allocation.size()})
+	 all_records({(std::byte *)allocation.get(), allocation.size()})
 {
 	madvise(allocation.get(), allocation.size(), MADV_DONTFORK);
 	madvise(allocation.get(), allocation.size(), MADV_HUGEPAGE);
