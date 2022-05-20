@@ -35,11 +35,10 @@
 
 #include <algorithm>
 
-Record::Record(uint64_t _id, ConstBuffer<std::byte> _raw)
-	:id(_id), raw_size(_raw.size)
+Record::Record(uint64_t _id, std::span<const std::byte> _raw)
+	:id(_id), raw_size(_raw.size())
 {
-	memcpy((void *)(this + 1), _raw.data, raw_size);
+	memcpy((void *)(this + 1), _raw.data(), raw_size);
 
-	auto raw = ConstBuffer<std::byte>::FromVoid({this + 1, raw_size});
-	parsed = Net::Log::ParseDatagram(raw.begin(), raw.end());
+	parsed = Net::Log::ParseDatagram(GetRaw());
 }

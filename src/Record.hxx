@@ -56,7 +56,7 @@ public:
 	/**
 	 * Throws Net::Log::ProtocolError on error.
 	 */
-	Record(uint64_t _id, ConstBuffer<std::byte> _raw);
+	Record(uint64_t _id, std::span<const std::byte> _raw);
 
 	Record(const Record &) = delete;
 	Record &operator=(const Record &) = delete;
