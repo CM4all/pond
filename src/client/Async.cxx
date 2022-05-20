@@ -51,16 +51,16 @@ try {
 	while (true) {
 		auto r = input.Read();
 		PondHeader header;
-		if (r.size < sizeof(header))
+		if (r.size() < sizeof(header))
 			/* need more data */
 			return;
 
 		/* copy to stack to avoid alignment errors */
-		memcpy(&header, r.data, sizeof(header));
-		r.skip_front(sizeof(header));
+		memcpy(&header, r.data(), sizeof(header));
+		r = r.subspan(sizeof(header));
 
-		ConstBuffer<void> payload(r.data, FromBE16(header.size));
-		if (r.size < payload.size)
+		ConstBuffer<void> payload(r.data(), FromBE16(header.size));
+		if (r.size() < payload.size)
 			/* need more data */
 			return;
 
@@ -82,7 +82,7 @@ PondAsyncClient::FillInputBuffer()
 	if (w.empty())
 		throw std::runtime_error("Input buffer is full");
 
-	auto nbytes = recv(GetSocket().Get(), w.data, w.size, 0);
+	auto nbytes = recv(GetSocket().Get(), w.data(), w.size(), 0);
 	if (nbytes < 0)
 		throw MakeErrno("Failed to receive");
 

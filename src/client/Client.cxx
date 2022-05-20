@@ -43,7 +43,7 @@ PondClient::FillInputBuffer()
 	if (w.empty())
 		throw std::runtime_error("Input buffer is full");
 
-	auto nbytes = recv(fd.Get(), w.data, w.size, 0);
+	auto nbytes = recv(fd.Get(), w.data(), w.size(), 0);
 	if (nbytes < 0)
 		throw MakeErrno("Failed to receive");
 
@@ -58,8 +58,8 @@ PondClient::FullReceive(size_t size)
 {
 	while (true) {
 		auto r = input.Read();
-		if (r.size >= size)
-			return r.data;
+		if (r.size() >= size)
+			return r.data();
 
 		FillInputBuffer();
 	}

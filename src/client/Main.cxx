@@ -412,7 +412,7 @@ ReadToBuffer(FileDescriptor fd, B &buffer)
 	if (w.empty())
 		throw std::runtime_error("Input buffer full");
 
-	auto nbytes = fd.Read(w.data, w.size);
+	auto nbytes = fd.Read(w.data(), w.size());
 	if (nbytes < 0)
 		throw MakeErrno("Failed to read");
 
@@ -429,9 +429,9 @@ ReadPackets(FileDescriptor fd, F &&f)
 	while (true) {
 		auto r = input.Read();
 		// TODO: alignment/padding?
-		const auto &header = *(const PondHeader *)(const void *)r.data;
-		if (r.size < sizeof(header) ||
-		    r.size < sizeof(header) + FromBE16(header.size)) {
+		const auto &header = *(const PondHeader *)(const void *)r.data();
+		if (r.size() < sizeof(header) ||
+		    r.size() < sizeof(header) + FromBE16(header.size)) {
 			size_t nbytes = ReadToBuffer(fd, input);
 			if (nbytes == 0) {
 				if (!input.empty())
