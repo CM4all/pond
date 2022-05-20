@@ -65,7 +65,7 @@ Database::~Database() noexcept
 }
 
 const Record &
-Database::Emplace(ConstBuffer<uint8_t> raw)
+Database::Emplace(ConstBuffer<std::byte> raw)
 {
 	auto &record = all_records.emplace_back(sizeof(Record) + raw.size,
 						++last_id, raw);
@@ -93,7 +93,7 @@ IsMessage(const SmallDatagram &d) noexcept
 }
 
 const Record *
-Database::CheckEmplace(ConstBuffer<uint8_t> raw,
+Database::CheckEmplace(ConstBuffer<std::byte> raw,
 		       const ClockCache<std::chrono::steady_clock> &clock)
 try {
 	if (per_site_message_rate_limit <= 0)

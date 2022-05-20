@@ -220,7 +220,7 @@ AutoCloneOperation::Server::OnPondDatagram(uint16_t _id,
 		}
 
 		try {
-			db.Emplace(ConstBuffer<uint8_t>::FromVoid(payload));
+			db.Emplace(ConstBuffer<std::byte>::FromVoid(payload));
 		} catch (const Net::Log::ProtocolError &) {
 			logger(3, "Failed to parse datagram during CLONE: ",
 			       std::current_exception());

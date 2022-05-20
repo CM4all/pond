@@ -43,7 +43,7 @@ struct PondDatagram {
 	PondResponseCommand command;
 
 	struct {
-		std::unique_ptr<uint8_t[]> data;
+		std::unique_ptr<std::byte[]> data;
 		size_t size;
 
 		operator ConstBuffer<void>() const noexcept {

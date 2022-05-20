@@ -84,7 +84,7 @@ PondClient::Receive()
 	d.payload.size = FromBE16(header.size);
 
 	if (d.payload.size > 0) {
-		d.payload.data.reset(new uint8_t[d.payload.size]);
+		d.payload.data.reset(new std::byte[d.payload.size]);
 		FullReceive(d.payload.data.get(), d.payload.size);
 	}
 

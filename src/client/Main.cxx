@@ -424,7 +424,7 @@ template<typename F>
 static void
 ReadPackets(FileDescriptor fd, F &&f)
 {
-	StaticFifoBuffer<uint8_t, 65536> input;
+	StaticFifoBuffer<std::byte, 65536> input;
 
 	while (true) {
 		auto r = input.Read();

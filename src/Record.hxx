@@ -37,6 +37,8 @@
 
 #include <boost/intrusive/list_hook.hpp>
 
+#include <cstddef>
+
 class Record final {
 public:
 	using ListHook =
@@ -54,7 +56,7 @@ public:
 	/**
 	 * Throws Net::Log::ProtocolError on error.
 	 */
-	Record(uint64_t _id, ConstBuffer<uint8_t> _raw);
+	Record(uint64_t _id, ConstBuffer<std::byte> _raw);
 
 	Record(const Record &) = delete;
 	Record &operator=(const Record &) = delete;

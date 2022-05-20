@@ -420,7 +420,7 @@ try {
 			throw SimplePondError{"Blocked"};
 
 		try {
-			instance.GetDatabase().Emplace({(const uint8_t *)payload.data,
+			instance.GetDatabase().Emplace({(const std::byte *)payload.data,
 						payload.size});
 		} catch (Net::Log::ProtocolError) {
 		}

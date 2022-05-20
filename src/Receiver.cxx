@@ -61,7 +61,7 @@ Instance::OnUdpDatagram(ConstBuffer<void> payload,
 
 	try {
 		const auto *r =
-			database.CheckEmplace(ConstBuffer<uint8_t>::FromVoid(payload),
+			database.CheckEmplace(ConstBuffer<std::byte>::FromVoid(payload),
 					      event_loop.GetSteadyClockCache());
 		if (r == nullptr)
 			++n_discarded;

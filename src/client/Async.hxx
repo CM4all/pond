@@ -65,7 +65,7 @@ class PondAsyncClient {
 
 	uint16_t last_id = 0;
 
-	StaticFifoBuffer<uint8_t, 256 * 1024> input;
+	StaticFifoBuffer<std::byte, 256 * 1024> input;
 
 public:
 	PondAsyncClient(EventLoop &event_loop,

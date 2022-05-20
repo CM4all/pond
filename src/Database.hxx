@@ -157,7 +157,7 @@ public:
 	/**
 	 * Throws if parsing the buffer fails.
 	 */
-	const Record &Emplace(ConstBuffer<uint8_t> raw);
+	const Record &Emplace(ConstBuffer<std::byte> raw);
 
 	/**
 	 * Throws if parsing the buffer fails.
@@ -165,7 +165,7 @@ public:
 	 * @return a pointer to the new record or nullptr if a rate
 	 * limit was exceeded
 	 */
-	const Record *CheckEmplace(ConstBuffer<uint8_t> raw,
+	const Record *CheckEmplace(ConstBuffer<std::byte> raw,
 				   const ClockCache<std::chrono::steady_clock> &clock);
 
 	Selection Select(const Filter &filter) noexcept;

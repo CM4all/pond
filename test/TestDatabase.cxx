@@ -13,7 +13,7 @@ MakeTimestamp(unsigned t)
 static const Record &
 Push(Database &db, const Net::Log::Datagram &src)
 {
-    uint8_t buffer[16384];
+    std::byte buffer[16384];
     size_t size = Net::Log::Serialize(buffer, sizeof(buffer), src);
     return db.Emplace({buffer, size});
 }
@@ -22,7 +22,7 @@ static const Record *
 CheckPush(Database &db, const Net::Log::Datagram &src,
           const ClockCache<std::chrono::steady_clock> &clock)
 {
-    uint8_t buffer[16384];
+    std::byte buffer[16384];
     size_t size = Net::Log::Serialize(buffer, sizeof(buffer), src);
     return db.CheckEmplace({buffer, size}, clock);
 }
