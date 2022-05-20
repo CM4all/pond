@@ -116,11 +116,11 @@ SanitizeSiteName(char *buffer, size_t buffer_size,
 static void
 SendPacket(SocketDescriptor s, ConstBuffer<void> payload)
 {
-	struct iovec vec[] = {
+	const struct iovec vec[] = {
 		MakeIovec(payload),
 	};
 
-	SendMessage(s, ConstBuffer<struct iovec>(vec), 0);
+	SendMessage(s, MessageHeader{std::span{vec}}, 0);
 }
 
 ResultWriter::ResultWriter(bool _raw, bool _gzip,

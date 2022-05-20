@@ -47,12 +47,12 @@ SendPondRequest(SocketDescriptor s, uint16_t id, PondRequestCommand command,
 	header.command = ToBE16(uint16_t(command));
 	header.size = ToBE16(payload.size);
 
-	struct iovec vec[] = {
+	const struct iovec vec[] = {
 		MakeIovecT(header),
 		MakeIovec(payload),
 	};
 
-	auto nbytes = SendMessage(s, ConstBuffer<struct iovec>(vec, 1u + !payload.empty()), 0);
+	auto nbytes = SendMessage(s, std::span{vec, 1u + !payload.empty()}, 0);
 	if (size_t(nbytes) != sizeof(header) + payload.size)
 		throw std::runtime_error("Short send");
 }
