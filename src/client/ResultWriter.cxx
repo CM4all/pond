@@ -223,6 +223,13 @@ ResultWriter::Write(ConstBuffer<void> payload)
 			// TODO: where to log datagrams without a site?
 			return;
 
+		if (!d.GuessIsHttpAccess() && d.message == nullptr)
+			/* this is neither a HTTP access nor does it
+			   contain a message - FormatOneLine() will
+			   not generate anything, so don't bother
+			   opening the output file */
+			return;
+
 		char filename_buffer[sizeof(last_site)];
 		const char *filename = SanitizeSiteName(filename_buffer,
 							sizeof(filename_buffer),

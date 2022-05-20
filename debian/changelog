@@ -1,5 +1,6 @@
 cm4all-pond (0.22) unstable; urgency=low
 
+  * client: don't create empty per-site files for bogus datagrams
   * debian: add missing GTest build dependency
 
  --   
