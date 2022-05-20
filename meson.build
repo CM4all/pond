@@ -75,6 +75,9 @@ test_cxxflags = test_common_flags + [
   '-fno-threadsafe-statics',
   '-fmerge-all-constants',
 
+  # TODO: disable this once our code base is fixed
+  '-Wno-maybe-uninitialized',
+
   '-Wno-missing-field-initializers',
 
   # a vtable without a dtor is just fine
