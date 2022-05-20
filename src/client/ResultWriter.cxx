@@ -103,11 +103,22 @@ SanitizeSiteName(char *buffer, size_t buffer_size,
 	if (site_length == 0 || site_length >= buffer_size)
 		return nullptr;
 
+	bool ok = false;
+
 	char *p = buffer;
 	while (*site != 0) {
 		char ch = *site++;
-		*p++ = IsSafeSiteChar(ch) ? ch : '_';
+
+		if (IsSafeSiteChar(ch))
+			ok = true;
+		else
+			ch = '_';
+
+		*p++ = ch;
 	}
+
+	if (!ok)
+		return nullptr;
 
 	*p = 0;
 	return buffer;
