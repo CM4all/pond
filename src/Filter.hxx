@@ -35,10 +35,11 @@
 #include "net/log/Chrono.hxx"
 #include "net/log/Protocol.hxx"
 
+#include <cstddef>
+#include <cstdint>
 #include <string>
+#include <span>
 #include <set>
-
-#include <stdint.h>
 
 struct SmallDatagram;
 namespace Net { namespace Log { struct Datagram; }}
@@ -51,14 +52,30 @@ struct Filter {
 
 	Net::Log::Type type = Net::Log::Type::UNSPECIFIED;
 
+	struct {
+		uint16_t begin{}, end{UINT16_MAX};
+
+		constexpr bool operator()(uint16_t status) const noexcept {
+			return status >= begin && status < end;
+		}
+
+		operator bool() const noexcept {
+			return begin != 0 || end != UINT16_MAX;
+		}
+	} http_status;
+
 	bool HasOneSite() const noexcept {
 		return !sites.empty() &&
 			std::next(sites.begin()) == sites.end();
 	}
 
 	[[gnu::pure]]
-	bool operator()(const SmallDatagram &d) const noexcept;
+	bool operator()(const SmallDatagram &d, std::span<const std::byte> raw) const noexcept;
 
 	[[gnu::pure]]
 	bool operator()(const Net::Log::Datagram &d) const noexcept;
+
+private:
+	[[gnu::pure]]
+	bool MatchStatus(std::span<const std::byte> raw) const noexcept;
 };

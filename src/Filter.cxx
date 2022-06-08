@@ -33,6 +33,7 @@
 #include "Filter.hxx"
 #include "SmallDatagram.hxx"
 #include "net/log/Datagram.hxx"
+#include "net/log/Parser.hxx"
 
 static std::string_view
 NullableStringView(const char *s) noexcept
@@ -54,8 +55,22 @@ MatchTimestamp(Net::Log::TimePoint timestamp,
 	return timestamp >= since && timestamp <= until;
 }
 
+inline bool
+Filter::MatchStatus(std::span<const std::byte> raw) const noexcept
+{
+	if (!http_status)
+		return true;
+
+	try {
+		const auto d = Net::Log::ParseDatagram(raw);
+		return http_status(static_cast<uint16_t>(d.http_status));
+	} catch (...) {
+		return false;
+	}
+}
+
 bool
-Filter::operator()(const SmallDatagram &d) const noexcept
+Filter::operator()(const SmallDatagram &d, std::span<const std::byte> raw) const noexcept
 {
 	return MatchFilter(d.site, sites) &&
 		(type == Net::Log::Type::UNSPECIFIED ||
@@ -63,7 +78,8 @@ Filter::operator()(const SmallDatagram &d) const noexcept
 		((since == Net::Log::TimePoint::min() &&
 		  until == Net::Log::TimePoint::max()) ||
 		 (d.HasTimestamp() &&
-		  MatchTimestamp(d.timestamp, since, until)));
+		  MatchTimestamp(d.timestamp, since, until))) &&
+		MatchStatus(raw);
 }
 
 bool
@@ -72,6 +88,7 @@ Filter::operator()(const Net::Log::Datagram &d) const noexcept
 	return MatchFilter(d.site, sites) &&
 		(type == Net::Log::Type::UNSPECIFIED ||
 		 type == d.type) &&
+		http_status(static_cast<uint16_t>(d.http_status)) &&
 		((since == Net::Log::TimePoint::min() &&
 		  until == Net::Log::TimePoint::max()) ||
 		 (d.HasTimestamp() &&

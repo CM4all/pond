@@ -124,6 +124,13 @@ enum class PondRequestCommand : uint16_t {
 	 * Cancel the currently running #BlockingOperation.
 	 */
 	CANCEL_OPERATION = 14,
+
+	/**
+	 * Specify a filter on the "http_status" attribute.  Payload
+	 * is two 16 bit integers specifying a range of HTTP status
+	 * codes.
+	 */
+	FILTER_HTTP_STATUS = 15,
 };
 
 enum class PondResponseCommand : uint16_t {
@@ -218,4 +225,11 @@ struct PondWindowPayload {
 	 * How many records will be skipped with this query?
 	 */
 	uint64_t skip;
+};
+
+/**
+ * Payload for PondRequestCommand::FILTER_HTTP_STATUS.
+ */
+struct PondFilterHttpStatusPayload {
+	uint16_t begin, end;
 };

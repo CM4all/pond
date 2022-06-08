@@ -43,7 +43,7 @@ static constexpr Net::Log::Duration until_offset = std::chrono::seconds(10);
 void
 Selection::SkipMismatches() noexcept
 {
-	while (*this && !filter(cursor->GetParsed()))
+	while (*this && !filter(cursor->GetParsed(), cursor->GetRaw()))
 		++cursor;
 }
 
@@ -79,7 +79,7 @@ Selection::OnAppend(const Record &record) noexcept
 {
 	assert(!*this);
 
-	if (!filter(record.GetParsed()))
+	if (!filter(record.GetParsed(), cursor->GetRaw()))
 		return false;
 
 	cursor.OnAppend(record);

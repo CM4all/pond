@@ -237,6 +237,9 @@ The following filters are available:
 - :samp:`date=YYYY-MM-DD` is a shortcut which shows records on a
   certain date (according to the client's time zone)
 - :samp:`today` is a shortcut which shows records only of today
+- :samp:`status=STATUS[:END]` shows only records with the specified
+  status.  If "END" is also given, then this is the open end of a
+  range.  Example: :samp:`status=500:600` shows all server errors.
 - :samp:`window=COUNT[@SKIP]` selects a portion (window) of the
   result.  Can limit the number of records and skip a number of
   records at the beginning.

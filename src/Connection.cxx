@@ -462,6 +462,23 @@ try {
 	case PondRequestCommand::CANCEL_OPERATION:
 		instance.CancelBlockingOperation();
 		return BufferedResult::AGAIN;
+
+	case PondRequestCommand::FILTER_HTTP_STATUS:
+		if (!current.MatchId(id) ||
+		    current.command != PondRequestCommand::QUERY)
+			throw SimplePondError{"Misplaced FILTER_HTTP_STATUS"};
+
+		{
+			const auto &src =
+				*(const PondFilterHttpStatusPayload *)(const void *)payload.data();
+			if (payload.size() != sizeof(src))
+				throw SimplePondError{"Malformed FILTER_HTTP_STATUS"};
+
+			current.filter.http_status.begin = FromBE16(src.begin);
+			current.filter.http_status.end = FromBE16(src.end);
+		}
+
+		return BufferedResult::AGAIN;
 	}
 
 	throw SimplePondError{"Command not implemented"};

@@ -175,6 +175,24 @@ ParseFilterItem(Filter &filter, PondGroupSitePayload &group_site,
 		filter.type = Net::Log::ParseType(type_string);
 		if (filter.type == Net::Log::Type::UNSPECIFIED)
 			throw "Bad type filter";
+	} else if (auto status_string = IsFilter(p, "status")) {
+		char *endptr;
+		long begin = strtol(status_string, &endptr, 10);
+		if (endptr == status_string || begin < 0 || begin >= 600)
+			throw "Bad status filter";
+
+		long end = begin;
+
+		if (*endptr == ':') {
+			status_string = endptr + 1;
+			end = strtol(status_string, &endptr, 10);
+			if (endptr == status_string || *endptr != 0 || end <= begin || end > 600)
+				throw "Bad status filter";
+		} else if (*endptr != 0)
+			throw "Bad status filter";
+
+		filter.http_status.begin = begin;
+		filter.http_status.end = end;
 	} else if (auto per_site = StringAfterPrefix(p, "--per-site=")) {
 		options.per_site = per_site;
 	} else if (auto per_site_filename = StringAfterPrefix(p, "--per-site-file=")) {
@@ -286,6 +304,13 @@ Query(const PondServerSpecification &server, ConstBuffer<const char *> args)
 
 	if (filter.until != Net::Log::TimePoint::max())
 		client.Send(id, PondRequestCommand::FILTER_UNTIL, filter.until);
+
+	if (filter.http_status) {
+		PondFilterHttpStatusPayload status;
+		status.begin = ToBE16(filter.http_status.begin);
+		status.end = ToBE16(filter.http_status.end);
+		client.SendT(id, PondRequestCommand::FILTER_HTTP_STATUS, status);
+	}
 
 	if (group_site.max_sites != 0)
 		client.SendT(id, PondRequestCommand::GROUP_SITE, group_site);
