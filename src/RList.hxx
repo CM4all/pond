@@ -112,7 +112,7 @@ public:
 			: &*i;
 	}
 
-	gcc_pure
+	[[gnu::pure]]
 	const Record *TimeLowerBound(Net::Log::TimePoint since) noexcept {
 		if (list.empty())
 			return nullptr;

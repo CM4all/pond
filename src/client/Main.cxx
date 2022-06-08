@@ -56,7 +56,7 @@
 #include <stdlib.h>
 #include <poll.h>
 
-gcc_pure
+[[gnu::pure]]
 static const char *
 IsFilter(const char *arg, StringView name) noexcept
 {

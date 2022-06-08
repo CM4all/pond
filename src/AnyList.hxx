@@ -33,7 +33,6 @@
 #pragma once
 
 #include "net/log/Chrono.hxx"
-#include "util/Compiler.h"
 
 #include <utility>
 
@@ -57,13 +56,13 @@ public:
 	constexpr AnyRecordList(FullRecordList &list) noexcept:all(&list) {}
 	constexpr AnyRecordList(PerSiteRecordList &list) noexcept:per_site(&list) {}
 
-	gcc_pure
+	[[gnu::pure]]
 	const Record *TimeLowerBound(Net::Log::TimePoint since) const noexcept;
 
-	gcc_pure
+	[[gnu::pure]]
 	const Record *First() const noexcept;
 
-	gcc_pure
+	[[gnu::pure]]
 	const Record *Next(const Record &r) const noexcept;
 
 	void AddAppendListener(AppendListener &l) const noexcept;

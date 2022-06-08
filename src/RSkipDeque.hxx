@@ -33,7 +33,6 @@
 #pragma once
 
 #include "net/log/Chrono.hxx"
-#include "util/Compiler.h"
 
 #include <deque>
 
@@ -117,6 +116,6 @@ public:
 	 * `nullptr` if there are no records after the end of the
 	 * range.
 	 */
-	gcc_pure
+	[[gnu::pure]]
 	const Record *TimeLowerBound(Net::Log::TimePoint since) const noexcept;
 };

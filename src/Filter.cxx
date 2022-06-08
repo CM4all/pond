@@ -34,7 +34,7 @@
 #include "SmallDatagram.hxx"
 #include "net/log/Datagram.hxx"
 
-gcc_pure
+[[gnu::pure]]
 static bool
 MatchFilter(const char *value, const std::set<std::string> &filter) noexcept
 {

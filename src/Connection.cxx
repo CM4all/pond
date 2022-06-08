@@ -222,21 +222,21 @@ Connection::CommitQuery()
 	   OnBufferedWrite() */
 }
 
-gcc_pure
+[[gnu::pure]]
 static bool
 HasNullByte(ConstBuffer<char> b) noexcept
 {
 	return std::find(b.begin(), b.end(), '\0') != b.end();
 }
 
-gcc_pure
+[[gnu::pure]]
 static bool
 IsNonEmptyString(ConstBuffer<char> b) noexcept
 {
 	return !b.empty() && !HasNullByte(b);
 }
 
-gcc_pure
+[[gnu::pure]]
 static bool
 IsNonEmptyString(ConstBuffer<void> b) noexcept
 {

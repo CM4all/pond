@@ -33,7 +33,6 @@
 #pragma once
 
 #include "net/log/Chrono.hxx"
-#include "util/Compiler.h"
 
 #include <string>
 #include <unordered_map>
@@ -59,7 +58,7 @@ class VisitorTracker {
 	uint64_t last_id = RandomVisitorId();
 
 public:
-	gcc_pure
+	[[gnu::pure]]
 	const char *MakeVisitorId(const char *remote_host,
 				  Net::Log::TimePoint timestamp) noexcept;
 

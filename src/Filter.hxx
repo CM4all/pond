@@ -34,7 +34,6 @@
 
 #include "net/log/Chrono.hxx"
 #include "net/log/Protocol.hxx"
-#include "util/Compiler.h"
 
 #include <string>
 #include <set>
@@ -57,9 +56,9 @@ struct Filter {
 			std::next(sites.begin()) == sites.end();
 	}
 
-	gcc_pure
+	[[gnu::pure]]
 	bool operator()(const SmallDatagram &d) const noexcept;
 
-	gcc_pure
+	[[gnu::pure]]
 	bool operator()(const Net::Log::Datagram &d) const noexcept;
 };

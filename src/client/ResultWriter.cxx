@@ -66,7 +66,7 @@ DropPageCache(FileDescriptor fd) noexcept
  * Cast this #FileDescriptor to a #SocketDescriptor if it specifies a
  * socket.
  */
-gcc_pure
+[[gnu::pure]]
 static SocketDescriptor
 CheckSocket(FileDescriptor fd)
 {
@@ -79,7 +79,7 @@ CheckSocket(FileDescriptor fd)
  * Cast this #FileDescriptor to a #SocketDescriptor if it specifies a
  * packet socket (SOCK_DGRAM or SOCK_SEQPACKET).
  */
-gcc_pure
+[[gnu::pure]]
 static SocketDescriptor
 CheckPacketSocket(FileDescriptor fd)
 {

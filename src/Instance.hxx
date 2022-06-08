@@ -122,7 +122,7 @@ public:
 		return database;
 	}
 
-	gcc_pure
+	[[gnu::pure]]
 	PondStatsPayload GetStats() const noexcept;
 
 	Avahi::Client &GetAvahiClient();

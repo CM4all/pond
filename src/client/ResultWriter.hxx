@@ -113,7 +113,7 @@ public:
 private:
 	void FlushBuffer();
 
-	gcc_pure
+	[[gnu::pure]]
 	const char *LookupGeoIP(const char *address) const noexcept;
 
 	void Append(const Net::Log::Datagram &d, bool site);
