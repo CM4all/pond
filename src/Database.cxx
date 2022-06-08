@@ -35,11 +35,11 @@
 #include "Filter.hxx"
 #include "AnyList.hxx"
 #include "system/HugePage.hxx"
+#include "system/PageAllocator.hxx"
 #include "time/Cast.hxx"
 #include "time/ClockCache.hxx"
 
 #include <assert.h>
-#include <sys/mman.h>
 
 Database::Database(size_t max_size, double _per_site_message_rate_limit)
 	:allocation(AlignHugePageUp(max_size)),
@@ -47,8 +47,8 @@ Database::Database(size_t max_size, double _per_site_message_rate_limit)
 	 per_site_message_burst(10 * per_site_message_rate_limit), // TODO: make burst configurable
 	 all_records({(std::byte *)allocation.get(), allocation.size()})
 {
-	madvise(allocation.get(), allocation.size(), MADV_DONTFORK);
-	madvise(allocation.get(), allocation.size(), MADV_HUGEPAGE);
+	EnableHugePages(allocation.get(), allocation.size());
+	EnablePageFork(allocation.get(), allocation.size(), false);
 
 	if (max_size > 2ull * 1024 * 1024 * 1024)
 		/* exclude database memory from core dumps if it's
@@ -56,7 +56,7 @@ Database::Database(size_t max_size, double _per_site_message_rate_limit)
 		   section usually doesn't fit in the core dump
 		   partition, which would effectively make core dumps
 		   impossible */
-		madvise(allocation.get(), allocation.size(), MADV_DONTDUMP);
+		EnablePageDump(allocation.get(), allocation.size(), false);
 }
 
 Database::~Database() noexcept
