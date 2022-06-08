@@ -269,6 +269,8 @@ Other than ISO8601, the following special tokens are understood:
 
 - :samp:`now` is the current time stamp
 - :samp:`today` is the current date in the local time zone
+- :samp:`yesterday` is the previous date in the local time zone
+- :samp:`tomorrow` is the next date in the local time zone
 
 .. _clone:
 
