@@ -36,6 +36,7 @@
 #include "AnyList.hxx"
 #include "system/HugePage.hxx"
 #include "system/PageAllocator.hxx"
+#include "system/VmaName.hxx"
 #include "time/Cast.hxx"
 #include "time/ClockCache.hxx"
 
@@ -57,6 +58,8 @@ Database::Database(size_t max_size, double _per_site_message_rate_limit)
 		   partition, which would effectively make core dumps
 		   impossible */
 		EnablePageDump(allocation.get(), allocation.size(), false);
+
+	SetVmaName(allocation.get(), allocation.size(), "PondDatabase");
 }
 
 Database::~Database() noexcept
