@@ -35,55 +35,46 @@
 #include "Protocol.hxx"
 #include "net/log/Chrono.hxx"
 #include "net/SocketDescriptor.hxx"
-#include "util/ConstBuffer.hxx"
-#include "util/StringView.hxx"
+#include "util/SpanCast.hxx"
 #include "util/ByteOrder.hxx"
 
+#include <span>
 #include <string>
 
 struct PondDatagram;
 
 void
 SendPondRequest(SocketDescriptor s, uint16_t id, PondRequestCommand command,
-		ConstBuffer<void> payload=nullptr);
+		std::span<const std::byte> payload={});
 
 template<typename T>
 static inline void
 SendPondRequestT(SocketDescriptor s, uint16_t id, PondRequestCommand command,
 		 const T &payload)
 {
-	SendPondRequest(s, id, command,
-			ConstBuffer<void>(&payload, sizeof(payload)));
+	SendPondRequest(s, id, command, std::as_bytes(std::span{&payload, 1}));
 }
 
 static inline void
 SendPondRequest(SocketDescriptor s, uint16_t id, PondRequestCommand command,
-		StringView payload)
+		std::string_view payload)
 {
-	SendPondRequest(s, id, command, payload.ToVoid());
-}
-
-static inline void
-SendPondRequest(SocketDescriptor s, uint16_t id, PondRequestCommand command,
-		const std::string &payload)
-{
-	SendPondRequest(s, id, command,
-			StringView(payload.data(), payload.size()));
+	SendPondRequest(s, id, command, AsBytes(payload));
 }
 
 static inline void
 SendPondRequest(SocketDescriptor s, uint16_t id, PondRequestCommand command,
 		const char *payload)
 {
-	SendPondRequest(s, id, command, StringView(payload));
+	SendPondRequest(s, id, command, std::string_view{payload});
 }
 
 static inline void
 SendPondRequest(SocketDescriptor s, uint16_t id, PondRequestCommand command,
 		uint64_t payload)
 {
-	uint64_t be = ToBE64(payload);
-	SendPondRequest(s, id, command, ConstBuffer<void>(&be, sizeof(be)));
+	const uint64_t be = ToBE64(payload);
+	SendPondRequestT(s, id, command, be);
 }
 
 static inline void

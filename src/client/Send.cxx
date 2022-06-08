@@ -37,15 +37,15 @@
 
 void
 SendPondRequest(SocketDescriptor s, uint16_t id, PondRequestCommand command,
-		ConstBuffer<void> payload)
+		std::span<const std::byte> payload)
 {
 	PondHeader header;
-	if (payload.size >= std::numeric_limits<decltype(header.size)>::max())
+	if (payload.size() >= std::numeric_limits<decltype(header.size)>::max())
 		throw std::runtime_error("Payload is too large");
 
 	header.id = ToBE16(id);
 	header.command = ToBE16(uint16_t(command));
-	header.size = ToBE16(payload.size);
+	header.size = ToBE16(payload.size());
 
 	const struct iovec vec[] = {
 		MakeIovecT(header),
@@ -53,6 +53,6 @@ SendPondRequest(SocketDescriptor s, uint16_t id, PondRequestCommand command,
 	};
 
 	auto nbytes = SendMessage(s, std::span{vec, 1u + !payload.empty()}, 0);
-	if (size_t(nbytes) != sizeof(header) + payload.size)
+	if (size_t(nbytes) != sizeof(header) + payload.size())
 		throw std::runtime_error("Short send");
 }

@@ -33,11 +33,11 @@
 #pragma once
 
 #include "SmallDatagram.hxx"
-#include "util/ConstBuffer.hxx"
 
 #include <boost/intrusive/list_hook.hpp>
 
 #include <cstddef>
+#include <span>
 
 class Record final {
 public:
@@ -65,8 +65,8 @@ public:
 		return id;
 	}
 
-	ConstBuffer<void> GetRaw() const noexcept {
-		return {this + 1, raw_size};
+	std::span<const std::byte> GetRaw() const noexcept {
+		return {(const std::byte *)(this + 1), raw_size};
 	}
 
 	const auto &GetParsed() const noexcept {

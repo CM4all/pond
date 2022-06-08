@@ -39,6 +39,7 @@
 #include "net/log/Parser.hxx"
 #include "system/Error.hxx"
 #include "util/DeleteDisposer.hxx"
+#include "util/SpanCast.hxx"
 
 #include <memory>
 
@@ -168,7 +169,7 @@ private:
 
 	/* virtual methods from class PondAsyncClientHandler */
 	bool OnPondDatagram(uint16_t id, PondResponseCommand command,
-			    ConstBuffer<void> payload) override;
+			    std::span<const std::byte> payload) override;
 
 	void OnPondError(std::exception_ptr e) noexcept override {
 		assert(state >= State::STATS);
@@ -178,15 +179,15 @@ private:
 };
 
 static std::string
-ToString(ConstBuffer<void> b) noexcept
+ToString(std::span<const std::byte> b) noexcept
 {
-	return std::string((const char *)b.data, b.size);
+	return std::string{ToStringView(b)};
 }
 
 bool
 AutoCloneOperation::Server::OnPondDatagram(uint16_t _id,
 					   PondResponseCommand command,
-					   ConstBuffer<void> payload)
+					   std::span<const std::byte> payload)
 {
 	assert(state >= State::STATS);
 
@@ -220,7 +221,7 @@ AutoCloneOperation::Server::OnPondDatagram(uint16_t _id,
 		}
 
 		try {
-			db.Emplace(ConstBuffer<std::byte>::FromVoid(payload));
+			db.Emplace(payload);
 		} catch (const Net::Log::ProtocolError &) {
 			logger(3, "Failed to parse datagram during CLONE: ",
 			       std::current_exception());
@@ -229,8 +230,8 @@ AutoCloneOperation::Server::OnPondDatagram(uint16_t _id,
 
 	case PondResponseCommand::STATS:
 		if (state == State::STATS) {
-			const auto &stats = *(const PondStatsPayload *)payload.data;
-			if (payload.size < sizeof(stats))
+			const auto &stats = *(const PondStatsPayload *)(const void *)payload.data();
+			if (payload.size() < sizeof(stats))
 				throw std::runtime_error("Malformed STATS packet");
 
 			n_records = FromBE64(stats.n_records);

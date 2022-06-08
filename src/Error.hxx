@@ -32,8 +32,8 @@
 
 #pragma once
 
-#include "util/StringView.hxx"
+#include <string_view>
 
 struct SimplePondError {
-	StringView message;
+	std::string_view message;
 };

@@ -41,8 +41,8 @@
 #include <GeoIP.h>
 
 #include <memory>
+#include <span>
 
-template<typename t> struct ConstBuffer;
 namespace Net::Log { struct Datagram; }
 class OutputStream;
 class FdOutputStream;
@@ -97,7 +97,7 @@ public:
 		return buffer_fill == 0;
 	}
 
-	void Write(ConstBuffer<void> payload);
+	void Write(std::span<const std::byte> payload);
 
 	/**
 	 * Flushes pending data.

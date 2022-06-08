@@ -38,6 +38,7 @@
 #include "net/log/Parser.hxx"
 #include "system/Error.hxx"
 #include "util/ByteOrder.hxx"
+#include "util/SpanCast.hxx"
 
 #include <array>
 
@@ -118,9 +119,9 @@ struct PondIovec {
 static unsigned
 MakeIovec(PondIovec &pi,
 	  uint16_t id, PondResponseCommand command,
-	  ConstBuffer<void> payload)
+	  std::span<const std::byte> payload)
 {
-	pi.header = MakeHeader(id, command, payload.size);
+	pi.header = MakeHeader(id, command, payload.size());
 	pi.vec[0] = MakeIovecT(pi.header);
 	pi.vec[1] = MakeIovec(payload);
 	return 1u + !payload.empty();
@@ -128,7 +129,7 @@ MakeIovec(PondIovec &pi,
 
 void
 Connection::Send(uint16_t id, PondResponseCommand command,
-		 ConstBuffer<void> payload)
+		 std::span<const std::byte> payload)
 {
 	PondIovec pi;
 	const auto n = MakeIovec(pi, id, command, payload);
@@ -224,28 +225,28 @@ Connection::CommitQuery()
 
 [[gnu::pure]]
 static bool
-HasNullByte(ConstBuffer<char> b) noexcept
+HasNullByte(std::string_view b) noexcept
 {
 	return std::find(b.begin(), b.end(), '\0') != b.end();
 }
 
 [[gnu::pure]]
 static bool
-IsNonEmptyString(ConstBuffer<char> b) noexcept
+IsNonEmptyString(std::string_view b) noexcept
 {
 	return !b.empty() && !HasNullByte(b);
 }
 
 [[gnu::pure]]
 static bool
-IsNonEmptyString(ConstBuffer<void> b) noexcept
+IsNonEmptyString(std::span<const std::byte> b) noexcept
 {
-	return IsNonEmptyString(ConstBuffer<char>::FromVoid(b));
+	return IsNonEmptyString(ToStringView(b));
 }
 
 inline BufferedResult
 Connection::OnPacket(uint16_t id, PondRequestCommand cmd,
-		     ConstBuffer<void> payload)
+		     std::span<const std::byte> payload)
 try {
 	if (current.IgnoreId(id))
 		return BufferedResult::AGAIN_OPTIONAL;
@@ -295,8 +296,7 @@ try {
 			throw SimplePondError{"Malformed FILTER_SITE"};
 
 		{
-			auto e = current.filter.sites.emplace((const char *)payload.data,
-							      payload.size);
+			auto e = current.filter.sites.emplace(ToStringView(payload));
 			if (!e.second)
 				throw SimplePondError{"Duplicate FILTER_SITE"};
 		}
@@ -311,10 +311,10 @@ try {
 		if (current.filter.since != Net::Log::TimePoint::min())
 			throw SimplePondError{"Duplicate FILTER_SINCE"};
 
-		if (payload.size != sizeof(uint64_t))
+		if (payload.size() != sizeof(uint64_t))
 			throw SimplePondError{"Malformed FILTER_SINCE"};
 
-		current.filter.since = Net::Log::TimePoint(Net::Log::Duration(FromBE64(*(const uint64_t *)payload.data)));
+		current.filter.since = Net::Log::TimePoint(Net::Log::Duration(FromBE64(*(const uint64_t *)(const void *)payload.data())));
 		if (current.filter.since == Net::Log::TimePoint::min())
 			throw SimplePondError{"Malformed FILTER_SINCE"};
 		return BufferedResult::AGAIN_EXPECT;
@@ -327,10 +327,10 @@ try {
 		if (current.filter.until != Net::Log::TimePoint::max())
 			throw SimplePondError{"Duplicate FILTER_UNTIL"};
 
-		if (payload.size != sizeof(uint64_t))
+		if (payload.size() != sizeof(uint64_t))
 			throw SimplePondError{"Malformed FILTER_UNTIL"};
 
-		current.filter.until = Net::Log::TimePoint(Net::Log::Duration(FromBE64(*(const uint64_t *)payload.data)));
+		current.filter.until = Net::Log::TimePoint(Net::Log::Duration(FromBE64(*(const uint64_t *)(const void *)payload.data())));
 		if (current.filter.until == Net::Log::TimePoint::max())
 			throw SimplePondError{"Malformed FILTER_UNTIL"};
 		return BufferedResult::AGAIN_EXPECT;
@@ -343,10 +343,10 @@ try {
 		if (current.filter.type != Net::Log::Type::UNSPECIFIED)
 			throw SimplePondError{"Duplicate FILTER_TYPE"};
 
-		if (payload.size != sizeof(Net::Log::Type))
+		if (payload.size() != sizeof(Net::Log::Type))
 			throw SimplePondError{"Malformed FILTER_TYPE"};
 
-		current.filter.type = *(const Net::Log::Type *)payload.data;
+		current.filter.type = *(const Net::Log::Type *)(const void *)payload.data();
 		if (current.filter.type == Net::Log::Type::UNSPECIFIED)
 			throw SimplePondError{"Malformed FILTER_TYPE"};
 		return BufferedResult::AGAIN_EXPECT;
@@ -385,12 +385,12 @@ try {
 		if (current.group_site.max_sites > 0)
 			throw SimplePondError{"Duplicate GROUP_SITE"};
 
-		if (payload.size != sizeof(current.group_site))
+		if (payload.size() != sizeof(current.group_site))
 			throw SimplePondError{"Malformed GROUP_SITE"};
 
 		{
 			const auto &src =
-				*(const PondGroupSitePayload *)payload.data;
+				*(const PondGroupSitePayload *)(const void *)payload.data();
 			current.group_site.max_sites = FromBE32(src.max_sites);
 			current.group_site.skip_sites = FromBE32(src.skip_sites);
 
@@ -409,8 +409,7 @@ try {
 		socket.UnscheduleWrite();
 		AppendListener::Unregister();
 		current.Set(id, cmd);
-		current.address.assign((const char *)payload.data,
-				       payload.size);
+		current.address.assign(ToStringView(payload));
 		return BufferedResult::AGAIN_EXPECT;
 
 	case PondRequestCommand::INJECT_LOG_RECORD:
@@ -420,8 +419,7 @@ try {
 			throw SimplePondError{"Blocked"};
 
 		try {
-			instance.GetDatabase().Emplace({(const std::byte *)payload.data,
-						payload.size});
+			instance.GetDatabase().Emplace(payload);
 		} catch (Net::Log::ProtocolError) {
 		}
 
@@ -430,7 +428,8 @@ try {
 	case PondRequestCommand::STATS:
 		{
 			const auto p = instance.GetStats();
-			Send(id, PondResponseCommand::STATS, {&p, sizeof(p)});
+			Send(id, PondResponseCommand::STATS,
+			     std::as_bytes(std::span{&p, 1}));
 		}
 
 		return BufferedResult::AGAIN_EXPECT;
@@ -446,12 +445,12 @@ try {
 		if (current.HasWindow())
 			throw SimplePondError{"Duplicate WINDOW"};
 
-		if (payload.size != sizeof(current.window))
+		if (payload.size() != sizeof(current.window))
 			throw SimplePondError{"Malformed WINDOW"};
 
 		{
 			const auto &src =
-				*(const PondWindowPayload *)payload.data;
+				*(const PondWindowPayload *)(const void *)payload.data();
 			current.window.max = FromBE64(src.max);
 			current.window.skip = FromBE64(src.skip);
 
@@ -468,7 +467,7 @@ try {
 
 	throw SimplePondError{"Command not implemented"};
 } catch (SimplePondError e) {
-	Send(id, PondResponseCommand::ERROR, e.message.ToVoid());
+	Send(id, PondResponseCommand::ERROR, AsBytes(e.message));
 	AppendListener::Unregister();
 	current.Clear();
 	socket.UnscheduleWrite();
@@ -494,7 +493,7 @@ Connection::OnBufferedData()
 	size_t consumed = sizeof(*be_header) + payload_size;
 	socket.KeepConsumed(consumed);
 
-	return OnPacket(id, command, {be_header + 1, payload_size});
+	return OnPacket(id, command, {(const std::byte *)(be_header + 1), payload_size});
 }
 
 bool
@@ -606,7 +605,7 @@ Connection::OnBufferedWrite()
 			current.window.max -= n;
 			if (current.window.max == 0) {
 				Send(current.id, PondResponseCommand::END,
-				     nullptr);
+				     {});
 				assert(!AppendListener::IsRegistered());
 				current.Clear();
 				if (send_queue.empty())
@@ -642,7 +641,7 @@ Connection::OnBufferedWrite()
 	if (current.follow) {
 		current.selection->AddAppendListener(*this);
 	} else {
-		Send(current.id, PondResponseCommand::END, nullptr);
+		Send(current.id, PondResponseCommand::END, {});
 		assert(!AppendListener::IsRegistered());
 		current.Clear();
 	}

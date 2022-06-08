@@ -33,9 +33,9 @@
 #pragma once
 
 #include "Protocol.hxx"
-#include "util/ConstBuffer.hxx"
 
 #include <memory>
+#include <span>
 #include <string>
 
 struct PondDatagram {
@@ -46,7 +46,7 @@ struct PondDatagram {
 		std::unique_ptr<std::byte[]> data;
 		size_t size;
 
-		operator ConstBuffer<void>() const noexcept {
+		operator std::span<const std::byte>() const noexcept {
 			return {data.get(), size};
 		}
 

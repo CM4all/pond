@@ -41,6 +41,7 @@
 #include "util/IntrusiveList.hxx"
 
 #include <memory>
+#include <span>
 #include <string>
 
 #include <stdint.h>
@@ -49,8 +50,6 @@ class Instance;
 class Selection;
 class SiteIterator;
 class RootLogger;
-template<typename t> struct ConstBuffer;
-
 class Connection final
 	: public AutoUnlinkIntrusiveListHook,
 	BufferedSocketHandler, AppendListener {
@@ -142,13 +141,13 @@ private:
 	bool IsLocalAdmin() const noexcept;
 
 	void Send(uint16_t id, PondResponseCommand command,
-		  ConstBuffer<void> payload);
+		  std::span<const std::byte> payload);
 
 	void CommitQuery();
 	void CommitClone();
 
 	BufferedResult OnPacket(uint16_t id, PondRequestCommand cmd,
-				ConstBuffer<void> payload);
+				std::span<const std::byte> payload);
 
 	void OnAppend() noexcept;
 

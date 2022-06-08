@@ -59,12 +59,12 @@ try {
 		memcpy(&header, r.data(), sizeof(header));
 		r = r.subspan(sizeof(header));
 
-		ConstBuffer<void> payload(r.data(), FromBE16(header.size));
-		if (r.size() < payload.size)
+		const auto payload = r.first(FromBE16(header.size));
+		if (r.size() < payload.size())
 			/* need more data */
 			return;
 
-		input.Consume(sizeof(header) + payload.size);
+		input.Consume(sizeof(header) + payload.size());
 
 		if (!handler.OnPondDatagram(FromBE16(header.id),
 					    PondResponseCommand(FromBE16(header.command)),

@@ -58,10 +58,10 @@
 
 [[gnu::pure]]
 static const char *
-IsFilter(const char *arg, StringView name) noexcept
+IsFilter(const char *arg, std::string_view name) noexcept
 {
-	return StringStartsWith(arg, name) && arg[name.size] == '='
-		? arg + name.size + 1
+	return StringStartsWith(arg, name) && arg[name.size()] == '='
+		? arg + name.size() + 1
 		: nullptr;
 }
 
@@ -382,10 +382,11 @@ Stats(const PondServerSpecification &server, ConstBuffer<const char *> args)
 	if (response.command != PondResponseCommand::STATS)
 		throw "Wrong response command";
 
-	ConstBuffer<void> payload = response.payload;
-	const PondStatsPayload &stats = *(const PondStatsPayload *)payload.data;
+	std::span<const std::byte> payload = response.payload;
+	const PondStatsPayload &stats = *(const PondStatsPayload *)
+		(const void *)payload.data();
 
-	if (payload.size < sizeof(PondStatsPayload))
+	if (payload.size() < sizeof(PondStatsPayload))
 		// TODO: backwards compatibility, allow smaller payloads
 		throw "Wrong response payload size";
 
@@ -443,7 +444,7 @@ ReadPackets(FileDescriptor fd, F &&f)
 		}
 
 		f(FromBE16(header.id), FromBE16(header.command),
-		  ConstBuffer<void>(&header + 1, FromBE16(header.size)));
+		  std::span{(const std::byte *)(&header + 1), FromBE16(header.size)});
 		input.Consume(sizeof(header) + FromBE16(header.size));
 	}
 
@@ -458,7 +459,7 @@ Inject(const PondServerSpecification &server, ConstBuffer<const char *> args)
 
 	PondClient client(PondConnect(server));
 
-	ReadPackets(FileDescriptor(STDIN_FILENO), [&client](unsigned, unsigned command, ConstBuffer<void> payload){
+	ReadPackets(FileDescriptor(STDIN_FILENO), [&client](unsigned, unsigned command, std::span<const std::byte> payload){
 			if (command == unsigned(PondResponseCommand::LOG_RECORD))
 				client.Send(client.MakeId(),
 					    PondRequestCommand::INJECT_LOG_RECORD,

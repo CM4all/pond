@@ -43,7 +43,6 @@
 #include "net/log/Parser.hxx"
 #include "util/ByteOrder.hxx"
 #include "util/CharUtil.hxx"
-#include "util/ConstBuffer.hxx"
 #include "util/Macros.hxx"
 
 #include <algorithm>
@@ -125,7 +124,7 @@ SanitizeSiteName(char *buffer, size_t buffer_size,
 }
 
 static void
-SendPacket(SocketDescriptor s, ConstBuffer<void> payload)
+SendPacket(SocketDescriptor s, std::span<const std::byte> payload)
 {
 	const struct iovec vec[] = {
 		MakeIovec(payload),
@@ -226,7 +225,7 @@ ResultWriter::Append(const Net::Log::Datagram &d, bool site)
 }
 
 void
-ResultWriter::Write(ConstBuffer<void> payload)
+ResultWriter::Write(std::span<const std::byte> payload)
 {
 	if (per_site.IsDefined()) {
 		const auto d = Net::Log::ParseDatagram(payload);
@@ -293,9 +292,9 @@ ResultWriter::Write(ConstBuffer<void> payload)
 	} else if (raw) {
 		const uint16_t id = 1;
 		const auto command = PondResponseCommand::LOG_RECORD;
-		const PondHeader header{ToBE16(id), ToBE16(uint16_t(command)), ToBE16(payload.size)};
+		const PondHeader header{ToBE16(id), ToBE16(uint16_t(command)), ToBE16(payload.size())};
 		output_stream->Write(&header, sizeof(header));
-		output_stream->Write(payload.data, payload.size);
+		output_stream->Write(payload.data(), payload.size());
 	} else
 		Append(Net::Log::ParseDatagram(payload), !single_site);
 }

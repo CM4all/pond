@@ -68,9 +68,9 @@ Database::~Database() noexcept
 }
 
 const Record &
-Database::Emplace(ConstBuffer<std::byte> raw)
+Database::Emplace(std::span<const std::byte> raw)
 {
-	auto &record = all_records.emplace_back(sizeof(Record) + raw.size,
+	auto &record = all_records.emplace_back(sizeof(Record) + raw.size(),
 						++last_id, raw);
 
 	if (record.GetParsed().site != nullptr)
@@ -96,7 +96,7 @@ IsMessage(const SmallDatagram &d) noexcept
 }
 
 const Record *
-Database::CheckEmplace(ConstBuffer<std::byte> raw,
+Database::CheckEmplace(std::span<const std::byte> raw,
 		       const ClockCache<std::chrono::steady_clock> &clock)
 try {
 	if (per_site_message_rate_limit <= 0)
@@ -120,7 +120,7 @@ try {
 		if (!per_site.CheckRateLimit(float_now, per_site_message_rate_limit,
 					     per_site_message_burst, 1))
 			throw RateLimitExceeded();
-	}, sizeof(Record) + raw.size, ++last_id, raw);
+	}, sizeof(Record) + raw.size(), ++last_id, raw);
 
 	if (record.GetParsed().site != nullptr)
 		GetPerSiteRecords(record.GetParsed().site).push_back(record);

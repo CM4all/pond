@@ -49,7 +49,7 @@ public:
 	 * @return if the #PondAsyncClient has been destroyed
 	 */
 	virtual bool OnPondDatagram(uint16_t id, PondResponseCommand command,
-				    ConstBuffer<void> payload) = 0;
+				    std::span<const std::byte> payload) = 0;
 
 	virtual void OnPondError(std::exception_ptr e) noexcept = 0;
 };

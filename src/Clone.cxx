@@ -42,6 +42,7 @@
 #include "net/log/Parser.hxx"
 #include "system/Error.hxx"
 #include "util/ScopeExit.hxx"
+#include "util/SpanCast.hxx"
 
 class CloneOperation final : public BlockingOperation, PondAsyncClientHandler {
 	const LLogger logger;
@@ -72,7 +73,7 @@ public:
 private:
 	/* virtual methods from class PondAsyncClientHandler */
 	bool OnPondDatagram(uint16_t id, PondResponseCommand command,
-			    ConstBuffer<void> payload) override;
+			    std::span<const std::byte> payload) override;
 
 	void OnPondError(std::exception_ptr e) noexcept override {
 		logger(1, "CLONE error: ", e);
@@ -81,14 +82,14 @@ private:
 };
 
 static std::string
-ToString(ConstBuffer<void> b) noexcept
+ToString(std::span<const std::byte> b) noexcept
 {
-	return std::string((const char *)b.data, b.size);
+	return std::string{ToStringView(b)};
 }
 
 bool
 CloneOperation::OnPondDatagram(uint16_t _id, PondResponseCommand command,
-			       ConstBuffer<void> payload)
+			       std::span<const std::byte> payload)
 {
 	if (_id != id)
 		return true;
@@ -113,7 +114,7 @@ CloneOperation::OnPondDatagram(uint16_t _id, PondResponseCommand command,
 		}
 
 		try {
-			db.Emplace(ConstBuffer<std::byte>::FromVoid(payload));
+			db.Emplace(payload);
 		} catch (const Net::Log::ProtocolError &) {
 			logger(3, "Failed to parse datagram during CLONE: ",
 			       std::current_exception());
@@ -142,7 +143,7 @@ try {
 								       ResolveConnectStreamSocket(current.address.c_str(),
 												  POND_DEFAULT_PORT)));
 
-	Send(current.id, PondResponseCommand::END, nullptr);
+	Send(current.id, PondResponseCommand::END, {});
 	current.Clear();
 } catch (const SimplePondError &e) {
 	logger(1, "CLONE error: ", e.message);
