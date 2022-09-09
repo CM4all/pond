@@ -35,6 +35,8 @@
 
 #include <algorithm>
 
+#include <string.h>
+
 Record::Record(uint64_t _id, std::span<const std::byte> _raw)
 	:id(_id), raw_size(_raw.size())
 {
