@@ -233,7 +233,7 @@ ResultWriter::Write(std::span<const std::byte> payload)
 			// TODO: where to log datagrams without a site?
 			return;
 
-		if (!d.GuessIsHttpAccess() && d.message == nullptr)
+		if (!d.GuessIsHttpAccess() && d.message.data() == nullptr)
 			/* this is neither a HTTP access nor does it
 			   contain a message - FormatOneLine() will
 			   not generate anything, so don't bother
