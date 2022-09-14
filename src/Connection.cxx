@@ -63,7 +63,7 @@ Connection::Connection(Instance &_instance, UniqueSocketDescriptor &&_fd)
 	socket.Init(_fd.Release(), FD_TCP,
 		    std::chrono::seconds(30),
 		    *this);
-	socket.DeferRead(false);
+	socket.DeferRead();
 }
 
 Connection::~Connection()
@@ -248,7 +248,7 @@ Connection::OnPacket(uint16_t id, PondRequestCommand cmd,
 		     std::span<const std::byte> payload)
 try {
 	if (current.IgnoreId(id))
-		return BufferedResult::AGAIN_OPTIONAL;
+		return BufferedResult::AGAIN;
 
 	switch (cmd) {
 	case PondRequestCommand::NOP:
@@ -258,7 +258,7 @@ try {
 		socket.UnscheduleWrite();
 		AppendListener::Unregister();
 		current.Set(id, cmd);
-		return BufferedResult::AGAIN_EXPECT;
+		return BufferedResult::AGAIN;
 
 	case PondRequestCommand::COMMIT:
 		if (!current.MatchId(id))
@@ -267,11 +267,11 @@ try {
 		switch (current.command) {
 		case PondRequestCommand::QUERY:
 			CommitQuery();
-			return BufferedResult::AGAIN_OPTIONAL;
+			return BufferedResult::AGAIN;
 
 		case PondRequestCommand::CLONE:
 			CommitClone();
-			return BufferedResult::AGAIN_OPTIONAL;
+			return BufferedResult::AGAIN;
 
 		default:
 			throw SimplePondError{"Misplaced COMMIT"};
@@ -300,7 +300,7 @@ try {
 				throw SimplePondError{"Duplicate FILTER_SITE"};
 		}
 
-		return BufferedResult::AGAIN_EXPECT;
+		return BufferedResult::AGAIN;
 
 	case PondRequestCommand::FILTER_SINCE:
 		if (!current.MatchId(id) ||
@@ -316,7 +316,7 @@ try {
 		current.filter.since = Net::Log::TimePoint(Net::Log::Duration(FromBE64(*(const uint64_t *)(const void *)payload.data())));
 		if (current.filter.since == Net::Log::TimePoint::min())
 			throw SimplePondError{"Malformed FILTER_SINCE"};
-		return BufferedResult::AGAIN_EXPECT;
+		return BufferedResult::AGAIN;
 
 	case PondRequestCommand::FILTER_UNTIL:
 		if (!current.MatchId(id) ||
@@ -332,7 +332,7 @@ try {
 		current.filter.until = Net::Log::TimePoint(Net::Log::Duration(FromBE64(*(const uint64_t *)(const void *)payload.data())));
 		if (current.filter.until == Net::Log::TimePoint::max())
 			throw SimplePondError{"Malformed FILTER_UNTIL"};
-		return BufferedResult::AGAIN_EXPECT;
+		return BufferedResult::AGAIN;
 
 	case PondRequestCommand::FILTER_TYPE:
 		if (!current.MatchId(id) ||
@@ -348,7 +348,7 @@ try {
 		current.filter.type = *(const Net::Log::Type *)(const void *)payload.data();
 		if (current.filter.type == Net::Log::Type::UNSPECIFIED)
 			throw SimplePondError{"Malformed FILTER_TYPE"};
-		return BufferedResult::AGAIN_EXPECT;
+		return BufferedResult::AGAIN;
 
 	case PondRequestCommand::FOLLOW:
 		if (!current.MatchId(id) ||
@@ -368,7 +368,7 @@ try {
 			throw SimplePondError{"Malformed FOLLOW"};
 
 		current.follow = true;
-		return BufferedResult::AGAIN_EXPECT;
+		return BufferedResult::AGAIN;
 
 	case PondRequestCommand::GROUP_SITE:
 		if (!current.MatchId(id) ||
@@ -397,7 +397,7 @@ try {
 				throw SimplePondError{"Malformed GROUP_SITE"};
 		}
 
-		return BufferedResult::AGAIN_EXPECT;
+		return BufferedResult::AGAIN;
 
 	case PondRequestCommand::CLONE:
 		// TODO: check if client is privileged
@@ -409,7 +409,7 @@ try {
 		AppendListener::Unregister();
 		current.Set(id, cmd);
 		current.address.assign(ToStringView(payload));
-		return BufferedResult::AGAIN_EXPECT;
+		return BufferedResult::AGAIN;
 
 	case PondRequestCommand::INJECT_LOG_RECORD:
 		// TODO: check if client is privileged
@@ -422,7 +422,7 @@ try {
 		} catch (Net::Log::ProtocolError) {
 		}
 
-		return BufferedResult::AGAIN_EXPECT;
+		return BufferedResult::AGAIN;
 
 	case PondRequestCommand::STATS:
 		{
@@ -431,7 +431,7 @@ try {
 			     std::as_bytes(std::span{&p, 1}));
 		}
 
-		return BufferedResult::AGAIN_EXPECT;
+		return BufferedResult::AGAIN;
 
 	case PondRequestCommand::WINDOW:
 		if (!current.MatchId(id) ||
@@ -457,11 +457,11 @@ try {
 				throw SimplePondError{"Malformed WINDOW"};
 		}
 
-		return BufferedResult::AGAIN_EXPECT;
+		return BufferedResult::AGAIN;
 
 	case PondRequestCommand::CANCEL_OPERATION:
 		instance.CancelBlockingOperation();
-		return BufferedResult::AGAIN_EXPECT;
+		return BufferedResult::AGAIN;
 	}
 
 	throw SimplePondError{"Command not implemented"};
@@ -470,7 +470,7 @@ try {
 	AppendListener::Unregister();
 	current.Clear();
 	socket.UnscheduleWrite();
-	return BufferedResult::AGAIN_OPTIONAL;
+	return BufferedResult::AGAIN;
 }
 
 BufferedResult
