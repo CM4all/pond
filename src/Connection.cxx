@@ -61,7 +61,6 @@ Connection::Connection(Instance &_instance, UniqueSocketDescriptor &&_fd)
 	 socket(_instance.GetEventLoop())
 {
 	socket.Init(_fd.Release(), FD_TCP,
-		    Event::Duration(-1),
 		    std::chrono::seconds(30),
 		    *this);
 	socket.DeferRead(false);
