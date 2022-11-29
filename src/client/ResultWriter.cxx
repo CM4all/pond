@@ -198,7 +198,7 @@ ResultWriter::Append(const Net::Log::Datagram &d, bool site)
 	if (end == old_end)
 		return;
 
-	if (d.GuessIsHttpAccess() && geoip_v4 != nullptr) {
+	if (d.IsHttpAccess() && geoip_v4 != nullptr) {
 		const char *country = d.remote_host != nullptr
 			? LookupGeoIP(d.remote_host)
 			: nullptr;
@@ -209,7 +209,7 @@ ResultWriter::Append(const Net::Log::Datagram &d, bool site)
 		end = stpcpy(end, country);
 	}
 
-	if (d.GuessIsHttpAccess() && track_visitors) {
+	if (d.IsHttpAccess() && track_visitors) {
 		const char *visitor_id =
 			d.remote_host != nullptr && d.HasTimestamp()
 			? visitor_tracker.MakeVisitorId(d.remote_host,
@@ -233,7 +233,7 @@ ResultWriter::Write(std::span<const std::byte> payload)
 			// TODO: where to log datagrams without a site?
 			return;
 
-		if (!d.GuessIsHttpAccess() && d.message.data() == nullptr)
+		if (!d.IsHttpAccess() && d.message.data() == nullptr)
 			/* this is neither a HTTP access nor does it
 			   contain a message - FormatOneLine() will
 			   not generate anything, so don't bother
