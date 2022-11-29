@@ -1,6 +1,7 @@
 cm4all-pond (0.23) unstable; urgency=low
 
   * client: support lines without HTTP status
+  * client: print placeholder "-" if there is no length
 
  --   
 
