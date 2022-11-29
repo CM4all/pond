@@ -119,6 +119,7 @@ subdir('libcommon/src/util')
 subdir('libcommon/src/time')
 subdir('libcommon/src/http')
 subdir('libcommon/src/io')
+subdir('libcommon/src/io/config')
 subdir('libcommon/src/system')
 subdir('libcommon/src/event')
 subdir('libcommon/src/net')
@@ -157,6 +158,7 @@ executable('cm4all-pond',
     event_net_dep,
     system_dep,
     io_dep,
+    io_config_dep,
     http_dep,
     avahi_dep,
   ],
@@ -185,7 +187,7 @@ executable('cm4all-pond-client',
 subdir('test')
 subdir('libcommon/test/util')
 subdir('libcommon/test/http')
-subdir('libcommon/test/io')
+subdir('libcommon/test/io/config')
 subdir('libcommon/test/net')
 subdir('libcommon/test/time')
 subdir('doc')
