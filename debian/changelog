@@ -5,7 +5,7 @@ cm4all-pond (0.23) unstable; urgency=low
   * protocol: fix several datagram parser crash bugs
   * protocol: add "type=job"
 
- --   
+ -- Max Kellermann <mk@cm4all.com>  Tue, 29 Nov 2022 23:50:48 +0100
 
 cm4all-pond (0.22) unstable; urgency=low
 
