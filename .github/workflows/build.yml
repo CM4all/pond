@@ -1,0 +1,61 @@
+---
+on:
+  workflow_dispatch:
+  push:
+    paths-ignore:
+      - 'debian/**'
+      - 'doc/**'
+      - 'subprojects/**'
+    branches:
+      - master
+  pull_request:
+    paths-ignore:
+      - 'debian/**'
+      - 'doc/**'
+      - 'subprojects/**'
+    branches:
+      - master
+
+env:
+  CC: 'ccache gcc-10'
+  CXX: 'ccache g++-10'
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - id: checkout
+        uses: actions/checkout@v3
+        with:
+          submodules: true
+
+      - id: cache-ccache
+        uses: hendrikmuhs/ccache-action@v1
+        with:
+          key: ${{ matrix.os }}-${{ matrix.type }}
+
+      - name: Install dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y --no-install-recommends \
+            g++-10 \
+            libavahi-client-dev \
+            libboost-dev \
+            libgeoip-dev \
+            libgtest-dev \
+            libsystemd-dev \
+            libz-dev
+
+      - name: Build
+        uses: BSFishy/meson-build@v1.0.3
+        with:
+          action: build
+          setup-options: -Ddocumentation=disabled
+          meson-version: 0.56.0
+
+      - name: Unit Tests
+        uses: BSFishy/meson-build@v1.0.3
+        with:
+          action: test
+          setup-options: -Ddocumentation=disabled
+          meson-version: 0.56.0
