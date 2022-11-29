@@ -144,8 +144,8 @@ public:
 		blocking_operation.reset();
 	}
 
-	void Dispatch() noexcept {
-		event_loop.Dispatch();
+	void Run() noexcept {
+		event_loop.Run();
 	}
 
 private:

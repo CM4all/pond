@@ -115,6 +115,7 @@ libgeoip = dependency('geoip')
 inc = include_directories('src', 'libcommon/src')
 
 libcommon_enable_libcap = false
+
 subdir('libcommon/src/util')
 subdir('libcommon/src/time')
 subdir('libcommon/src/http')

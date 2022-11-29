@@ -162,7 +162,7 @@ ConnectZeroconf(const char *service_name)
 {
 	EventLoop event_loop;
 	ConnectZeroconfOperation operation(event_loop, service_name);
-	event_loop.Dispatch();
+	event_loop.Run();
 	return operation.GetResult();
 }
 
