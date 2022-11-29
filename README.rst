@@ -14,7 +14,7 @@ Building Pond
 
 You need:
 
-- a C++17 compliant compiler (e.g. gcc or clang)
+- a C++20 compliant compiler (e.g. GCC or clang)
 - `Boost <http://www.boost.org/>`__
 - `systemd <https://www.freedesktop.org/wiki/Software/systemd/>`__
 - `Meson 0.47 <http://mesonbuild.com/>`__ and `Ninja <https://ninja-build.org/>`__
