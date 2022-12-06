@@ -42,7 +42,7 @@ test(
     dependencies: [
       gtest,
       system_dep,
-      net_dep,
+      net_log_dep,
       http_dep,
     ],
   ),

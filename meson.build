@@ -114,8 +114,6 @@ libgeoip = dependency('geoip')
 
 inc = include_directories('src', 'libcommon/src')
 
-libcommon_enable_libcap = false
-
 subdir('libcommon/src/util')
 subdir('libcommon/src/time')
 subdir('libcommon/src/http')
@@ -124,7 +122,9 @@ subdir('libcommon/src/io/config')
 subdir('libcommon/src/system')
 subdir('libcommon/src/event')
 subdir('libcommon/src/net')
+subdir('libcommon/src/net/log')
 subdir('libcommon/src/event/net')
+subdir('libcommon/src/event/net/log')
 subdir('libcommon/src/lib/avahi')
 subdir('libcommon/src/lib/zlib')
 
@@ -157,6 +157,7 @@ executable('cm4all-pond',
   dependencies: [
     libsystemd,
     event_net_dep,
+    event_net_log_dep,
     system_dep,
     io_dep,
     io_config_dep,
@@ -178,6 +179,7 @@ executable('cm4all-pond-client',
   dependencies: [
     libgeoip,
     net_dep,
+    net_log_dep,
     event_net_dep,
     http_dep,
     avahi_dep,
