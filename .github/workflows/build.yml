@@ -16,6 +16,9 @@ on:
     branches:
       - master
 
+permissions:
+  contents: read #  to fetch code (actions/checkout)
+
 env:
   CC: 'ccache gcc-10'
   CXX: 'ccache g++-10'
