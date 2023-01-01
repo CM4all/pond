@@ -132,7 +132,7 @@ void
 Connection::CommitClone()
 try {
 	if (!IsLocalAdmin())
-		throw SimplePondError{"Forbiddden"};
+		throw SimplePondError{"Forbidden"};
 
 	if (instance.IsBlocked())
 		throw SimplePondError{"Blocked"};
