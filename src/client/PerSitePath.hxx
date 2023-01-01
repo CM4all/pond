@@ -54,7 +54,7 @@ class PerSitePath {
 	const bool nested;
 
 	/**
-	 * This attribute is a klduge to keep the directory file
+	 * This attribute is a kludge to keep the directory file
 	 * handle open for use by FileWriter::Commit().
 	 */
 	UniqueFileDescriptor last_directory;
