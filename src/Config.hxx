@@ -55,6 +55,7 @@ struct ListenerConfig : SocketConfig {
 	ListenerConfig() {
 		listen = 64;
 		tcp_defer_accept = 10;
+		tcp_no_delay = true;
 	}
 };
 

@@ -1,6 +1,6 @@
 cm4all-pond (0.24) unstable; urgency=low
 
-  * 
+  * disable Nagle's algorithm on incoming connections
 
  --   
 
