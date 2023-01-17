@@ -41,6 +41,7 @@ jobs:
             g++-10 \
             libavahi-client-dev \
             libboost-dev \
+            libfmt-dev \
             libgeoip-dev \
             libgtest-dev \
             libsystemd-dev \

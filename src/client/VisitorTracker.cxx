@@ -31,11 +31,12 @@
  */
 
 #include "VisitorTracker.hxx"
+#include "lib/fmt/ToBuffer.hxx"
 #include "system/Urandom.hxx"
 
-#include <chrono>
+#include <fmt/core.h>
 
-#include <inttypes.h>
+#include <chrono>
 
 const char *
 VisitorTracker::MakeVisitorId(const char *remote_host,
@@ -45,9 +46,7 @@ VisitorTracker::MakeVisitorId(const char *remote_host,
 
 	if (i.second || !i.first->second.CheckTimestamp(timestamp)) {
 		const uint64_t id = NewVisitorId();
-		char buffer[64];
-		snprintf(buffer, sizeof(buffer), "%" PRIx64, id);
-		i.first->second.id = buffer;
+		i.first->second.id = FmtBuffer<64>("{:x}", id);
 	}
 
 	i.first->second.last_seen = timestamp;

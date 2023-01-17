@@ -52,7 +52,8 @@
 #include "util/ScopeExit.hxx"
 #include "util/StaticFifoBuffer.hxx"
 
-#include <inttypes.h>
+#include <fmt/core.h>
+
 #include <stdlib.h>
 #include <poll.h>
 
@@ -353,7 +354,7 @@ Query(const PondServerSpecification &server, ConstBuffer<const char *> args)
 			try {
 				result_writer.Write(d.payload);
 			} catch (Net::Log::ProtocolError) {
-				fprintf(stderr, "Failed to parse log record\n");
+				fmt::print(stderr, "Failed to parse log record\n");
 			}
 
 			break;
@@ -390,19 +391,19 @@ Stats(const PondServerSpecification &server, ConstBuffer<const char *> args)
 		// TODO: backwards compatibility, allow smaller payloads
 		throw "Wrong response payload size";
 
-	printf("memory_capacity=%" PRIu64 "\n"
-	       "memory_usage=%" PRIu64 "\n"
-	       "n_records=%" PRIu64 "\n",
-	       FromBE64(stats.memory_capacity),
-	       FromBE64(stats.memory_usage),
-	       FromBE64(stats.n_records));
+	fmt::print("memory_capacity={}\n"
+		   "memory_usage={}\n"
+		   "n_records={}\n",
+		   FromBE64(stats.memory_capacity),
+		   FromBE64(stats.memory_usage),
+		   FromBE64(stats.n_records));
 
-	printf("n_received=%" PRIu64 "\n"
-	       "n_malformed=%" PRIu64 "\n"
-	       "n_discarded=%" PRIu64 "\n",
-	       FromBE64(stats.n_received),
-	       FromBE64(stats.n_malformed),
-	       FromBE64(stats.n_discarded));
+	fmt::print("n_received={}\n"
+		   "n_malformed={}\n"
+		   "n_discarded={}\n",
+		   FromBE64(stats.n_received),
+		   FromBE64(stats.n_malformed),
+		   FromBE64(stats.n_discarded));
 }
 
 template<typename B>
@@ -519,21 +520,21 @@ main(int argc, char **argv)
 try {
 	ConstBuffer<const char *> args(argv + 1, argc - 1);
 	if (args.size < 2) {
-		fprintf(stderr, "Usage: %s SERVER[:PORT] COMMAND ...\n"
-			"\n"
-			"Commands:\n"
-			"  query\n"
-			"    [--follow]\n"
-			"    [--raw] [--gzip]\n"
-			"    [--geoip] [--anonymize]\n"
-			"    [--per-site=PATH] [--per-site-file=FILENAME] [--per-site-nested]\n"
-			"    [type=http_access|http_error|submission] [site=VALUE] [group_site=[MAX][@SKIP]]\n"
-			"    [since=ISO8601] [until=ISO8601] [date=YYYY-MM-DD] [today]\n"
-			"  stats\n"
-			"  inject <RAWFILE\n"
-			"  clone OTHERSERVER[:PORT]\n"
-			"  cancel\n",
-			argv[0]);
+		fmt::print("Usage: {} SERVER[:PORT] COMMAND ...\n"
+			   "\n"
+			   "Commands:\n"
+			   "  query\n"
+			   "    [--follow]\n"
+			   "    [--raw] [--gzip]\n"
+			   "    [--geoip] [--anonymize]\n"
+			   "    [--per-site=PATH] [--per-site-file=FILENAME] [--per-site-nested]\n"
+			   "    [type=http_access|http_error|submission] [site=VALUE] [group_site=[MAX][@SKIP]]\n"
+			   "    [since=ISO8601] [until=ISO8601] [date=YYYY-MM-DD] [today]\n"
+			   "  stats\n"
+			   "  inject <RAWFILE\n"
+			   "  clone OTHERSERVER[:PORT]\n"
+			   "  cancel\n",
+			   argv[0]);
 		return EXIT_FAILURE;
 	}
 
@@ -560,7 +561,7 @@ try {
 		Cancel(server, args);
 		return EXIT_SUCCESS;
 	} else {
-		fprintf(stderr, "Unknown command: %s\n", command);
+		fmt::print("Unknown command: {}\n", command);
 		return EXIT_FAILURE;
 	}
 } catch (...) {

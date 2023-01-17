@@ -126,6 +126,7 @@ subdir('libcommon/src/net/log')
 subdir('libcommon/src/event/net')
 subdir('libcommon/src/event/net/log')
 subdir('libcommon/src/lib/avahi')
+subdir('libcommon/src/lib/fmt')
 subdir('libcommon/src/lib/zlib')
 
 executable('cm4all-pond',
@@ -178,6 +179,7 @@ executable('cm4all-pond-client',
   include_directories: inc,
   dependencies: [
     libgeoip,
+    fmt_dep,
     net_dep,
     net_log_dep,
     event_net_dep,
