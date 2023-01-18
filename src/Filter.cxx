@@ -38,8 +38,7 @@
 static bool
 MatchFilter(const char *value, const std::set<std::string, std::less<>> &filter) noexcept
 {
-	return filter.empty() || (value != nullptr &&
-				  filter.find(value) != filter.end());
+	return filter.empty() || (value != nullptr && filter.contains(value));
 }
 
 static bool
