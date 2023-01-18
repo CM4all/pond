@@ -44,7 +44,7 @@ struct SmallDatagram;
 namespace Net { namespace Log { struct Datagram; }}
 
 struct Filter {
-	std::set<std::string> sites;
+	std::set<std::string, std::less<>> sites;
 
 	Net::Log::TimePoint since = Net::Log::TimePoint::min();
 	Net::Log::TimePoint until = Net::Log::TimePoint::max();
