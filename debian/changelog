@@ -1,5 +1,6 @@
 cm4all-pond (0.24) unstable; urgency=low
 
+  * allow filtering by empty site
   * disable Nagle's algorithm on incoming connections
   * protocol: add JSON attribute support
 

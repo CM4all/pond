@@ -291,7 +291,7 @@ try {
 		if (current.HasGroupSite())
 			throw SimplePondError{"FILTER_SITE and GROUP_SITE are mutually exclusive"};
 
-		if (!IsNonEmptyString(payload))
+		if (HasNullByte(ToStringView(payload)))
 			throw SimplePondError{"Malformed FILTER_SITE"};
 
 		{

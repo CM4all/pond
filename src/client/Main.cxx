@@ -102,9 +102,6 @@ ParseFilterItem(Filter &filter, PondGroupSitePayload &group_site,
 		if (group_site.max_sites != 0)
 			throw "site and group_site are mutually exclusive";
 
-		if (*value == 0)
-			throw "Site name must not be empty";
-
 		auto e = filter.sites.emplace(value);
 		if (!e.second)
 			throw "Duplicate site name";

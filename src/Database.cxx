@@ -42,6 +42,12 @@
 
 #include <assert.h>
 
+static std::string_view
+NullableStringView(const char *s) noexcept
+{
+	return s != nullptr ? std::string_view{s} : std::string_view{};
+}
+
 Database::Database(size_t max_size, double _per_site_message_rate_limit)
 	:allocation(AlignHugePageUp(max_size)),
 	 per_site_message_rate_limit(_per_site_message_rate_limit),
@@ -73,8 +79,7 @@ Database::Emplace(std::span<const std::byte> raw)
 	auto &record = all_records.emplace_back(sizeof(Record) + raw.size(),
 						++last_id, raw);
 
-	if (record.GetParsed().site != nullptr)
-		GetPerSiteRecords(record.GetParsed().site).push_back(record);
+	GetPerSiteRecords(NullableStringView(record.GetParsed().site)).push_back(record);
 
 	return record;
 }
@@ -122,8 +127,7 @@ try {
 			throw RateLimitExceeded();
 	}, sizeof(Record) + raw.size(), ++last_id, raw);
 
-	if (record.GetParsed().site != nullptr)
-		GetPerSiteRecords(record.GetParsed().site).push_back(record);
+	GetPerSiteRecords(NullableStringView(record.GetParsed().site)).push_back(record);
 
 	return &record;
 } catch (RateLimitExceeded) {

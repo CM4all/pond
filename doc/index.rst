@@ -218,8 +218,8 @@ The following filters are available:
   Available types: :samp:`http_access` (a HTTP request),
   :samp:`http_error` (a HTTP log message), :samp:`submission` (an
   email submission)
-- :samp:`site=NAME` shows only records of the specified site.  There
-  is currently no way to filter records with no site at all.
+- :samp:`site=NAME` shows only records of the specified site.  Specify
+  an empty site name to filter records with no site at all.
 - :samp:`group_site=COUNT[@SKIP]` groups all result records by their
   "site" attribute, i.e. all records with the same site will be
   returned successively, followed by all records of the next site and

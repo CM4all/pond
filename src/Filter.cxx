@@ -34,11 +34,17 @@
 #include "SmallDatagram.hxx"
 #include "net/log/Datagram.hxx"
 
+static std::string_view
+NullableStringView(const char *s) noexcept
+{
+	return s != nullptr ? std::string_view{s} : std::string_view{};
+}
+
 [[gnu::pure]]
 static bool
 MatchFilter(const char *value, const std::set<std::string, std::less<>> &filter) noexcept
 {
-	return filter.empty() || (value != nullptr && filter.contains(value));
+	return filter.empty() || (value != nullptr && filter.contains(NullableStringView(value)));
 }
 
 static bool
