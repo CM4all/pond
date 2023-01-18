@@ -220,8 +220,6 @@ The following filters are available:
   email submission)
 - :samp:`site=NAME` shows only records of the specified site.  There
   is currently no way to filter records with no site at all.
-- :samp:`site=NAME` shows only records of the specified site.  There
-  is currently no way to filter records with no site at all.
 - :samp:`group_site=COUNT[@SKIP]` groups all result records by their
   "site" attribute, i.e. all records with the same site will be
   returned successively, followed by all records of the next site and
