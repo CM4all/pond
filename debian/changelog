@@ -6,6 +6,7 @@ cm4all-pond (0.24) unstable; urgency=low
   * protocol: add JSON attribute support
   * protocol: add HTTP status filter
   * protocol: add HTTP URI filter
+  * protocol: add type "history"
 
  --   
 
