@@ -220,6 +220,9 @@ The following filters are available:
   - :samp:`http_access`: an HTTP request
   - :samp:`http_error`: an HTTP log message
   - :samp:`submission`: an email submission
+  - :samp:`ssh`: a log message from an SSH server
+  - :samp:`job`: a log message from a job process (e.g. `Workshop
+    <https://github.com/CM4all/workshop/>`__)
 
 - :samp:`site=NAME` shows only records of the specified site.  Specify
   an empty site name to filter records with no site at all.
