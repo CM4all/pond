@@ -273,6 +273,15 @@ Other than ISO8601, the following special tokens are understood:
 - :samp:`yesterday` is the previous date in the local time zone
 - :samp:`tomorrow` is the next date in the local time zone
 
+Additionally, time stamps can be specified as an offset relative to
+now:
+
+- :samp:`+30s` is in 30 seconds
+- :samp:`-30s` is 30 seconds ago
+- :samp:`-15` is 15 minutes ago
+- :samp:`-1h` is one hour ago
+- :samp:`-1d` is 24 hours ago
+
 .. _clone:
 
 Cloning

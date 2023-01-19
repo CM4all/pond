@@ -2,6 +2,7 @@ cm4all-pond (0.24) unstable; urgency=low
 
   * allow filtering by empty site
   * disable Nagle's algorithm on incoming connections
+  * client: support relative time stamps for "since" and "until"
   * protocol: add JSON attribute support
   * protocol: add HTTP status filter
 
