@@ -131,6 +131,12 @@ enum class PondRequestCommand : uint16_t {
 	 * codes.
 	 */
 	FILTER_HTTP_STATUS = 15,
+
+	/**
+	 * Specify a filter on the "http_uri" attribute.  Payload is a
+	 * non-empty string the URI is expected to start with.
+	 */
+	FILTER_HTTP_URI_STARTS_WITH = 16,
 };
 
 enum class PondResponseCommand : uint16_t {

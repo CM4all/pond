@@ -34,6 +34,7 @@
 #include "SmallDatagram.hxx"
 #include "net/log/Datagram.hxx"
 #include "net/log/Parser.hxx"
+#include "util/StringCompare.hxx"
 
 static std::string_view
 NullableStringView(const char *s) noexcept
@@ -55,15 +56,29 @@ MatchTimestamp(Net::Log::TimePoint timestamp,
 	return timestamp >= since && timestamp <= until;
 }
 
-inline bool
-Filter::MatchStatus(std::span<const std::byte> raw) const noexcept
+[[gnu::pure]]
+static bool
+MatchHttpUriStartsWith(const char *http_uri,
+		       std::string_view http_uri_starts_with) noexcept
 {
-	if (!http_status)
+	return http_uri_starts_with.empty() ||
+		(http_uri != nullptr &&
+		 StringStartsWith(http_uri, http_uri_starts_with));
+}
+
+inline bool
+Filter::MatchMore(std::span<const std::byte> raw) const noexcept
+{
+	if (!http_status && http_uri_starts_with.empty())
 		return true;
 
 	try {
 		const auto d = Net::Log::ParseDatagram(raw);
-		return http_status(static_cast<uint16_t>(d.http_status));
+
+		if (http_status && !http_status(static_cast<uint16_t>(d.http_status)))
+			return false;
+
+		return MatchHttpUriStartsWith(d.http_uri, http_uri_starts_with);
 	} catch (...) {
 		return false;
 	}
@@ -79,7 +94,7 @@ Filter::operator()(const SmallDatagram &d, std::span<const std::byte> raw) const
 		  until == Net::Log::TimePoint::max()) ||
 		 (d.HasTimestamp() &&
 		  MatchTimestamp(d.timestamp, since, until))) &&
-		MatchStatus(raw);
+		MatchMore(raw);
 }
 
 bool
@@ -92,5 +107,6 @@ Filter::operator()(const Net::Log::Datagram &d) const noexcept
 		((since == Net::Log::TimePoint::min() &&
 		  until == Net::Log::TimePoint::max()) ||
 		 (d.HasTimestamp() &&
-		  MatchTimestamp(d.timestamp, since, until)));
+		  MatchTimestamp(d.timestamp, since, until))) &&
+		MatchHttpUriStartsWith(d.http_uri, http_uri_starts_with);
 }

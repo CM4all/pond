@@ -5,6 +5,7 @@ cm4all-pond (0.24) unstable; urgency=low
   * client: support relative time stamps for "since" and "until"
   * protocol: add JSON attribute support
   * protocol: add HTTP status filter
+  * protocol: add HTTP URI filter
 
  --   
 

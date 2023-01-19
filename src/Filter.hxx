@@ -47,6 +47,8 @@ namespace Net { namespace Log { struct Datagram; }}
 struct Filter {
 	std::set<std::string, std::less<>> sites;
 
+	std::string http_uri_starts_with;
+
 	Net::Log::TimePoint since = Net::Log::TimePoint::min();
 	Net::Log::TimePoint until = Net::Log::TimePoint::max();
 
@@ -77,5 +79,5 @@ struct Filter {
 
 private:
 	[[gnu::pure]]
-	bool MatchStatus(std::span<const std::byte> raw) const noexcept;
+	bool MatchMore(std::span<const std::byte> raw) const noexcept;
 };

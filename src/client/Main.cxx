@@ -193,6 +193,11 @@ ParseFilterItem(Filter &filter, PondGroupSitePayload &group_site,
 
 		filter.http_status.begin = begin;
 		filter.http_status.end = end;
+	} else if (auto uri_prefix = IsFilter(p, "uri-prefix")) {
+		if (*uri_prefix == 0)
+			throw "Bad URI prefix";
+
+		filter.http_uri_starts_with = uri_prefix;
 	} else if (auto per_site = StringAfterPrefix(p, "--per-site=")) {
 		options.per_site = per_site;
 	} else if (auto per_site_filename = StringAfterPrefix(p, "--per-site-file=")) {
@@ -311,6 +316,9 @@ Query(const PondServerSpecification &server, ConstBuffer<const char *> args)
 		status.end = ToBE16(filter.http_status.end);
 		client.SendT(id, PondRequestCommand::FILTER_HTTP_STATUS, status);
 	}
+
+	if (!filter.http_uri_starts_with.empty())
+		client.Send(id, PondRequestCommand::FILTER_HTTP_URI_STARTS_WITH, filter.http_uri_starts_with);
 
 	if (group_site.max_sites != 0)
 		client.SendT(id, PondRequestCommand::GROUP_SITE, group_site);
