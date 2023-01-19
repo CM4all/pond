@@ -8,7 +8,7 @@ cm4all-pond (0.24) unstable; urgency=low
   * protocol: add HTTP URI filter
   * protocol: add type "history"
 
- --   
+ -- Max Kellermann <mk@cm4all.com>  Thu, 19 Jan 2023 19:57:38 +0100
 
 cm4all-pond (0.23) unstable; urgency=low
 
