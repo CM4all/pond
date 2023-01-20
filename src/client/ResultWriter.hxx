@@ -72,19 +72,18 @@ class ResultWriter {
 
 	VisitorTracker visitor_tracker;
 
-	const bool raw, gzip, track_visitors;
-
 	Net::Log::OneLineOptions one_line_options;
+
+	const bool raw, gzip, track_visitors;
 
 	size_t buffer_fill = 0;
 	char buffer[65536];
 
 public:
 	ResultWriter(bool _raw, bool _gzip,
-		     GeoIP *_geoip_v4, GeoIP *_geoip_v6, bool _anonymize,
+		     GeoIP *_geoip_v4, GeoIP *_geoip_v6,
 		     bool _track_visitors,
-		     bool _show_host,
-		     bool show_forwarded_to,
+		     Net::Log::OneLineOptions _one_line_options,
 		     bool _single_site,
 		     const char *const _per_site,
 		     const char *const _per_site_filename,

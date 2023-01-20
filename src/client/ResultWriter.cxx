@@ -134,10 +134,8 @@ SendPacket(SocketDescriptor s, std::span<const std::byte> payload)
 
 ResultWriter::ResultWriter(bool _raw, bool _gzip,
 			   GeoIP *_geoip_v4, GeoIP *_geoip_v6,
-			   bool _anonymize,
 			   bool _track_visitors,
-			   bool _show_host,
-			   bool show_forwarded_to,
+			   const Net::Log::OneLineOptions _one_line_options,
 			   bool _single_site,
 			   const char *const _per_site,
 			   const char *const _per_site_filename,
@@ -146,14 +144,13 @@ ResultWriter::ResultWriter(bool _raw, bool _gzip,
 	 socket(CheckPacketSocket(fd)),
 	 geoip_v4(_geoip_v4), geoip_v6(_geoip_v6),
 	 per_site(_per_site, _per_site_filename, _per_site_nested),
+	 one_line_options(_one_line_options),
 	 raw(_raw), gzip(_gzip),
 	 track_visitors(_track_visitors)
 {
-	one_line_options.show_host = _show_host;
-	one_line_options.show_forwarded_to = show_forwarded_to;
-	one_line_options.anonymize = _anonymize;
-
 	if (per_site.IsDefined()) {
+		one_line_options.show_site = false;
+
 		fd.SetUndefined();
 		socket.SetUndefined();
 

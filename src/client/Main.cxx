@@ -83,13 +83,12 @@ struct QueryOptions {
 	const char *per_site = nullptr;
 	const char *per_site_filename = nullptr;
 
-	bool host = false;
-	bool forwarded_to = false;
+	Net::Log::OneLineOptions one_line; 
+
 	bool follow = false;
 	bool raw = false;
 	bool gzip = false;
 	bool geoip = false;
-	bool anonymize = false;
 	bool track_visitors = false;
 	bool per_site_nested = false;
 };
@@ -220,13 +219,13 @@ ParseFilterItem(Filter &filter, PondGroupSitePayload &group_site,
 	else if (StringIsEqual(p, "--geoip"))
 		options.geoip = true;
 	else if (StringIsEqual(p, "--anonymize"))
-		options.anonymize = true;
+		options.one_line.anonymize = true;
 	else if (StringIsEqual(p, "--track-visitors"))
 		options.track_visitors = true;
 	else if (StringIsEqual(p, "--host"))
-		options.host = true;
+		options.one_line.show_host = true;
 	else if (StringIsEqual(p, "--forwarded-to"))
-		options.forwarded_to = true;
+		options.one_line.show_forwarded_to = true;
 	else
 		throw "Unrecognized query argument";
 }
@@ -310,10 +309,8 @@ Query(const PondServerSpecification &server, ConstBuffer<const char *> args)
 
 	ResultWriter result_writer(options.raw, options.gzip,
 				   geoip_v4, geoip_v6,
-				   options.anonymize,
 				   options.track_visitors,
-				   options.host,
-				   options.forwarded_to,
+				   options.one_line,
 				   single_site,
 				   options.per_site,
 				   options.per_site_filename,
