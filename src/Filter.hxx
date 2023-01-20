@@ -45,7 +45,7 @@ struct SmallDatagram;
 namespace Net { namespace Log { struct Datagram; }}
 
 struct Filter {
-	std::set<std::string, std::less<>> sites;
+	std::set<std::string, std::less<>> sites, hosts;
 
 	std::string http_uri_starts_with;
 

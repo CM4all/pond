@@ -490,6 +490,20 @@ try {
 
 		current.filter.http_uri_starts_with.assign(ToStringView(payload));
 		return BufferedResult::AGAIN;
+
+	case PondRequestCommand::FILTER_HOST:
+		if (!current.MatchId(id) ||
+		    current.command != PondRequestCommand::QUERY)
+			throw SimplePondError{"Misplaced FILTER_HOST"};
+
+		if (HasNullByte(ToStringView(payload)))
+			throw SimplePondError{"Malformed FILTER_HOST"};
+
+		if (auto e = current.filter.hosts.emplace(ToStringView(payload));
+		    !e.second)
+			throw SimplePondError{"Duplicate FILTER_HOST"};
+
+		return BufferedResult::AGAIN;
 	}
 
 	throw SimplePondError{"Command not implemented"};

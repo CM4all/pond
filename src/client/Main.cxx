@@ -152,6 +152,9 @@ ParseFilterItem(Filter &filter, PondGroupSitePayload &group_site,
 			throw "Garbage after window max";
 
 		window.max = ToBE64(max);
+	} else if (auto host = IsFilter(p, "host")) {
+		if (!filter.hosts.emplace(host).second)
+			throw "Duplicate host name";
 	} else if (auto since = IsFilter(p, "since")) {
 		auto t = ParseTimePoint(since);
 		filter.since = Net::Log::FromSystem(t.first);
@@ -266,6 +269,10 @@ Query(const PondServerSpecification &server, ConstBuffer<const char *> args)
 
 	for (const auto &i : filter.sites)
 		client.Send(id, PondRequestCommand::FILTER_SITE, i);
+
+	for (const auto &i : filter.hosts)
+		client.Send(id, PondRequestCommand::FILTER_HOST, i);
+
 	const bool single_site = filter.sites.begin() != filter.sites.end() &&
 		std::next(filter.sites.begin()) == filter.sites.end();
 

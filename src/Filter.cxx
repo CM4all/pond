@@ -69,7 +69,7 @@ MatchHttpUriStartsWith(const char *http_uri,
 inline bool
 Filter::MatchMore(std::span<const std::byte> raw) const noexcept
 {
-	if (!http_status && http_uri_starts_with.empty())
+	if (!http_status && hosts.empty() && http_uri_starts_with.empty())
 		return true;
 
 	try {
@@ -78,7 +78,8 @@ Filter::MatchMore(std::span<const std::byte> raw) const noexcept
 		if (http_status && !http_status(static_cast<uint16_t>(d.http_status)))
 			return false;
 
-		return MatchHttpUriStartsWith(d.http_uri, http_uri_starts_with);
+		return MatchFilter(d.host, hosts) &&
+			MatchHttpUriStartsWith(d.http_uri, http_uri_starts_with);
 	} catch (...) {
 		return false;
 	}

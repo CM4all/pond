@@ -235,6 +235,9 @@ The following filters are available:
   parameter may be used to skip a number of sites.  This can be used
   to receive records for all sites incrementally, until the result is
   empty.
+- :samp:`host=NAME` shows only records of the specified HTTP ``Host``
+  header.  Specify an empty host to filter records with no host at
+  all.
 - :samp:`since=ISO8601` shows only records since the given time stamp.
   See :ref:`timestamps` for details.
 - :samp:`until=ISO8601` shows only records until the given time stamp.
