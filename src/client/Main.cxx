@@ -230,6 +230,8 @@ ParseFilterItem(Filter &filter, PondGroupSitePayload &group_site,
 		options.one_line.show_http_referer = false;
 	else if (StringIsEqual(p, "--no-agent"))
 		options.one_line.show_user_agent = false;
+	else if (StringIsEqual(p, "--iso8601"))
+		options.one_line.iso8601 = true;
 	else
 		throw "Unrecognized query argument";
 }

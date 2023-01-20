@@ -228,6 +228,10 @@ The following command-line options are available:
 
  Do not show the HTTP ``User-Agent`` request header.
 
+.. option:: --iso8601
+
+ Print the time stamp in ISO-8601 format.
+
 The following filters are available:
 
 - :samp:`type=TYPE` shows only records of the specified type.
