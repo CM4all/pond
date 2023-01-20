@@ -212,6 +212,10 @@ The following command-line options are available:
  Makes :option:`--per-site` create a nested tree of directories
  instead of having one flat directory entry per site.
 
+.. option:: --host
+
+ Show the HTTP "Host" request header.
+
 The following filters are available:
 
 - :samp:`type=TYPE` shows only records of the specified type.

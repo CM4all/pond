@@ -137,6 +137,7 @@ ResultWriter::ResultWriter(bool _raw, bool _gzip,
 			   GeoIP *_geoip_v4, GeoIP *_geoip_v6,
 			   bool _anonymize,
 			   bool _track_visitors,
+			   bool _show_host,
 			   bool _single_site,
 			   const char *const _per_site,
 			   const char *const _per_site_filename,
@@ -147,6 +148,7 @@ ResultWriter::ResultWriter(bool _raw, bool _gzip,
 	 per_site(_per_site, _per_site_filename, _per_site_nested),
 	 raw(_raw), gzip(_gzip), anonymize(_anonymize),
 	 track_visitors(_track_visitors),
+	 show_host(_show_host),
 	 single_site(_single_site)
 {
 	if (per_site.IsDefined()) {
@@ -194,7 +196,7 @@ ResultWriter::Append(const Net::Log::Datagram &d, bool site)
 
 	char *end = FormatOneLine(old_end,
 				  sizeof(buffer) - buffer_fill - 64,
-				  d, site, anonymize);
+				  d, site, anonymize, show_host);
 	if (end == old_end)
 		return;
 

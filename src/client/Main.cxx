@@ -83,6 +83,7 @@ struct QueryOptions {
 	const char *per_site = nullptr;
 	const char *per_site_filename = nullptr;
 
+	bool host = false;
 	bool follow = false;
 	bool raw = false;
 	bool gzip = false;
@@ -221,6 +222,8 @@ ParseFilterItem(Filter &filter, PondGroupSitePayload &group_site,
 		options.anonymize = true;
 	else if (StringIsEqual(p, "--track-visitors"))
 		options.track_visitors = true;
+	else if (StringIsEqual(p, "--host"))
+		options.host = true;
 	else
 		throw "Unrecognized query argument";
 }
@@ -306,6 +309,7 @@ Query(const PondServerSpecification &server, ConstBuffer<const char *> args)
 				   geoip_v4, geoip_v6,
 				   options.anonymize,
 				   options.track_visitors,
+				   options.host,
 				   single_site,
 				   options.per_site,
 				   options.per_site_filename,
