@@ -2,7 +2,7 @@ cm4all-pond (0.25) unstable; urgency=low
 
   * fix typo that led to crash bug during "follow" query
   * fix off-by-one error with "since" filter near the end
-  * client: add option "--host"
+  * client: add options "--host", "--forwarded-to"
   * protocol: add HOST filter
 
  --   

@@ -84,6 +84,7 @@ public:
 		     GeoIP *_geoip_v4, GeoIP *_geoip_v6, bool _anonymize,
 		     bool _track_visitors,
 		     bool _show_host,
+		     bool show_forwarded_to,
 		     bool _single_site,
 		     const char *const _per_site,
 		     const char *const _per_site_filename,

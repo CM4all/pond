@@ -216,6 +216,10 @@ The following command-line options are available:
 
  Show the HTTP "Host" request header.
 
+.. option:: --forwarded-to
+
+ Show the address of the server each request was forwarded to.
+
 The following filters are available:
 
 - :samp:`type=TYPE` shows only records of the specified type.

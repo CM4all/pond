@@ -137,6 +137,7 @@ ResultWriter::ResultWriter(bool _raw, bool _gzip,
 			   bool _anonymize,
 			   bool _track_visitors,
 			   bool _show_host,
+			   bool show_forwarded_to,
 			   bool _single_site,
 			   const char *const _per_site,
 			   const char *const _per_site_filename,
@@ -149,6 +150,7 @@ ResultWriter::ResultWriter(bool _raw, bool _gzip,
 	 track_visitors(_track_visitors)
 {
 	one_line_options.show_host = _show_host;
+	one_line_options.show_forwarded_to = show_forwarded_to;
 	one_line_options.anonymize = _anonymize;
 
 	if (per_site.IsDefined()) {

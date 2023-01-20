@@ -84,6 +84,7 @@ struct QueryOptions {
 	const char *per_site_filename = nullptr;
 
 	bool host = false;
+	bool forwarded_to = false;
 	bool follow = false;
 	bool raw = false;
 	bool gzip = false;
@@ -224,6 +225,8 @@ ParseFilterItem(Filter &filter, PondGroupSitePayload &group_site,
 		options.track_visitors = true;
 	else if (StringIsEqual(p, "--host"))
 		options.host = true;
+	else if (StringIsEqual(p, "--forwarded-to"))
+		options.forwarded_to = true;
 	else
 		throw "Unrecognized query argument";
 }
@@ -310,6 +313,7 @@ Query(const PondServerSpecification &server, ConstBuffer<const char *> args)
 				   options.anonymize,
 				   options.track_visitors,
 				   options.host,
+				   options.forwarded_to,
 				   single_site,
 				   options.per_site,
 				   options.per_site_filename,
