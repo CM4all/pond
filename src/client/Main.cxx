@@ -226,6 +226,10 @@ ParseFilterItem(Filter &filter, PondGroupSitePayload &group_site,
 		options.one_line.show_host = true;
 	else if (StringIsEqual(p, "--forwarded-to"))
 		options.one_line.show_forwarded_to = true;
+	else if (StringIsEqual(p, "--no-referer"))
+		options.one_line.show_http_referer = false;
+	else if (StringIsEqual(p, "--no-agent"))
+		options.one_line.show_user_agent = false;
 	else
 		throw "Unrecognized query argument";
 }

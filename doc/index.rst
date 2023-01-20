@@ -214,11 +214,19 @@ The following command-line options are available:
 
 .. option:: --host
 
- Show the HTTP "Host" request header.
+ Show the HTTP ``Host`` request header.
 
 .. option:: --forwarded-to
 
  Show the address of the server each request was forwarded to.
+
+.. option:: --no-referer
+
+ Do not show the HTTP ``Referer`` request header.
+
+.. option:: --no-agent
+
+ Do not show the HTTP ``User-Agent`` request header.
 
 The following filters are available:
 
