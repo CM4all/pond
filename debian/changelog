@@ -1,6 +1,6 @@
 cm4all-pond (0.25) unstable; urgency=low
 
-  * 
+  * fix typo that led to crash bug during "follow" query
 
  --   
 

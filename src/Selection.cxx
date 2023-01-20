@@ -79,7 +79,7 @@ Selection::OnAppend(const Record &record) noexcept
 {
 	assert(!*this);
 
-	if (!filter(record.GetParsed(), cursor->GetRaw()))
+	if (!filter(record.GetParsed(), record.GetRaw()))
 		return false;
 
 	cursor.OnAppend(record);
