@@ -37,6 +37,7 @@
 #include "io/FileDescriptor.hxx"
 #include "io/FileWriter.hxx"
 #include "net/SocketDescriptor.hxx"
+#include "net/log/OneLine.hxx"
 
 #include <GeoIP.h>
 
@@ -71,7 +72,9 @@ class ResultWriter {
 
 	VisitorTracker visitor_tracker;
 
-	const bool raw, gzip, anonymize, track_visitors, show_host, single_site;
+	const bool raw, gzip, track_visitors;
+
+	Net::Log::OneLineOptions one_line_options;
 
 	size_t buffer_fill = 0;
 	char buffer[65536];
@@ -117,5 +120,5 @@ private:
 	[[gnu::pure]]
 	const char *LookupGeoIP(const char *address) const noexcept;
 
-	void Append(const Net::Log::Datagram &d, bool site);
+	void Append(const Net::Log::Datagram &d);
 };

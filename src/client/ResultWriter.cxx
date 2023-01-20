@@ -39,7 +39,6 @@
 #include "io/Open.hxx"
 #include "net/SendMessage.hxx"
 #include "net/log/Datagram.hxx"
-#include "net/log/OneLine.hxx"
 #include "net/log/Parser.hxx"
 #include "util/ByteOrder.hxx"
 #include "util/CharUtil.hxx"
@@ -146,11 +145,12 @@ ResultWriter::ResultWriter(bool _raw, bool _gzip,
 	 socket(CheckPacketSocket(fd)),
 	 geoip_v4(_geoip_v4), geoip_v6(_geoip_v6),
 	 per_site(_per_site, _per_site_filename, _per_site_nested),
-	 raw(_raw), gzip(_gzip), anonymize(_anonymize),
-	 track_visitors(_track_visitors),
-	 show_host(_show_host),
-	 single_site(_single_site)
+	 raw(_raw), gzip(_gzip),
+	 track_visitors(_track_visitors)
 {
+	one_line_options.show_host = _show_host;
+	one_line_options.anonymize = _anonymize;
+
 	if (per_site.IsDefined()) {
 		fd.SetUndefined();
 		socket.SetUndefined();
@@ -160,6 +160,8 @@ ResultWriter::ResultWriter(bool _raw, bool _gzip,
 
 		file_mode = 0666 & ~u;
 	} else {
+		one_line_options.show_site = !_single_site;
+
 		fd_output_stream = std::make_unique<FdOutputStream>(fd);
 		output_stream = fd_output_stream.get();
 
@@ -187,7 +189,7 @@ ResultWriter::LookupGeoIP(const char *address) const noexcept
 }
 
 void
-ResultWriter::Append(const Net::Log::Datagram &d, bool site)
+ResultWriter::Append(const Net::Log::Datagram &d)
 {
 	if (buffer_fill > sizeof(buffer) - 16384)
 		FlushBuffer();
@@ -196,7 +198,7 @@ ResultWriter::Append(const Net::Log::Datagram &d, bool site)
 
 	char *end = Net::Log::FormatOneLine(old_end,
 					    sizeof(buffer) - buffer_fill - 64,
-					    d, site, anonymize, show_host);
+					    d, one_line_options);
 	if (end == old_end)
 		return;
 
@@ -286,7 +288,7 @@ ResultWriter::Write(std::span<const std::byte> payload)
 			/* skip this site */
 			return;
 
-		Append(d, false);
+		Append(d);
 	} else if (socket.IsDefined()) {
 		/* if fd2 is a packet socket, send raw
 		   datagrams to it */
@@ -298,7 +300,7 @@ ResultWriter::Write(std::span<const std::byte> payload)
 		output_stream->Write(&header, sizeof(header));
 		output_stream->Write(payload.data(), payload.size());
 	} else
-		Append(Net::Log::ParseDatagram(payload), !single_site);
+		Append(Net::Log::ParseDatagram(payload));
 }
 
 void
