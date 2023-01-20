@@ -194,9 +194,9 @@ ResultWriter::Append(const Net::Log::Datagram &d, bool site)
 
 	char *old_end = buffer + buffer_fill;
 
-	char *end = FormatOneLine(old_end,
-				  sizeof(buffer) - buffer_fill - 64,
-				  d, site, anonymize, show_host);
+	char *end = Net::Log::FormatOneLine(old_end,
+					    sizeof(buffer) - buffer_fill - 64,
+					    d, site, anonymize, show_host);
 	if (end == old_end)
 		return;
 
