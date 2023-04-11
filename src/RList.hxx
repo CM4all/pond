@@ -7,19 +7,14 @@
 #include "Record.hxx"
 #include "RSkipDeque.hxx"
 #include "AppendListener.hxx"
+#include "util/IntrusiveList.hxx"
 
-#include <boost/intrusive/list.hpp>
-
-#include <assert.h>
+#include <cassert>
 
 template<Record::ListHook Record::*list_hook>
 class RecordList {
-	using List =
-		boost::intrusive::list<Record,
-				       boost::intrusive::member_hook<Record,
-								     Record::ListHook,
-								     list_hook>,
-				       boost::intrusive::constant_time_size<false>>;
+	using List = IntrusiveList<Record,
+				   IntrusiveListMemberHookTraits<list_hook>>;
 
 	List list;
 

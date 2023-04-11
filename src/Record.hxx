@@ -5,16 +5,14 @@
 #pragma once
 
 #include "SmallDatagram.hxx"
-
-#include <boost/intrusive/list_hook.hpp>
+#include "util/IntrusiveList.hxx"
 
 #include <cstddef>
 #include <span>
 
 class Record final {
 public:
-	using ListHook =
-		boost::intrusive::list_member_hook<boost::intrusive::link_mode<boost::intrusive::auto_unlink>>;
+	using ListHook = IntrusiveListHook<IntrusiveHookMode::AUTO_UNLINK>;
 	ListHook per_site_list_hook;
 
 private:
