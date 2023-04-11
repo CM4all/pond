@@ -4,7 +4,7 @@
 
 #pragma once
 
-#include <boost/intrusive/list.hpp>
+#include "util/IntrusiveList.hxx"
 
 class Record;
 
@@ -15,9 +15,7 @@ class Record;
  */
 class AppendListener {
 	friend class AppendListenerList;
-	using SiblingsHook =
-		boost::intrusive::list_member_hook<boost::intrusive::link_mode<boost::intrusive::auto_unlink>>;
-	SiblingsHook siblings;
+	IntrusiveListHook<IntrusiveHookMode::AUTO_UNLINK> siblings;
 
 public:
 	bool IsRegistered() const noexcept {
@@ -38,11 +36,8 @@ public:
 };
 
 class AppendListenerList {
-	boost::intrusive::list<AppendListener,
-			       boost::intrusive::member_hook<AppendListener,
-							     AppendListener::SiblingsHook,
-							     &AppendListener::siblings>,
-			       boost::intrusive::constant_time_size<false>> list;
+	IntrusiveList<AppendListener,
+		      IntrusiveListMemberHookTraits<&AppendListener::siblings>> list;
 
 public:
 	bool empty() const noexcept {
@@ -54,9 +49,9 @@ public:
 	}
 
 	void OnAppend(const Record &record) noexcept {
-		list.remove_if([&record](const AppendListener &_l){
-				auto &l = const_cast<AppendListener &>(_l);
-				return !l.OnAppend(record);
-			});
+		list.remove_and_dispose_if([&record](const AppendListener &_l){
+			auto &l = const_cast<AppendListener &>(_l);
+			return !l.OnAppend(record);
+		}, [](auto *){});
 	}
 };
