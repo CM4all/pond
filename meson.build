@@ -102,6 +102,7 @@ inc = include_directories('src', 'libcommon/src')
 libcommon_enable_c = false
 
 subdir('libcommon/src/util')
+subdir('libcommon/src/lib/fmt')
 subdir('libcommon/src/time')
 subdir('libcommon/src/http')
 subdir('libcommon/src/io')
@@ -113,7 +114,6 @@ subdir('libcommon/src/net/log')
 subdir('libcommon/src/event/net')
 subdir('libcommon/src/event/net/log')
 subdir('libcommon/src/lib/avahi')
-subdir('libcommon/src/lib/fmt')
 subdir('libcommon/src/lib/zlib')
 
 executable('cm4all-pond',
