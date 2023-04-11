@@ -1,7 +1,6 @@
-project('CM4all Pond', ['c', 'cpp'], version: '0.26',
+project('CM4all Pond', 'cpp', version: '0.26',
   meson_version: '>= 0.56',
   default_options: [
-    'c_std=c11',
     'cpp_std=c++2a',
     'warning_level=3',
   ],
@@ -10,7 +9,6 @@ project('CM4all Pond', ['c', 'cpp'], version: '0.26',
 debug = get_option('b_ndebug') != 'true'
 
 compiler = meson.get_compiler('cpp')
-c_compiler = meson.get_compiler('c')
 
 common_flags = [
   '-D_GNU_SOURCE',
@@ -68,9 +66,6 @@ endif
 test_global_cxxflags = test_global_common_flags + [
 ]
 
-test_global_cflags = test_global_common_flags + [
-]
-
 test_cxxflags = test_common_flags + [
   '-fno-threadsafe-statics',
   '-fmerge-all-constants',
@@ -93,26 +88,18 @@ test_cxxflags = test_common_flags + [
   '-Winconsistent-missing-destructor-override',
 ]
 
-test_cflags = test_common_flags + [
-  '-Waggregate-return',
-  '-Wbad-function-cast',
-  '-Wmissing-prototypes',
-  '-Wnested-externs',
-  '-Wstrict-prototypes',
-]
-
 add_global_arguments(common_flags, language: 'c')
 add_global_arguments(common_flags, language: 'cpp')
 
 add_global_arguments(compiler.get_supported_arguments(test_global_cxxflags), language: 'cpp')
-add_global_arguments(c_compiler.get_supported_arguments(test_global_cflags), language: 'c')
 add_project_arguments(compiler.get_supported_arguments(test_cxxflags), language: 'cpp')
-add_project_arguments(c_compiler.get_supported_arguments(test_cflags), language: 'c')
 
 libsystemd = dependency('libsystemd')
 libgeoip = dependency('geoip')
 
 inc = include_directories('src', 'libcommon/src')
+
+libcommon_enable_c = false
 
 subdir('libcommon/src/util')
 subdir('libcommon/src/time')
