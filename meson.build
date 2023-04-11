@@ -26,6 +26,7 @@ test_common_flags = [
   '-Wshadow',
   '-Wundef',
   '-Wunused',
+  '-Wvla',
   '-Wwrite-strings',
 
   # clang specific warning options:
@@ -69,6 +70,14 @@ test_global_cxxflags = test_global_common_flags + [
 test_cxxflags = test_common_flags + [
   '-fno-threadsafe-statics',
   '-fmerge-all-constants',
+
+  '-Wcomma-subscript',
+  '-Wextra-semi',
+  '-Wmismatched-tags',
+  '-Woverloaded-virtual',
+  '-Wsign-promo',
+  '-Wvolatile',
+  '-Wvirtual-inheritance',
 
   # a vtable without a dtor is just fine
   '-Wno-non-virtual-dtor',
