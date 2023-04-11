@@ -144,6 +144,7 @@ executable('cm4all-pond',
   include_directories: inc,
   dependencies: [
     libsystemd,
+    fmt_dep,
     event_net_dep,
     event_net_log_dep,
     system_dep,

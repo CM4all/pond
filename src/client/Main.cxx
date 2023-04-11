@@ -9,6 +9,7 @@
 #include "Open.hxx"
 #include "Filter.hxx"
 #include "lib/avahi/Check.hxx"
+#include "lib/fmt/RuntimeError.hxx"
 #include "system/Error.hxx"
 #include "net/log/String.hxx"
 #include "net/log/Parser.hxx"
@@ -17,7 +18,6 @@
 #include "time/Convert.hxx"
 #include "util/ConstBuffer.hxx"
 #include "util/PrintException.hxx"
-#include "util/RuntimeError.hxx"
 #include "util/StringAPI.hxx"
 #include "util/StringCompare.hxx"
 #include "util/ByteOrder.hxx"
@@ -231,7 +231,7 @@ Query(const PondServerSpecification &server, ConstBuffer<const char *> args)
 			ParseFilterItem(filter, group_site, window,
 					options, p);
 		} catch (...) {
-			std::throw_with_nested(FormatRuntimeError("Failed to parse '%s'", p));
+			std::throw_with_nested(FmtRuntimeError("Failed to parse '{}'", p));
 		}
 	}
 
@@ -363,8 +363,7 @@ Query(const PondServerSpecification &server, ConstBuffer<const char *> args)
 			break;
 
 		case PondResponseCommand::ERROR:
-			throw FormatRuntimeError("Server error: %s",
-						 d.payload.ToString().c_str());
+			throw FmtRuntimeError("Server error: {}", d.payload.ToString());
 
 		case PondResponseCommand::END:
 			result_writer.Finish();
@@ -511,8 +510,8 @@ Clone(const PondServerSpecification &server, ConstBuffer<const char *> args)
 			break;
 
 		case PondResponseCommand::ERROR:
-			throw FormatRuntimeError("Server error: %s",
-						 d.payload.ToString().c_str());
+			throw FmtRuntimeError("Server error: {}",
+					      d.payload.ToString());
 
 		case PondResponseCommand::END:
 			return;

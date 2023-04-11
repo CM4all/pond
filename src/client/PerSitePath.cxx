@@ -3,11 +3,11 @@
 // author: Max Kellermann <mk@cm4all.com>
 
 #include "PerSitePath.hxx"
+#include "lib/fmt/RuntimeError.hxx"
+#include "lib/fmt/SystemError.hxx"
 #include "io/FileWriter.hxx"
 #include "io/MakeDirectory.hxx"
 #include "io/Open.hxx"
-#include "system/Error.hxx"
-#include "util/RuntimeError.hxx"
 
 #include <fcntl.h>
 #include <sys/stat.h>
@@ -92,11 +92,11 @@ PerSitePath::Open(const char *site)
 			/* exists already: skip */
 			return {};
 		else
-			throw FormatRuntimeError("Exists, but is not a regular file: %s",
-						 current_filename);
+			throw FmtRuntimeError("Exists, but is not a regular file: {}",
+					      current_filename);
 	} else if (errno != ENOENT)
-		throw FormatErrno("Failed to check output file: %s",
-				  current_filename);
+		throw FmtErrno("Failed to check output file: {}",
+			       current_filename);
 
 	return FileWriter(current_directory, current_filename);
 }
