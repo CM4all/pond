@@ -99,8 +99,6 @@ libgeoip = dependency('geoip')
 
 inc = include_directories('src', 'libcommon/src')
 
-libcommon_enable_c = false
-
 subdir('libcommon/src/util')
 subdir('libcommon/src/lib/fmt')
 subdir('libcommon/src/time')
