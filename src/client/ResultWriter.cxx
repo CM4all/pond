@@ -268,8 +268,8 @@ ResultWriter::Write(std::span<const std::byte> payload)
 		const uint16_t id = 1;
 		const auto command = PondResponseCommand::LOG_RECORD;
 		const PondHeader header{ToBE16(id), ToBE16(uint16_t(command)), ToBE16(payload.size())};
-		output_stream->Write(&header, sizeof(header));
-		output_stream->Write(payload.data(), payload.size());
+		output_stream->Write(std::as_bytes(std::span{&header, 1}));
+		output_stream->Write(payload);
 	} else
 		Append(Net::Log::ParseDatagram(payload));
 }
@@ -282,7 +282,7 @@ ResultWriter::FlushBuffer()
 
 	assert(output_stream);
 
-	output_stream->Write(buffer, buffer_fill);
+	output_stream->Write(std::as_bytes(std::span{buffer}.first(buffer_fill)));
 	buffer_fill = 0;
 }
 
