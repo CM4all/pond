@@ -2,7 +2,7 @@ cm4all-pond (0.26) unstable; urgency=low
 
   * client: fix off-by-one bug in `status` filter
 
- --   
+ -- Max Kellermann <mk@cm4all.com>  Mon, 26 Jun 2023 22:08:42 +0200
 
 cm4all-pond (0.25) unstable; urgency=low
 
