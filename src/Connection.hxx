@@ -53,7 +53,7 @@ class Connection final
 
 		std::string address;
 
-		bool IsDefined() const {
+		constexpr bool IsDefined() const noexcept {
 			return command != PondRequestCommand::NOP;
 		}
 
@@ -61,7 +61,7 @@ class Connection final
 		 * Does the given request id belong to this
 		 * uncommitted request?
 		 */
-		bool MatchId(uint16_t other_id) const {
+		constexpr bool MatchId(uint16_t other_id) const noexcept {
 			return IsDefined() && id == other_id;
 		}
 
@@ -71,22 +71,22 @@ class Connection final
 		 * command fails, but more incremental request packets
 		 * are still in the socket buffer.
 		 */
-		bool IgnoreId(uint16_t other_id) const {
+		constexpr bool IgnoreId(uint16_t other_id) const noexcept {
 			return !IsDefined() && id == other_id;
 		}
 
-		bool HasGroupSite() const noexcept {
+		constexpr bool HasGroupSite() const noexcept {
 			return group_site.max_sites > 0;
 		}
 
-		bool HasWindow() const noexcept {
+		constexpr bool HasWindow() const noexcept {
 			return window.max > 0;
 		}
 
-		void Clear();
+		void Clear() noexcept;
 
 		void Set(uint16_t _id,
-			 PondRequestCommand _command) {
+			 PondRequestCommand _command) noexcept {
 			Clear();
 			id = _id;
 			command = _command;
@@ -94,10 +94,10 @@ class Connection final
 	} current;
 
 public:
-	Connection(Instance &_instance, UniqueSocketDescriptor &&fd);
-	~Connection();
+	Connection(Instance &_instance, UniqueSocketDescriptor &&fd) noexcept;
+	~Connection() noexcept;
 
-	void Destroy() {
+	void Destroy() noexcept {
 		delete this;
 	}
 
@@ -115,7 +115,7 @@ private:
 	void Send(uint16_t id, PondResponseCommand command,
 		  std::span<const std::byte> payload);
 
-	void CommitQuery();
+	void CommitQuery() noexcept;
 	void CommitClone();
 
 	BufferedResult OnPacket(uint16_t id, PondRequestCommand cmd,

@@ -17,7 +17,7 @@
 #include <sys/socket.h>
 
 void
-Connection::Request::Clear()
+Connection::Request::Clear() noexcept
 {
 	command = PondRequestCommand::NOP;
 	filter = Filter();
@@ -28,7 +28,7 @@ Connection::Request::Clear()
 	address.clear();
 }
 
-Connection::Connection(Instance &_instance, UniqueSocketDescriptor &&_fd)
+Connection::Connection(Instance &_instance, UniqueSocketDescriptor &&_fd) noexcept
 	:instance(_instance), logger(instance.GetLogger()),
 	 socket(_instance.GetEventLoop())
 {
@@ -38,7 +38,7 @@ Connection::Connection(Instance &_instance, UniqueSocketDescriptor &&_fd)
 	socket.DeferRead();
 }
 
-Connection::~Connection()
+Connection::~Connection() noexcept
 {
 	if (socket.IsConnected())
 		socket.Close();
@@ -53,7 +53,7 @@ Connection::IsLocalAdmin() const noexcept
 	return cred.pid != -1 && (cred.uid == 0 || cred.uid == geteuid());
 }
 
-static PondHeader
+static constexpr PondHeader
 MakeHeader(uint16_t id, PondResponseCommand command, size_t size)
 {
 	PondHeader header;
@@ -71,7 +71,7 @@ struct PondIovec {
 	PondHeader header;
 	std::array<struct iovec, 2> vec;
 
-	constexpr size_t GetTotalSize() const {
+	constexpr size_t GetTotalSize() const noexcept {
 		return vec[0].iov_len + vec[1].iov_len;
 	}
 
@@ -90,7 +90,7 @@ struct PondIovec {
 static unsigned
 MakeIovec(PondIovec &pi,
 	  uint16_t id, PondResponseCommand command,
-	  std::span<const std::byte> payload)
+	  std::span<const std::byte> payload) noexcept
 {
 	pi.header = MakeHeader(id, command, payload.size());
 	pi.vec[0] = MakeIovecT(pi.header);
@@ -163,7 +163,7 @@ SkipNonEmpty(Database &db, const Filter &filter, SiteIterator *i,
 }
 
 inline void
-Connection::CommitQuery()
+Connection::CommitQuery() noexcept
 {
 	auto &db = instance.GetDatabase();
 
