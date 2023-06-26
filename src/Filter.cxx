@@ -21,9 +21,9 @@ MatchFilter(const char *value, const std::set<std::string, std::less<>> &filter)
 	return filter.empty() || (value != nullptr && filter.contains(NullableStringView(value)));
 }
 
-static bool
+static constexpr bool
 MatchTimestamp(Net::Log::TimePoint timestamp,
-	       Net::Log::TimePoint since, Net::Log::TimePoint until)
+	       Net::Log::TimePoint since, Net::Log::TimePoint until) noexcept
 {
 	return timestamp >= since && timestamp <= until;
 }
