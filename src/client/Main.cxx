@@ -157,7 +157,7 @@ ParseFilterItem(Filter &filter, PondGroupSitePayload &group_site,
 		if (endptr == status_string || begin < 0 || begin >= 600)
 			throw "Bad status filter";
 
-		long end = begin;
+		long end = begin + 1;
 
 		if (*endptr == ':') {
 			status_string = endptr + 1;

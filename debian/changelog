@@ -1,6 +1,6 @@
 cm4all-pond (0.26) unstable; urgency=low
 
-  * 
+  * client: fix off-by-one bug in `status` filter
 
  --   
 
