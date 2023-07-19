@@ -23,7 +23,8 @@ public:
 	}
 
 	void Unregister() noexcept {
-		siblings.unlink();
+		if (IsRegistered())
+			siblings.unlink();
 	}
 
 	/**
