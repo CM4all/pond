@@ -38,13 +38,7 @@ Connection::Connection(Instance &_instance, UniqueSocketDescriptor &&_fd) noexce
 	socket.DeferRead();
 }
 
-Connection::~Connection() noexcept
-{
-	if (socket.IsConnected())
-		socket.Close();
-
-	socket.Destroy();
-}
+Connection::~Connection() noexcept = default;
 
 bool
 Connection::IsLocalAdmin() const noexcept
