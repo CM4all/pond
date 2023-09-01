@@ -1,5 +1,6 @@
 cm4all-pond (0.28) unstable; urgency=low
 
+  * reduce redundant epoll_ctl() system calls
   * debian: restart after upgrade
 
  --   
