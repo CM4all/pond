@@ -39,7 +39,6 @@ jobs:
             meson \
             libavahi-client-dev \
             libboost-dev \
-            libfmt-dev \
             libgeoip-dev \
             libgtest-dev \
             libsystemd-dev \
@@ -49,6 +48,7 @@ jobs:
         run: |
           meson setup \
              -Ddocumentation=disabled \
+             --force-fallback-for=fmt \
              output
 
       - name: Build
