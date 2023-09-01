@@ -31,8 +31,6 @@ jobs:
 
       - id: cache-ccache
         uses: hendrikmuhs/ccache-action@v1
-        with:
-          key: ${{ matrix.os }}-${{ matrix.type }}
 
       - name: Install dependencies
         run: |
