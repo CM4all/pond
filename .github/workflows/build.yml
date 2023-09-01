@@ -36,6 +36,7 @@ jobs:
         run: |
           sudo apt-get update
           sudo apt-get install -y --no-install-recommends \
+            meson \
             libavahi-client-dev \
             libboost-dev \
             libfmt-dev \
@@ -44,16 +45,19 @@ jobs:
             libsystemd-dev \
             libz-dev
 
+      - name: Configure
+        run: |
+          meson setup \
+             -Ddocumentation=disabled \
+             output
+
       - name: Build
-        uses: BSFishy/meson-build@v1.0.3
-        with:
-          action: build
-          setup-options: -Ddocumentation=disabled
-          meson-version: 0.56.0
+        run: ninja -C output -v
 
       - name: Unit Tests
-        uses: BSFishy/meson-build@v1.0.3
-        with:
-          action: test
-          setup-options: -Ddocumentation=disabled
-          meson-version: 0.56.0
+        run: meson test -C output
+
+      - name: Dump Unit Test Log
+        if: ${{ failure() }}
+        continue-on-error: true
+        run: cat output/meson-logs/testlog.txt
