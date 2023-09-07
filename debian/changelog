@@ -4,7 +4,7 @@ cm4all-pond (0.28) unstable; urgency=low
   * Multi-Path TCP support
   * debian: restart after upgrade
 
- --   
+ -- Max Kellermann <mk@cm4all.com>  Thu, 07 Sep 2023 11:12:29 +0200
 
 cm4all-pond (0.27) unstable; urgency=low
 
