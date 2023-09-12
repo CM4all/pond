@@ -6,6 +6,7 @@
 #include "Datagram.hxx"
 #include "system/Error.hxx"
 
+#include <string.h> // for memcpy()
 #include <sys/socket.h>
 
 void
