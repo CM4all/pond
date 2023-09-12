@@ -55,6 +55,6 @@ public:
 
 private:
 	void FillInputBuffer();
-	const void *FullReceive(size_t size);
-	void FullReceive(void *dest, size_t size);
+	const std::byte *FullReceive(std::size_t size);
+	void FullReceive(std::span<std::byte> dest);
 };

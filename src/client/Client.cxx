@@ -6,6 +6,8 @@
 #include "Datagram.hxx"
 #include "system/Error.hxx"
 
+#include <algorithm> // for std::copy_n()
+
 #include <sys/socket.h>
 
 void
@@ -25,8 +27,8 @@ PondClient::FillInputBuffer()
 	input.Append(nbytes);
 }
 
-const void *
-PondClient::FullReceive(size_t size)
+const std::byte *
+PondClient::FullReceive(std::size_t size)
 {
 	while (true) {
 		auto r = input.Read();
@@ -38,17 +40,17 @@ PondClient::FullReceive(size_t size)
 }
 
 void
-PondClient::FullReceive(void *dest, size_t size)
+PondClient::FullReceive(std::span<std::byte> dest)
 {
-	memcpy(dest, FullReceive(size), size);
-	input.Consume(size);
+	std::copy_n(FullReceive(dest.size()), dest.size(), dest.begin());
+	input.Consume(dest.size());
 }
 
 PondDatagram
 PondClient::Receive()
 {
 	PondHeader header;
-	FullReceive(&header, sizeof(header));
+	FullReceive(std::as_writable_bytes(std::span{&header, 1}));
 
 	PondDatagram d;
 	d.id = FromBE16(header.id);
@@ -57,7 +59,7 @@ PondClient::Receive()
 
 	if (d.payload.size > 0) {
 		d.payload.data.reset(new std::byte[d.payload.size]);
-		FullReceive(d.payload.data.get(), d.payload.size);
+		FullReceive({d.payload.data.get(), d.payload.size});
 	}
 
 	return d;
