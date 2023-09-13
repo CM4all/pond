@@ -19,6 +19,8 @@
 #include <algorithm>
 
 #include <fcntl.h>
+#include <string.h> // for strlen(), stpcpy()
+#include <sys/stat.h> // for umask(), fchmod()
 
 /**
  * Drop all entries of this file from the page cache.  This avoids
