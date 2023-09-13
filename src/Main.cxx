@@ -25,11 +25,13 @@ Run(const Config &config)
 
 	Instance instance(config);
 
+#ifdef HAVE_AVAHI
 	if (config.auto_clone)
 		instance.SetBlockingOperation(std::make_unique<AutoCloneOperation>(instance,
 										   instance.GetDatabase(),
 										   instance.GetAvahiClient(),
 										   *config.GetZeroconfListener()));
+#endif // HAVE_AVAHI
 
 	for (const auto &i : config.receivers)
 		instance.AddReceiver(i);
@@ -37,8 +39,10 @@ Run(const Config &config)
 	for (const auto &i : config.listeners)
 		instance.AddListener(i);
 
+#ifdef HAVE_AVAHI
 	if (!config.auto_clone)
 		instance.EnableZeroconf();
+#endif // HAVE_AVAHI
 
 #ifdef HAVE_LIBSYSTEMD
 	/* tell systemd we're ready */

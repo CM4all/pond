@@ -52,6 +52,8 @@ Instance::GetStats() const noexcept
 	return s;
 }
 
+#ifdef HAVE_AVAHI
+
 Avahi::Client &
 Instance::GetAvahiClient()
 {
@@ -89,6 +91,8 @@ Instance::DisableZeroconf() noexcept
 	avahi_publisher.reset();
 }
 
+#endif // HAVE_AVAHI
+
 void
 Instance::AddReceiver(const SocketConfig &config)
 {
@@ -110,6 +114,7 @@ Instance::AddListener(const ListenerConfig &config)
 {
 	listeners.emplace_front(*this,
 				config.Create(SOCK_STREAM));
+#ifdef HAVE_AVAHI
 	auto &listener = listeners.front();
 
 	if (!config.zeroconf_service.empty()) {
@@ -127,6 +132,7 @@ Instance::AddListener(const ListenerConfig &config)
 						     config.v6only);
 		}
 	}
+#endif // HAVE_AVAHI
 }
 
 void
@@ -141,7 +147,9 @@ Instance::SetBlockingOperation(std::unique_ptr<BlockingOperation> op) noexcept
 {
 	assert(!blocking_operation);
 
+#ifdef HAVE_AVAHI
 	DisableZeroconf();
+#endif
 
 	blocking_operation = std::move(op);
 }
@@ -150,11 +158,15 @@ void
 Instance::OnOperationFinished() noexcept
 {
 	assert(blocking_operation);
+#ifdef HAVE_AVAHI
 	assert(!avahi_publisher);
+#endif // HAVE_AVAHI
 
 	blocking_operation.reset();
 
+#ifdef HAVE_AVAHI
 	EnableZeroconf();
+#endif
 }
 
 void
@@ -188,8 +200,10 @@ Instance::OnExit() noexcept
 
 	max_age_timer.Cancel();
 
+#ifdef HAVE_AVAHI
 	avahi_publisher.reset();
 	avahi_client.reset();
+#endif // HAVE_AVAHI
 
 	receivers.clear();
 
@@ -203,9 +217,13 @@ Instance::OnReload(int) noexcept
 {
 }
 
+#ifdef HAVE_AVAHI
+
 bool
 Instance::OnAvahiError(std::exception_ptr e) noexcept
 {
 	PrintException(e);
 	return true;
 }
+
+#endif // HAVE_AVAHI

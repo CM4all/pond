@@ -1,5 +1,6 @@
 option('geoip', type: 'feature', description: 'geoip support (using libgeoip)')
 option('systemd', type: 'feature', description: 'systemd support (using libsystemd)')
+option('zeroconf', type: 'feature', description: 'Zeroconf support (using Avahi)')
 
 option('documentation', type: 'feature',
   description: 'Build documentation')

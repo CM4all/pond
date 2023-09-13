@@ -4,6 +4,8 @@
 
 #pragma once
 
+#include "config.h"
+
 #include <string>
 
 class UniqueSocketDescriptor;
@@ -11,7 +13,9 @@ class UniqueSocketDescriptor;
 struct PondServerSpecification {
 	const char *host = nullptr;
 
+#ifdef HAVE_AVAHI
 	std::string zeroconf_service;
+#endif
 };
 
 UniqueSocketDescriptor

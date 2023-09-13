@@ -5,6 +5,7 @@
 #pragma once
 
 #include "net/SocketConfig.hxx"
+#include "config.h"
 
 #include <chrono>
 #include <forward_list>
@@ -22,7 +23,9 @@ struct DatabaseConfig {
 };
 
 struct ListenerConfig : SocketConfig {
+#ifdef HAVE_AVAHI
 	std::string zeroconf_service;
+#endif
 
 	ListenerConfig() {
 		listen = 64;
@@ -38,10 +41,13 @@ struct Config {
 
 	std::forward_list<ListenerConfig> listeners;
 
+#ifdef HAVE_AVAHI
 	bool auto_clone = false;
+#endif // HAVE_AVAHI
 
 	void Check();
 
+#ifdef HAVE_AVAHI
 	const ListenerConfig *GetZeroconfListener() const noexcept {
 		for (const auto &i : listeners)
 			if (!i.zeroconf_service.empty())
@@ -53,6 +59,7 @@ struct Config {
 	bool HasZeroconfListener() const noexcept {
 		return GetZeroconfListener() != nullptr;
 	}
+#endif // HAVE_AVAHI
 };
 
 /**

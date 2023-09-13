@@ -21,6 +21,8 @@
 
 static constexpr Event::Duration CONNECT_TIMEOUT = std::chrono::seconds(30);
 
+#ifdef HAVE_AVAHI
+
 class ConnectZeroconfOperation final
 	: Avahi::ServiceExplorerListener, Avahi::ErrorHandler,
 	  ConnectSocketHandler {
@@ -138,11 +140,15 @@ ConnectZeroconf(const char *service_name)
 	return operation.GetResult();
 }
 
+#endif // HAVE_AVAHI
+
 UniqueSocketDescriptor
 PondConnect(const PondServerSpecification &spec)
 {
+#ifdef HAVE_AVAHI
 	if (!spec.zeroconf_service.empty())
 		return ConnectZeroconf(spec.zeroconf_service.c_str());
+#endif // HAVE_AVAHI
 
 	assert(spec.host != nullptr);
 	return ResolveConnectStreamSocket(spec.host, POND_DEFAULT_PORT);

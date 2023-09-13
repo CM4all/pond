@@ -4,7 +4,6 @@
 
 #include "Config.hxx"
 #include "Port.hxx"
-#include "lib/avahi/Check.hxx"
 #include "net/Parser.hxx"
 #include "io/config/FileLineParser.hxx"
 #include "io/config/ConfigParser.hxx"
@@ -12,14 +11,20 @@
 #include "util/StringAPI.hxx"
 #include "util/StringParser.hxx"
 
+#ifdef HAVE_AVAHI
+#include "lib/avahi/Check.hxx"
+#endif
+
 void
 Config::Check()
 {
 	if (receivers.empty())
 		throw std::runtime_error("No 'receiver' configured");
 
+#ifdef HAVE_AVAHI
 	if (auto_clone && !HasZeroconfListener())
 		throw LineParser::Error("'auto_clone' requires a Zeroconf listener");
+#endif // HAVE_AVAHI
 }
 
 class PondConfigParser final : public NestedConfigParser {
@@ -142,8 +147,12 @@ PondConfigParser::Listener::ParseLine(FileLineParser &line)
 	} else if (StringIsEqual(word, "interface")) {
 		config.interface = line.ExpectValueAndEnd();
 	} else if (StringIsEqual(word, "zeroconf_service")) {
+#ifdef HAVE_AVAHI
 		config.zeroconf_service = MakeZeroconfServiceType(line.ExpectValueAndEnd(),
 								  "_tcp");
+#else
+		throw std::runtime_error{"Zeroconf support is disabled"};
+#endif // HAVE_AVAHI
 	} else
 		throw LineParser::Error("Unknown option");
 }
@@ -176,10 +185,14 @@ PondConfigParser::ParseLine2(FileLineParser &line)
 		line.ExpectSymbolAndEol('{');
 		SetChild(std::make_unique<Database>(config.database));
 	} else if (StringIsEqual(word, "auto_clone")) {
+#ifdef HAVE_AVAHI
 		const bool value = line.NextBool();
 		line.ExpectEnd();
 
 		config.auto_clone = value;
+#else
+		throw std::runtime_error{"Zeroconf support is disabled"};
+#endif // HAVE_AVAHI
 	} else
 		throw LineParser::Error("Unknown option");
 }

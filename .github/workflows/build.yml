@@ -49,6 +49,7 @@ jobs:
             -Ddocumentation=disabled \
             -Dsystemd=enabled \
             -Dgeoip=enabled \
+            -Dzeroconf=enabled \
             --force-fallback-for=fmt \
             output
 

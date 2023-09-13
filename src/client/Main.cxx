@@ -8,7 +8,6 @@
 #include "ResultWriter.hxx"
 #include "Open.hxx"
 #include "Filter.hxx"
-#include "lib/avahi/Check.hxx"
 #include "lib/fmt/RuntimeError.hxx"
 #include "system/Error.hxx"
 #include "net/log/String.hxx"
@@ -24,6 +23,10 @@
 #include "util/ScopeExit.hxx"
 #include "util/StaticFifoBuffer.hxx"
 #include "config.h"
+
+#ifdef HAVE_AVAHI
+#include "lib/avahi/Check.hxx"
+#endif
 
 #include <fmt/core.h>
 
@@ -572,8 +575,10 @@ try {
 
 	PondServerSpecification server;
 	server.host = args.shift();
+#ifdef HAVE_AVAHI
 	if (auto zs = StringAfterPrefix(server.host, "zeroconf/"))
 		server.zeroconf_service = MakeZeroconfServiceType(zs, "_tcp");
+#endif // HAVE_AVAHI
 
 	const char *const command = args.shift();
 

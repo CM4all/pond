@@ -6,7 +6,6 @@
 
 #include "BlockingOperation.hxx"
 #include "Database.hxx"
-#include "lib/avahi/ErrorHandler.hxx"
 #include "event/Loop.hxx"
 #include "event/ShutdownListener.hxx"
 #include "event/SignalEvent.hxx"
@@ -14,6 +13,11 @@
 #include "event/net/UdpHandler.hxx"
 #include "io/Logger.hxx"
 #include "util/IntrusiveList.hxx"
+#include "config.h"
+
+#ifdef HAVE_AVAHI
+#include "lib/avahi/ErrorHandler.hxx"
+#endif
 
 #include <forward_list>
 #include <memory>
@@ -30,8 +34,13 @@ class Listener;
 class Connection;
 namespace Avahi { class Client; class Publisher; struct Service; }
 
-class Instance final : UdpHandler, public BlockingOperationHandler,
-		       Avahi::ErrorHandler {
+class Instance final
+	: UdpHandler,
+#ifdef HAVE_AVAHI
+	  Avahi::ErrorHandler,
+#endif
+	  public BlockingOperationHandler
+{
 	static constexpr size_t MAX_DATAGRAM_SIZE = 4096;
 
 	const RootLogger logger;
@@ -43,9 +52,11 @@ class Instance final : UdpHandler, public BlockingOperationHandler,
 	ShutdownListener shutdown_listener;
 	SignalEvent sighup_event;
 
+#ifdef HAVE_AVAHI
 	std::unique_ptr<Avahi::Client> avahi_client;
 	std::forward_list<Avahi::Service> avahi_services;
 	std::unique_ptr<Avahi::Publisher> avahi_publisher;
+#endif // HAVE_AVAHI
 
 	std::forward_list<MultiUdpListener> receivers;
 	std::forward_list<Listener> listeners;
@@ -97,10 +108,12 @@ public:
 	[[gnu::pure]]
 	PondStatsPayload GetStats() const noexcept;
 
+#ifdef HAVE_AVAHI
 	Avahi::Client &GetAvahiClient();
 
 	void EnableZeroconf() noexcept;
 	void DisableZeroconf() noexcept;
+#endif // HAVE_AVAHI
 
 	void AddReceiver(const SocketConfig &config);
 	void AddListener(const ListenerConfig &config);
@@ -142,6 +155,8 @@ private:
 	/* virtual methods from BlockingOperationHandler */
 	void OnOperationFinished() noexcept override;
 
+#ifdef HAVE_AVAHI
 	/* virtual methods from class Avahi::ErrorHandler */
 	bool OnAvahiError(std::exception_ptr e) noexcept override;
+#endif // HAVE_AVAHI
 };

@@ -107,6 +107,7 @@ libgeoip = dependency('geoip', required: get_option('geoip'))
 inc = include_directories('src', 'libcommon/src')
 
 libcommon_enable_boost = false
+libcommon_require_avahi = get_option('zeroconf')
 
 subdir('libcommon/src/util')
 subdir('libcommon/src/lib/fmt')
@@ -125,7 +126,14 @@ subdir('libcommon/src/lib/zlib')
 
 conf.set('HAVE_LIBSYSTEMD', libsystemd.found())
 conf.set('HAVE_LIBGEOIP', libgeoip.found())
+conf.set('HAVE_AVAHI', avahi_dep.found())
 configure_file(output: 'config.h', configuration: conf)
+
+daemon_sources = []
+
+if avahi_dep.found()
+  daemon_sources += 'src/AutoClone.cxx'
+endif
 
 executable('cm4all-pond',
   'src/Main.cxx',
@@ -135,7 +143,6 @@ executable('cm4all-pond',
   'src/Listener.cxx',
   'src/Connection.cxx',
   'src/Clone.cxx',
-  'src/AutoClone.cxx',
   'src/Config.cxx',
   'src/Database.cxx',
   'src/RList.cxx',
@@ -151,6 +158,7 @@ executable('cm4all-pond',
   'src/client/Async.cxx',
   'src/client/Send.cxx',
   'src/system/SetupProcess.cxx',
+  daemon_sources,
   'libcommon/src/pg/Interval.cxx',
   include_directories: inc,
   dependencies: [
