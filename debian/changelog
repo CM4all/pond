@@ -1,7 +1,7 @@
 cm4all-pond (0.29) unstable; urgency=low
 
   * eliminate the Boost dependency
-  * meson: make libsystemd optional
+  * meson: make libsystemd, libgeoip optional
 
  --   
 

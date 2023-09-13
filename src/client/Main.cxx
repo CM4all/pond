@@ -23,6 +23,7 @@
 #include "util/ByteOrder.hxx"
 #include "util/ScopeExit.hxx"
 #include "util/StaticFifoBuffer.hxx"
+#include "config.h"
 
 #include <fmt/core.h>
 
@@ -60,7 +61,9 @@ struct QueryOptions {
 	bool follow = false;
 	bool raw = false;
 	bool gzip = false;
+#ifdef HAVE_LIBGEOIP
 	bool geoip = false;
+#endif
 	bool track_visitors = false;
 	bool per_site_nested = false;
 };
@@ -188,8 +191,10 @@ ParseFilterItem(Filter &filter, PondGroupSitePayload &group_site,
 		options.raw = true;
 	else if (StringIsEqual(p, "--gzip"))
 		options.gzip = true;
+#ifdef HAVE_LIBGEOIP
 	else if (StringIsEqual(p, "--geoip"))
 		options.geoip = true;
+#endif
 	else if (StringIsEqual(p, "--anonymize"))
 		options.one_line.anonymize = true;
 	else if (StringIsEqual(p, "--track-visitors"))
@@ -259,6 +264,7 @@ Query(const PondServerSpecification &server, ConstBuffer<const char *> args)
 	const bool single_site = filter.sites.begin() != filter.sites.end() &&
 		std::next(filter.sites.begin()) == filter.sites.end();
 
+#ifdef HAVE_LIBGEOIP
 	GeoIP *geoip_v4 = nullptr, *geoip_v6 = nullptr;
 
 	AtScopeExit(geoip_v4, geoip_v6) {
@@ -283,10 +289,12 @@ Query(const PondServerSpecification &server, ConstBuffer<const char *> args)
 
 		GeoIP_set_charset(geoip_v6, GEOIP_CHARSET_UTF8);
 	}
-
+#endif // HAVE_LIBGEOIP
 
 	ResultWriter result_writer(options.raw, options.gzip,
+#ifdef HAVE_LIBGEOIP
 				   geoip_v4, geoip_v6,
+#endif
 				   options.track_visitors,
 				   options.one_line,
 				   single_site,
@@ -545,7 +553,10 @@ try {
 			   "  query\n"
 			   "    [--follow]\n"
 			   "    [--raw] [--gzip]\n"
-			   "    [--geoip] [--anonymize] [--track-visitors]\n"
+#ifdef HAVE_LIBGEOIP
+			   "    [--geoip]\n"
+#endif // HAVE_LIBGEOIP
+			   "    [--anonymize] [--track-visitors]\n"
 			   "    [--per-site=PATH] [--per-site-file=FILENAME] [--per-site-nested]\n"
 			   "    [--host] [--forwarded-to] [--no-referer] [--no-agent]\n"
 			   "    [--iso8601]\n"

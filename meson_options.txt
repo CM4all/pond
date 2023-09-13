@@ -1,3 +1,4 @@
+option('geoip', type: 'feature', description: 'geoip support (using libgeoip)')
 option('systemd', type: 'feature', description: 'systemd support (using libsystemd)')
 
 option('documentation', type: 'feature',

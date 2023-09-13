@@ -102,7 +102,7 @@ add_global_arguments(compiler.get_supported_arguments(test_global_cxxflags), lan
 add_project_arguments(compiler.get_supported_arguments(test_cxxflags), language: 'cpp')
 
 libsystemd = dependency('libsystemd', required: get_option('systemd'))
-libgeoip = dependency('geoip')
+libgeoip = dependency('geoip', required: get_option('geoip'))
 
 inc = include_directories('src', 'libcommon/src')
 
@@ -124,6 +124,7 @@ subdir('libcommon/src/lib/avahi')
 subdir('libcommon/src/lib/zlib')
 
 conf.set('HAVE_LIBSYSTEMD', libsystemd.found())
+conf.set('HAVE_LIBGEOIP', libgeoip.found())
 configure_file(output: 'config.h', configuration: conf)
 
 executable('cm4all-pond',

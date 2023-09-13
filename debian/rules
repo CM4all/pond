@@ -4,6 +4,7 @@
 MESON_OPTIONS = \
 	-Ddocumentation=enabled \
 	-Dsystemd=enabled \
+	-Dgeoip=enabled \
 	--werror
 
 %:

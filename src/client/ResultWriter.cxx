@@ -107,7 +107,9 @@ SendPacket(SocketDescriptor s, std::span<const std::byte> payload)
 }
 
 ResultWriter::ResultWriter(bool _raw, bool _gzip,
+#ifdef HAVE_LIBGEOIP
 			   GeoIP *_geoip_v4, GeoIP *_geoip_v6,
+#endif
 			   bool _track_visitors,
 			   const Net::Log::OneLineOptions _one_line_options,
 			   bool _single_site,
@@ -116,7 +118,9 @@ ResultWriter::ResultWriter(bool _raw, bool _gzip,
 			   bool _per_site_nested)
 	:fd(STDOUT_FILENO),
 	 socket(CheckPacketSocket(fd)),
+#ifdef HAVE_LIBGEOIP
 	 geoip_v4(_geoip_v4), geoip_v6(_geoip_v6),
+#endif
 	 per_site(_per_site, _per_site_filename, _per_site_nested),
 	 one_line_options(_one_line_options),
 	 raw(_raw), gzip(_gzip),
@@ -147,6 +151,8 @@ ResultWriter::ResultWriter(bool _raw, bool _gzip,
 
 ResultWriter::~ResultWriter() noexcept = default;
 
+#ifdef HAVE_LIBGEOIP
+
 inline const char *
 ResultWriter::LookupGeoIP(const char *address) const noexcept
 {
@@ -160,6 +166,8 @@ ResultWriter::LookupGeoIP(const char *address) const noexcept
 
 	return nullptr;
 }
+
+#endif // HAVE_LIBGEOIP
 
 void
 ResultWriter::Append(const Net::Log::Datagram &d)
@@ -175,6 +183,7 @@ ResultWriter::Append(const Net::Log::Datagram &d)
 	if (end == old_end)
 		return;
 
+#ifdef HAVE_LIBGEOIP
 	if (d.IsHttpAccess() && geoip_v4 != nullptr) {
 		const char *country = d.remote_host != nullptr
 			? LookupGeoIP(d.remote_host)
@@ -185,6 +194,7 @@ ResultWriter::Append(const Net::Log::Datagram &d)
 		*end++ = ' ';
 		end = stpcpy(end, country);
 	}
+#endif // HAVE_LIBGEOIP
 
 	if (d.IsHttpAccess() && track_visitors) {
 		const char *visitor_id =

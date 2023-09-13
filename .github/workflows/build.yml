@@ -48,6 +48,7 @@ jobs:
           meson setup \
             -Ddocumentation=disabled \
             -Dsystemd=enabled \
+            -Dgeoip=enabled \
             --force-fallback-for=fmt \
             output
 

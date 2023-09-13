@@ -18,11 +18,11 @@ You need:
 - `libfmt <https://fmt.dev/>`__
 - `Avahi <https://www.avahi.org/>`__
 - `zlib <https://www.zlib.net/>`__
-- libgeoip
 - `Meson 0.56 <http://mesonbuild.com/>`__ and `Ninja <https://ninja-build.org/>`__
 
 Optional dependencies:
 - `systemd <https://www.freedesktop.org/wiki/Software/systemd/>`__
+- libgeoip
 
 Get the source code::
 

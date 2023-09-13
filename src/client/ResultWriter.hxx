@@ -10,8 +10,11 @@
 #include "io/FileWriter.hxx"
 #include "net/SocketDescriptor.hxx"
 #include "net/log/OneLine.hxx"
+#include "config.h"
 
+#ifdef HAVE_LIBGEOIP
 #include <GeoIP.h>
+#endif
 
 #include <memory>
 #include <span>
@@ -25,7 +28,9 @@ class ResultWriter {
 	FileDescriptor fd;
 	SocketDescriptor socket;
 
+#ifdef HAVE_LIBGEOIP
 	GeoIP *const geoip_v4, *const geoip_v6;
+#endif
 
 	OutputStream *output_stream;
 	std::unique_ptr<FdOutputStream> fd_output_stream;
@@ -53,7 +58,9 @@ class ResultWriter {
 
 public:
 	ResultWriter(bool _raw, bool _gzip,
+#ifdef HAVE_LIBGEOIP
 		     GeoIP *_geoip_v4, GeoIP *_geoip_v6,
+#endif
 		     bool _track_visitors,
 		     Net::Log::OneLineOptions _one_line_options,
 		     bool _single_site,
@@ -89,8 +96,10 @@ public:
 private:
 	void FlushBuffer();
 
+#ifdef HAVE_LIBGEOIP
 	[[gnu::pure]]
 	const char *LookupGeoIP(const char *address) const noexcept;
+#endif
 
 	void Append(const Net::Log::Datagram &d);
 };
