@@ -8,8 +8,7 @@
 #include "RList.hxx"
 #include "system/LargeAllocation.hxx"
 #include "util/TokenBucket.hxx"
-
-#include <boost/intrusive/slist.hpp>
+#include "util/IntrusiveForwardList.hxx"
 
 #include <unordered_map>
 #include <span>
@@ -48,9 +47,7 @@ class Database {
 	FullRecordList all_records;
 
 	struct PerSite final : SiteIterator {
-		using ListHook =
-			boost::intrusive::slist_member_hook<boost::intrusive::link_mode<boost::intrusive::normal_link>>;
-		ListHook list_siblings;
+		IntrusiveForwardListHook list_siblings;
 
 		/**
 		 * A chronological list for each site.  This list does not
@@ -74,19 +71,14 @@ class Database {
 	// TODO: purge empty items eventually
 	std::unordered_map<std::string, PerSite> per_site_records;
 
-	using SiteList =
-		boost::intrusive::slist<PerSite,
-					boost::intrusive::member_hook<PerSite,
-								      typename PerSite::ListHook,
-								      &PerSite::list_siblings>,
-					boost::intrusive::cache_last<true>,
-					boost::intrusive::constant_time_size<true>>;
-
 	/**
 	 * A linked list of all sites; this can be used to iterate
 	 * incrementally over all known sites.
 	 */
-	SiteList site_list;
+	IntrusiveForwardList<
+		PerSite,
+		IntrusiveForwardListMemberHookTraits<&PerSite::list_siblings>,
+		IntrusiveForwardListOptions{.constant_time_size = true, .cache_last = true}> site_list;
 
 public:
 	explicit Database(size_t max_size, double _per_site_message_rate_limit=-1);

@@ -38,7 +38,6 @@ jobs:
           sudo apt-get install -y --no-install-recommends \
             meson \
             libavahi-client-dev \
-            libboost-dev \
             libgeoip-dev \
             libgtest-dev \
             libsystemd-dev \

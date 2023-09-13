@@ -12,6 +12,9 @@ compiler = meson.get_compiler('cpp')
 
 common_flags = [
   '-D_GNU_SOURCE',
+
+  # disable boost specific code in libcommon
+  '-DNO_BOOST',
 ]
 
 test_common_flags = [
@@ -100,6 +103,8 @@ libsystemd = dependency('libsystemd')
 libgeoip = dependency('geoip')
 
 inc = include_directories('src', 'libcommon/src')
+
+libcommon_enable_boost = false
 
 subdir('libcommon/src/util')
 subdir('libcommon/src/lib/fmt')
