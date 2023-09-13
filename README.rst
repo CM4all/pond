@@ -15,8 +15,11 @@ Building Pond
 You need:
 
 - a C++20 compliant compiler (e.g. GCC or clang)
-- `Boost <http://www.boost.org/>`__
+- `libfmt <https://fmt.dev/>`__
 - `systemd <https://www.freedesktop.org/wiki/Software/systemd/>`__
+- `Avahi <https://www.avahi.org/>`__
+- `zlib <https://www.zlib.net/>`__
+- libgeoip
 - `Meson 0.56 <http://mesonbuild.com/>`__ and `Ninja <https://ninja-build.org/>`__
 
 Get the source code::
