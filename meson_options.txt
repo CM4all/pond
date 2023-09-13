@@ -1,2 +1,4 @@
+option('systemd', type: 'feature', description: 'systemd support (using libsystemd)')
+
 option('documentation', type: 'feature',
   description: 'Build documentation')

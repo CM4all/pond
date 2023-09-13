@@ -10,8 +10,11 @@
 #include "system/SetupProcess.hxx"
 #include "system/ProcessName.hxx"
 #include "util/PrintException.hxx"
+#include "config.h"
 
+#ifdef HAVE_LIBSYSTEMD
 #include <systemd/sd-daemon.h>
+#endif
 
 #include <stdlib.h>
 
@@ -37,8 +40,10 @@ Run(const Config &config)
 	if (!config.auto_clone)
 		instance.EnableZeroconf();
 
+#ifdef HAVE_LIBSYSTEMD
 	/* tell systemd we're ready */
 	sd_notify(0, "READY=1");
+#endif
 
 	/* main loop */
 	instance.Run();

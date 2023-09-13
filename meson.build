@@ -10,6 +10,8 @@ debug = get_option('b_ndebug') != 'true'
 
 compiler = meson.get_compiler('cpp')
 
+conf = configuration_data()
+
 common_flags = [
   '-D_GNU_SOURCE',
 
@@ -99,7 +101,7 @@ add_global_arguments(common_flags, language: 'cpp')
 add_global_arguments(compiler.get_supported_arguments(test_global_cxxflags), language: 'cpp')
 add_project_arguments(compiler.get_supported_arguments(test_cxxflags), language: 'cpp')
 
-libsystemd = dependency('libsystemd')
+libsystemd = dependency('libsystemd', required: get_option('systemd'))
 libgeoip = dependency('geoip')
 
 inc = include_directories('src', 'libcommon/src')
@@ -120,6 +122,9 @@ subdir('libcommon/src/event/net')
 subdir('libcommon/src/event/net/log')
 subdir('libcommon/src/lib/avahi')
 subdir('libcommon/src/lib/zlib')
+
+conf.set('HAVE_LIBSYSTEMD', libsystemd.found())
+configure_file(output: 'config.h', configuration: conf)
 
 executable('cm4all-pond',
   'src/Main.cxx',

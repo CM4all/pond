@@ -46,9 +46,10 @@ jobs:
       - name: Configure
         run: |
           meson setup \
-             -Ddocumentation=disabled \
-             --force-fallback-for=fmt \
-             output
+            -Ddocumentation=disabled \
+            -Dsystemd=enabled \
+            --force-fallback-for=fmt \
+            output
 
       - name: Build
         run: ninja -C output -v
