@@ -30,6 +30,8 @@
 
 #include <fmt/core.h>
 
+#include <concepts>
+
 #include <stdlib.h>
 #include <poll.h>
 
@@ -452,9 +454,9 @@ ReadToBuffer(FileDescriptor fd, B &buffer)
 	return nbytes;
 }
 
-template<typename F>
 static void
-ReadPackets(FileDescriptor fd, F &&f)
+ReadPackets(FileDescriptor fd,
+	    std::invocable<unsigned, unsigned, std::span<const std::byte>> auto f)
 {
 	StaticFifoBuffer<std::byte, 65536> input;
 
