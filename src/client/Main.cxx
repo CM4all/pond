@@ -444,7 +444,7 @@ ReadToBuffer(FileDescriptor fd, B &buffer)
 	if (w.empty())
 		throw std::runtime_error("Input buffer full");
 
-	auto nbytes = fd.Read(w.data(), w.size());
+	auto nbytes = fd.Read(w);
 	if (nbytes < 0)
 		throw MakeErrno("Failed to read");
 
