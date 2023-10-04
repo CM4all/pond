@@ -3,7 +3,7 @@ cm4all-pond (0.29) unstable; urgency=low
   * eliminate the Boost dependency
   * meson: make libsystemd, libgeoip optional
 
- --   
+ -- Max Kellermann <mk@cm4all.com>  Wed, 04 Oct 2023 09:33:31 +0200
 
 cm4all-pond (0.28) unstable; urgency=low
 
