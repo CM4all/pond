@@ -2,7 +2,7 @@ cm4all-pond (0.30) unstable; urgency=low
 
   * fix crash on CLONE (0.29 regression)
 
- --   
+ -- Max Kellermann <mk@cm4all.com>  Wed, 04 Oct 2023 12:45:27 +0200
 
 cm4all-pond (0.29) unstable; urgency=low
 
