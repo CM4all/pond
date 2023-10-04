@@ -1,6 +1,6 @@
 cm4all-pond (0.30) unstable; urgency=low
 
-  * 
+  * fix crash on CLONE (0.29 regression)
 
  --   
 
