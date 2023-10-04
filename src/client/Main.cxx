@@ -493,11 +493,11 @@ Inject(const PondServerSpecification &server, ConstBuffer<const char *> args)
 	PondClient client(PondConnect(server));
 
 	ReadPackets(FileDescriptor(STDIN_FILENO), [&client](unsigned, unsigned command, std::span<const std::byte> payload){
-			if (command == unsigned(PondResponseCommand::LOG_RECORD))
-				client.Send(client.MakeId(),
-					    PondRequestCommand::INJECT_LOG_RECORD,
-					    payload);
-		});
+		if (command == unsigned(PondResponseCommand::LOG_RECORD))
+			client.Send(client.MakeId(),
+				    PondRequestCommand::INJECT_LOG_RECORD,
+				    payload);
+	});
 }
 
 static void
