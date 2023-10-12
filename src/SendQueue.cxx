@@ -31,8 +31,7 @@ SendQueue::Flush(SocketDescriptor s)
 		buffer = buffer.subspan(consumed);
 		assert(!buffer.empty());
 
-		ssize_t nbytes = send(s.Get(), buffer.data(), buffer.size(),
-				      MSG_DONTWAIT|MSG_NOSIGNAL);
+		ssize_t nbytes = s.Send(buffer, MSG_DONTWAIT);
 		if (nbytes < 0) {
 			const int e = errno;
 			if (e == EAGAIN)
