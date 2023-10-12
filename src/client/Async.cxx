@@ -55,7 +55,7 @@ PondAsyncClient::FillInputBuffer()
 	if (w.empty())
 		throw std::runtime_error("Input buffer is full");
 
-	auto nbytes = recv(GetSocket().Get(), w.data(), w.size(), 0);
+	auto nbytes = GetSocket().Receive(w);
 	if (nbytes < 0)
 		throw MakeErrno("Failed to receive");
 
