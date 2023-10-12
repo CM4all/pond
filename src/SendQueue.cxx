@@ -4,6 +4,7 @@
 
 #include "SendQueue.hxx"
 #include "net/SocketDescriptor.hxx"
+#include "io/Iovec.hxx"
 #include "system/Error.hxx"
 
 #include <cassert>
@@ -14,7 +15,7 @@
 void
 SendQueue::Push(const struct iovec &v, std::size_t skip) noexcept
 {
-	std::span<const std::byte> src{(const std::byte *)v.iov_base, v.iov_len};
+	std::span<const std::byte> src = ToSpan(v);
 	src = src.subspan(skip);
 	if (!src.empty())
 		queue.emplace(src);
