@@ -116,7 +116,7 @@ Connection::Send(uint16_t id, PondResponseCommand command,
 		return;
 	}
 
-	ssize_t nbytes = socket.WriteV(&pi.vec.front(), n);
+	ssize_t nbytes = socket.WriteV(pi.vec.data(), n);
 	if (nbytes < 0)
 		throw MakeErrno("Failed to send");
 
@@ -537,7 +537,7 @@ SendMulti(SocketDescriptor s, uint16_t id,
 		m.msg_iovlen = MakeIovec(v, id,
 					 PondResponseCommand::LOG_RECORD,
 					 record.GetRaw());
-		m.msg_iov = &v.vec.front();
+		m.msg_iov = v.vec.data();
 		m.msg_control = nullptr;
 		m.msg_controllen = 0;
 		m.msg_flags = 0;
@@ -546,7 +546,7 @@ SendMulti(SocketDescriptor s, uint16_t id,
 		++selection;
 	} while (selection && n < max_records);
 
-	int result = sendmmsg(s.Get(), &msgs.front(), n,
+	int result = sendmmsg(s.Get(), msgs.data(), n,
 			      MSG_DONTWAIT|MSG_NOSIGNAL);
 	if (result < 0) {
 		if (errno == EAGAIN)
