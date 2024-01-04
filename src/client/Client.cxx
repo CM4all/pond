@@ -5,6 +5,7 @@
 #include "Client.hxx"
 #include "Datagram.hxx"
 #include "system/Error.hxx"
+#include "util/SpanCast.hxx"
 
 #include <algorithm> // for std::copy_n()
 
@@ -50,7 +51,7 @@ PondDatagram
 PondClient::Receive()
 {
 	PondHeader header;
-	FullReceive(std::as_writable_bytes(std::span{&header, 1}));
+	FullReceive(ReferenceAsWritableBytes(header));
 
 	PondDatagram d;
 	d.id = FromBE16(header.id);

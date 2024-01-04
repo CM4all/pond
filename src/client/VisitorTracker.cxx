@@ -5,6 +5,7 @@
 #include "VisitorTracker.hxx"
 #include "lib/fmt/ToBuffer.hxx"
 #include "system/Urandom.hxx"
+#include "util/SpanCast.hxx"
 
 #include <fmt/core.h>
 
@@ -32,7 +33,7 @@ VisitorTracker::RandomVisitorId() noexcept
 	uint64_t result;
 
 	try {
-		UrandomFill(std::as_writable_bytes(std::span{&result, 1}));
+		UrandomFill(ReferenceAsWritableBytes(result));
 	} catch (...) {
 		/* getrandom() didn't work: fall back to the
 		   high-resolution clock, which is good enough */
