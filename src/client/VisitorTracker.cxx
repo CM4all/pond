@@ -32,7 +32,7 @@ VisitorTracker::RandomVisitorId() noexcept
 	uint64_t result;
 
 	try {
-		UrandomFill(&result, sizeof(result));
+		UrandomFill(std::as_writable_bytes(std::span{&result, 1}));
 	} catch (...) {
 		/* getrandom() didn't work: fall back to the
 		   high-resolution clock, which is good enough */
