@@ -15,6 +15,7 @@
 #include "util/ByteOrder.hxx"
 #include "util/CharUtil.hxx"
 #include "util/Macros.hxx"
+#include "util/SpanCast.hxx"
 
 #include <algorithm>
 
@@ -280,7 +281,7 @@ ResultWriter::Write(std::span<const std::byte> payload)
 		const uint16_t id = 1;
 		const auto command = PondResponseCommand::LOG_RECORD;
 		const PondHeader header{ToBE16(id), ToBE16(uint16_t(command)), ToBE16(payload.size())};
-		output_stream->Write(std::as_bytes(std::span{&header, 1}));
+		output_stream->Write(ReferenceAsBytes(header));
 		output_stream->Write(payload);
 	} else
 		Append(Net::Log::ParseDatagram(payload));

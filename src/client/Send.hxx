@@ -24,7 +24,7 @@ static inline void
 SendPondRequestT(SocketDescriptor s, uint16_t id, PondRequestCommand command,
 		 const T &payload)
 {
-	SendPondRequest(s, id, command, std::as_bytes(std::span{&payload, 1}));
+	SendPondRequest(s, id, command, ReferenceAsBytes(payload));
 }
 
 static inline void

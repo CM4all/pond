@@ -394,7 +394,7 @@ try {
 		{
 			const auto p = instance.GetStats();
 			Send(id, PondResponseCommand::STATS,
-			     std::as_bytes(std::span{&p, 1}));
+			     ReferenceAsBytes(p));
 		}
 
 		return BufferedResult::AGAIN;
