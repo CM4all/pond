@@ -116,7 +116,7 @@ Connection::Send(uint16_t id, PondResponseCommand command,
 		return;
 	}
 
-	ssize_t nbytes = socket.WriteV(pi.vec.data(), n);
+	ssize_t nbytes = socket.WriteV(std::span{pi.vec}.first(n));
 	if (nbytes < 0)
 		throw MakeErrno("Failed to send");
 
