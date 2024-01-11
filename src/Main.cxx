@@ -5,12 +5,15 @@
 #include "Instance.hxx"
 #include "CommandLine.hxx"
 #include "Config.hxx"
-#include "AutoClone.hxx"
-#include "lib/avahi/Service.hxx"
 #include "system/SetupProcess.hxx"
 #include "system/ProcessName.hxx"
 #include "util/PrintException.hxx"
 #include "config.h"
+
+#ifdef HAVE_AVAHI
+#include "AutoClone.hxx"
+#include "lib/avahi/Service.hxx"
+#endif
 
 #ifdef HAVE_LIBSYSTEMD
 #include <systemd/sd-daemon.h>

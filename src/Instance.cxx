@@ -7,15 +7,19 @@
 #include "Listener.hxx"
 #include "Connection.hxx"
 #include "Protocol.hxx"
-#include "lib/avahi/Client.hxx"
-#include "lib/avahi/Publisher.hxx"
-#include "lib/avahi/Service.hxx"
 #include "event/net/MultiUdpListener.hxx"
 #include "net/SocketConfig.hxx"
 #include "net/StaticSocketAddress.hxx"
 #include "util/ByteOrder.hxx"
 #include "util/DeleteDisposer.hxx"
 #include "util/PrintException.hxx"
+#include "config.h"
+
+#ifdef HAVE_AVAHI
+#include "lib/avahi/Client.hxx"
+#include "lib/avahi/Publisher.hxx"
+#include "lib/avahi/Service.hxx"
+#endif
 
 #include <cassert>
 

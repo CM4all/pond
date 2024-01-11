@@ -4,15 +4,18 @@
 
 #include "Open.hxx"
 #include "Port.hxx"
-#include "lib/avahi/Client.hxx"
-#include "lib/avahi/ErrorHandler.hxx"
-#include "lib/avahi/Explorer.hxx"
-#include "lib/avahi/ExplorerListener.hxx"
 #include "event/Loop.hxx"
 #include "event/CoarseTimerEvent.hxx"
 #include "event/net/ConnectSocket.hxx"
 #include "net/UniqueSocketDescriptor.hxx"
 #include "net/RConnectSocket.hxx"
+
+#ifdef HAVE_AVAHI
+#include "lib/avahi/Client.hxx"
+#include "lib/avahi/ErrorHandler.hxx"
+#include "lib/avahi/Explorer.hxx"
+#include "lib/avahi/ExplorerListener.hxx"
+#endif
 
 #include <list>
 #include <stdexcept>
