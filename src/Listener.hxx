@@ -20,7 +20,7 @@ public:
 
 private:
 	/* virtual methods from class ServerSocket */
-	void OnAccept(UniqueSocketDescriptor &&fd,
+	void OnAccept(UniqueSocketDescriptor fd,
 		      SocketAddress address) noexcept override;
 	void OnAcceptError(std::exception_ptr ep) noexcept override;
 };

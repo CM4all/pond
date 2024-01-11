@@ -11,7 +11,7 @@ Listener::Listener(Instance &_instance, UniqueSocketDescriptor &&_fd)
 	 instance(_instance), logger(instance.GetLogger()) {}
 
 void
-Listener::OnAccept(UniqueSocketDescriptor &&connection_fd,
+Listener::OnAccept(UniqueSocketDescriptor connection_fd,
 		   SocketAddress) noexcept
 {
 	instance.AddConnection(std::move(connection_fd));
