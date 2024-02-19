@@ -4,7 +4,7 @@
 
 #include "Client.hxx"
 #include "Datagram.hxx"
-#include "system/Error.hxx"
+#include "net/SocketError.hxx"
 #include "util/SpanCast.hxx"
 
 #include <algorithm> // for std::copy_n()
@@ -20,7 +20,7 @@ PondClient::FillInputBuffer()
 
 	auto nbytes = fd.Receive(w);
 	if (nbytes < 0)
-		throw MakeErrno("Failed to receive");
+		throw MakeSocketError("Failed to receive");
 
 	if (nbytes == 0)
 		throw std::runtime_error("Premature end of stream");

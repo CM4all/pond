@@ -4,11 +4,10 @@
 
 #include "SendQueue.hxx"
 #include "net/SocketDescriptor.hxx"
+#include "net/SocketError.hxx"
 #include "io/Iovec.hxx"
-#include "system/Error.hxx"
 
 #include <cassert>
-#include <cerrno>
 
 #include <sys/socket.h>
 
@@ -34,11 +33,11 @@ SendQueue::Flush(SocketDescriptor s)
 
 		ssize_t nbytes = s.Send(buffer, MSG_DONTWAIT);
 		if (nbytes < 0) {
-			const int e = errno;
-			if (e == EAGAIN)
+			const auto e = GetSocketError();
+			if (IsSocketErrorSendWouldBlock(e))
 				return false;
 
-			throw MakeErrno(e, "Failed to send");
+			throw MakeSocketError(e, "Failed to send");
 		}
 
 		if (std::size_t(nbytes) < buffer.size()) {

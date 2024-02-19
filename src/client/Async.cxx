@@ -4,7 +4,7 @@
 
 #include "Async.hxx"
 #include "Datagram.hxx"
-#include "system/Error.hxx"
+#include "net/SocketError.hxx"
 
 #include <string.h> // for memcpy()
 #include <sys/socket.h>
@@ -13,8 +13,8 @@ void
 PondAsyncClient::OnSocketReady(unsigned events) noexcept
 try {
 	if (events & SocketEvent::ERROR)
-		throw MakeErrno(GetSocket().GetError(),
-				"Socket error");
+		throw MakeSocketError(GetSocket().GetError(),
+				      "Socket error");
 
 	if (events & SocketEvent::HANGUP)
 		throw std::runtime_error("Hangup");
@@ -57,7 +57,7 @@ PondAsyncClient::FillInputBuffer()
 
 	auto nbytes = GetSocket().Receive(w);
 	if (nbytes < 0)
-		throw MakeErrno("Failed to receive");
+		throw MakeSocketError("Failed to receive");
 
 	if (nbytes == 0)
 		throw std::runtime_error("Premature end of stream");

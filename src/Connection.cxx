@@ -7,8 +7,8 @@
 #include "Instance.hxx"
 #include "Selection.hxx"
 #include "io/Iovec.hxx"
+#include "net/SocketError.hxx"
 #include "net/log/Parser.hxx"
-#include "system/Error.hxx"
 #include "util/ByteOrder.hxx"
 #include "util/SpanCast.hxx"
 
@@ -118,7 +118,7 @@ Connection::Send(uint16_t id, PondResponseCommand command,
 
 	ssize_t nbytes = socket.WriteV(std::span{pi.vec}.first(n));
 	if (nbytes < 0)
-		throw MakeErrno("Failed to send");
+		throw MakeSocketError("Failed to send");
 
 	if (size_t(nbytes) != pi.GetTotalSize())
 		throw std::runtime_error("Short send");
@@ -549,9 +549,10 @@ SendMulti(SocketDescriptor s, uint16_t id,
 	int result = sendmmsg(s.Get(), msgs.data(), n,
 			      MSG_DONTWAIT|MSG_NOSIGNAL);
 	if (result < 0) {
-		if (errno == EAGAIN)
+		const auto e = GetSocketError();
+		if (IsSocketErrorSendWouldBlock(e))
 			return 0;
-		throw MakeErrno("Failed to send");
+		throw MakeSocketError(e, "Failed to send");
 	}
 
 	if (result > 0)

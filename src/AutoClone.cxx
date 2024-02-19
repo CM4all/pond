@@ -9,7 +9,7 @@
 #include "lib/avahi/Client.hxx"
 #include "event/net/ConnectSocket.hxx"
 #include "net/log/Parser.hxx"
-#include "lib/fmt/SystemError.hxx"
+#include "lib/fmt/SocketError.hxx"
 #include "util/DeleteDisposer.hxx"
 #include "util/SpanCast.hxx"
 
@@ -25,8 +25,8 @@ GetAvahiIfIndex(const ListenerConfig &listener)
 
 	int i = if_nametoindex(listener.interface.c_str());
 	if (i == 0)
-		throw FmtErrno("Failed to find interface '{}'",
-			       listener.interface);
+		throw FmtSocketError("Failed to find interface '{}'",
+				     listener.interface);
 
 	return AvahiIfIndex(i);
 }
