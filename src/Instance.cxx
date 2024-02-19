@@ -85,13 +85,21 @@ Instance::EnableZeroconf() noexcept
 	Avahi::ErrorHandler &error_handler = *this;
 	avahi_publisher = std::make_unique<Avahi::Publisher>(GetAvahiClient(),
 							     "Pond",
-							     avahi_services,
 							     error_handler);
+
+	for (auto &i : avahi_services)
+		avahi_publisher->AddService(i);
 }
 
 void
 Instance::DisableZeroconf() noexcept
 {
+	if (!avahi_publisher)
+		return;
+
+	for (auto &i : avahi_services)
+		avahi_publisher->RemoveService(i);
+
 	avahi_publisher.reset();
 }
 
@@ -205,7 +213,7 @@ Instance::OnExit() noexcept
 	max_age_timer.Cancel();
 
 #ifdef HAVE_AVAHI
-	avahi_publisher.reset();
+	DisableZeroconf();
 	avahi_client.reset();
 #endif // HAVE_AVAHI
 
