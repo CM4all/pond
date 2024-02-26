@@ -145,11 +145,31 @@ enum class PondResponseCommand : uint16_t {
 };
 
 /**
+ * The header of a message.  It is followed by #size bytes of payload.
+ * 
  * Everything is network byte order (big-endian).
  */
 struct PondHeader {
+	/**
+	 * A transaction identifier: all messages that belong to one
+	 * transaction (e.g. #QUERY, #FILTER_SITE, #COMMIT) must have
+	 * the same value.  The client generates this identifier at
+	 * the start of each transaction, e.g. by starting with 1 and
+	 * incrementing by one for each new transaction.  Replies from
+	 * the server will have the same identifier.  The identifiers
+	 * are local to this connection.
+	 */
 	uint16_t id;
+
+	/**
+	 * Either #PondRequestCommand (client-to-server) or
+	 * #PondResponseCommand (server-to-client).
+	 */
 	uint16_t command;
+
+	/**
+	 * The size of the payload following this header.
+	 */
 	uint16_t size;
 };
 
