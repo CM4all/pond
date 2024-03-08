@@ -5,6 +5,7 @@
 #include "Config.hxx"
 #include "Port.hxx"
 #include "net/Parser.hxx"
+#include "net/log/Protocol.hxx"
 #include "io/config/FileLineParser.hxx"
 #include "io/config/ConfigParser.hxx"
 #include "pg/Interval.hxx"
@@ -102,7 +103,7 @@ PondConfigParser::Receiver::ParseLine(FileLineParser &line)
 
 	if (StringIsEqual(word, "bind")) {
 		config.bind_address = ParseSocketAddress(line.ExpectValueAndEnd(),
-							 5479, true);
+							 Net::Log::DEFAULT_PORT, true);
 	} else if (StringIsEqual(word, "v6only")) {
 		const bool value = line.NextBool();
 		line.ExpectEnd();
