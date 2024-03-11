@@ -8,7 +8,7 @@
 #include <pthread.h>
 
 void
-SetupProcess()
+SetupProcess() noexcept
 {
     signal(SIGPIPE, SIG_IGN);
 
