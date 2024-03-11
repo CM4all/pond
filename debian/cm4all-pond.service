@@ -11,6 +11,10 @@ Restart=on-failure
 
 CPUSchedulingPolicy=batch
 
+# This allows the kernel to merge CPU wakeups, the default of 50ns is
+# too fine.
+TimerSlackNSec=100ms
+
 LimitNPROC=1
 
 # enable crash dumps

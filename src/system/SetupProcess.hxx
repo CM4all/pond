@@ -9,7 +9,6 @@
  * Set up the current process by applying some common settings.
  *
  * - ignore SIGPIPE
- * - increase timer slack
  * - disable pthread cancellation
  */
 void
