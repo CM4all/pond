@@ -17,9 +17,6 @@ TimerSlackNSec=100ms
 
 LimitNPROC=1
 
-# enable crash dumps
-LimitCORE=infinity
-
 # Resource limits
 TasksMax=16
 LimitNOFILE=16384
