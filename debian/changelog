@@ -1,6 +1,7 @@
 cm4all-pond (0.31) unstable; urgency=low
 
   * drop support for protocol v1
+  * protocol: add attribute ANALYTICS_ID
   * debian: move to section "net"
 
  --   
