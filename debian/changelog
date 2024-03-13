@@ -4,7 +4,7 @@ cm4all-pond (0.31) unstable; urgency=low
   * protocol: add attribute ANALYTICS_ID
   * debian: move to section "net"
 
- --   
+ -- Max Kellermann <mk@cm4all.com>  Wed, 13 Mar 2024 12:24:48 +0100
 
 cm4all-pond (0.30) unstable; urgency=low
 
