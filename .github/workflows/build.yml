@@ -29,19 +29,20 @@ jobs:
         with:
           submodules: true
 
-      - id: cache-ccache
-        uses: hendrikmuhs/ccache-action@v1
-
       - name: Install dependencies
         run: |
           sudo apt-get update
           sudo apt-get install -y --no-install-recommends \
             meson \
+            ccache \
             libavahi-client-dev \
             libgeoip-dev \
             libgtest-dev \
             libsystemd-dev \
             libz-dev
+
+      - id: cache-ccache
+        uses: hendrikmuhs/ccache-action@v1
 
       - name: Configure
         run: |
