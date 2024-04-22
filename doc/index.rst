@@ -258,6 +258,8 @@ The following filters are available:
 - :samp:`host=NAME` shows only records of the specified HTTP ``Host``
   header.  Specify an empty host to filter records with no host at
   all.
+- :samp:`uri-prefix=URI` shows only records whos HTTP request URI
+  starts with the specified string.
 - :samp:`since=ISO8601` shows only records since the given time stamp.
   See :ref:`timestamps` for details.
 - :samp:`until=ISO8601` shows only records until the given time stamp.
