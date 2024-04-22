@@ -168,6 +168,10 @@ The following command-line options are available:
  Follow the live stream of records as they are received by the server,
  but no past entries are shown.
 
+.. option:: --jsonl
+
+ Write JSON-Lines.
+
 .. option:: --raw
 
  Write raw :envvar:`LOG_RECORD` packets to standard output instead of

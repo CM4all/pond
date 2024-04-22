@@ -51,6 +51,8 @@ class ResultWriter {
 
 	Net::Log::OneLineOptions one_line_options;
 
+	const bool jsonl;
+
 	const bool raw, gzip, track_visitors;
 
 	size_t buffer_fill = 0;
@@ -63,6 +65,7 @@ public:
 #endif
 		     bool _track_visitors,
 		     Net::Log::OneLineOptions _one_line_options,
+		     bool _jsonl,
 		     bool _single_site,
 		     const char *const _per_site,
 		     const char *const _per_site_filename,

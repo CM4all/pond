@@ -61,7 +61,9 @@ struct QueryOptions {
 	const char *per_site = nullptr;
 	const char *per_site_filename = nullptr;
 
-	Net::Log::OneLineOptions one_line; 
+	Net::Log::OneLineOptions one_line;
+
+	bool jsonl = false;
 
 	bool follow = false;
 	bool raw = false;
@@ -214,6 +216,8 @@ ParseFilterItem(Filter &filter, PondGroupSitePayload &group_site,
 		options.one_line.show_user_agent = false;
 	else if (StringIsEqual(p, "--iso8601"))
 		options.one_line.iso8601 = true;
+	else if (StringIsEqual(p, "--jsonl"))
+		options.jsonl = true;
 	else
 		throw "Unrecognized query argument";
 }
@@ -302,6 +306,7 @@ Query(const PondServerSpecification &server, ConstBuffer<const char *> args)
 #endif
 				   options.track_visitors,
 				   options.one_line,
+				   options.jsonl,
 				   single_site,
 				   options.per_site,
 				   options.per_site_filename,
@@ -565,6 +570,7 @@ try {
 			   "    [--per-site=PATH] [--per-site-file=FILENAME] [--per-site-nested]\n"
 			   "    [--host] [--forwarded-to] [--no-referer] [--no-agent]\n"
 			   "    [--iso8601]\n"
+			   "    [--jsonl]\n"
 			   "    [type=http_access|http_error|submission]\n"
 			   "    [site=VALUE] [group_site=[MAX][@SKIP]]\n"
 			   "    [host=VALUE]\n"

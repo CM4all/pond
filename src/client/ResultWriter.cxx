@@ -4,6 +4,7 @@
 
 #include "ResultWriter.hxx"
 #include "Protocol.hxx"
+#include "FormatJson.hxx"
 #include "system/Error.hxx"
 #include "lib/zlib/GzipOutputStream.hxx"
 #include "io/FdOutputStream.hxx"
@@ -113,6 +114,7 @@ ResultWriter::ResultWriter(bool _raw, bool _gzip,
 #endif
 			   bool _track_visitors,
 			   const Net::Log::OneLineOptions _one_line_options,
+			   bool _jsonl,
 			   bool _single_site,
 			   const char *const _per_site,
 			   const char *const _per_site_filename,
@@ -124,6 +126,7 @@ ResultWriter::ResultWriter(bool _raw, bool _gzip,
 #endif
 	 per_site(_per_site, _per_site_filename, _per_site_nested),
 	 one_line_options(_one_line_options),
+	 jsonl(_jsonl),
 	 raw(_raw), gzip(_gzip),
 	 track_visitors(_track_visitors)
 {
@@ -177,6 +180,16 @@ ResultWriter::Append(const Net::Log::Datagram &d)
 		FlushBuffer();
 
 	char *old_end = buffer + buffer_fill;
+
+	if (jsonl) {
+		char *end = FormatJson(old_end, buffer + sizeof(buffer) - 1, d);
+		if (end == old_end)
+			return;
+
+		*end++ = '\n';
+		buffer_fill = end - buffer;
+		return;
+	}
 
 	char *end = Net::Log::FormatOneLine(old_end,
 					    sizeof(buffer) - buffer_fill - 64,
