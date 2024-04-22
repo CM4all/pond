@@ -115,6 +115,12 @@ enum class PondRequestCommand : uint16_t {
 	 * exact string to compare with.
 	 */
 	FILTER_HOST = 17,
+
+	/**
+	 * Specify a filter on the "generator" attribute.  Payload is
+	 * the exact string to compare with.
+	 */
+	FILTER_GENERATOR = 18,
 };
 
 enum class PondResponseCommand : uint16_t {

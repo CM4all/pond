@@ -264,6 +264,8 @@ The following filters are available:
   all.
 - :samp:`uri-prefix=URI` shows only records whos HTTP request URI
   starts with the specified string.
+- :samp:`generator=NAME` shows only records with the specified
+  "generator" value.
 - :samp:`since=ISO8601` shows only records since the given time stamp.
   See :ref:`timestamps` for details.
 - :samp:`until=ISO8601` shows only records until the given time stamp.

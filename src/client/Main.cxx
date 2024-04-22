@@ -138,6 +138,9 @@ ParseFilterItem(Filter &filter, PondGroupSitePayload &group_site,
 	} else if (auto host = IsFilter(p, "host")) {
 		if (!filter.hosts.emplace(host).second)
 			throw "Duplicate host name";
+	} else if (auto generator = IsFilter(p, "generator")) {
+		if (!filter.generators.emplace(generator).second)
+			throw "Duplicate generator name";
 	} else if (auto since = IsFilter(p, "since")) {
 		auto t = ParseTimePoint(since);
 		filter.since = Net::Log::FromSystem(t.first);
@@ -269,6 +272,9 @@ Query(const PondServerSpecification &server, ConstBuffer<const char *> args)
 
 	for (const auto &i : filter.hosts)
 		client.Send(id, PondRequestCommand::FILTER_HOST, i);
+
+	for (const auto &i : filter.generators)
+		client.Send(id, PondRequestCommand::FILTER_GENERATOR, i);
 
 	const bool single_site = filter.sites.begin() != filter.sites.end() &&
 		std::next(filter.sites.begin()) == filter.sites.end();
@@ -575,6 +581,7 @@ try {
 			   "    [site=VALUE] [group_site=[MAX][@SKIP]]\n"
 			   "    [host=VALUE]\n"
 			   "    [uri-prefix=VALUE]\n"
+			   "    [generator=VALUE]\n"
 			   "    [since=ISO8601] [until=ISO8601] [date=YYYY-MM-DD] [today]\n"
 			   "    [window=COUNT[@SKIP]]\n"
 			   "  stats\n"

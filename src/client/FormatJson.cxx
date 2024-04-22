@@ -38,6 +38,9 @@ FormatJson(char *buffer, char *end,
 	if (d.analytics_id != nullptr)
 		o.AddMember("analytics_id", d.analytics_id);
 
+	if (d.generator != nullptr)
+		o.AddMember("generator", d.generator);
+
 	if (d.forwarded_to != nullptr)
 		o.AddMember("forwarded_to", d.forwarded_to);
 

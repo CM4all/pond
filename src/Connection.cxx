@@ -470,6 +470,20 @@ try {
 			throw SimplePondError{"Duplicate FILTER_HOST"};
 
 		return BufferedResult::AGAIN;
+
+	case PondRequestCommand::FILTER_GENERATOR:
+		if (!current.MatchId(id) ||
+		    current.command != PondRequestCommand::QUERY)
+			throw SimplePondError{"Misplaced FILTER_GENERATOR"};
+
+		if (HasNullByte(ToStringView(payload)))
+			throw SimplePondError{"Malformed FILTER_GENERATOR"};
+
+		if (auto e = current.filter.generators.emplace(ToStringView(payload));
+		    !e.second)
+			throw SimplePondError{"Duplicate FILTER_GENERATOR"};
+
+		return BufferedResult::AGAIN;
 	}
 
 	throw SimplePondError{"Command not implemented"};
