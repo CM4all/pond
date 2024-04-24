@@ -16,7 +16,7 @@ class Listener final : ServerSocket {
 public:
 	Listener(Instance &_instance, UniqueSocketDescriptor &&fd);
 
-	using ServerSocket::GetLocalAddress;
+	using ServerSocket::GetSocket;
 
 private:
 	/* virtual methods from class ServerSocket */
