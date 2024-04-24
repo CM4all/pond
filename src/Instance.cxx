@@ -133,8 +133,8 @@ Instance::AddListener(const ListenerConfig &config)
 		/* ask the kernel for the effective address via
 		   getsockname(), because it may have changed, e.g. if
 		   the kernel has selected a port for us */
-		const auto local_address = listener.GetSocket().GetLocalAddress();
-		if (local_address.IsDefined()) {
+		if (const auto local_address = listener.GetSocket().GetLocalAddress();
+		    local_address.IsDefined()) {
 			const char *const interface = config.interface.empty()
 				? nullptr
 				: config.interface.c_str();
