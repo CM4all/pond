@@ -18,6 +18,11 @@
 #include "util/Macros.hxx"
 #include "util/SpanCast.hxx"
 
+#ifdef HAVE_AVAHI
+#include "net/HostParser.hxx"
+#include "util/StringSplit.hxx"
+#endif
+
 #include <algorithm>
 
 #include <fcntl.h>
@@ -113,6 +118,9 @@ ResultWriter::ResultWriter(bool _raw, bool _gzip,
 			   GeoIP *_geoip_v4, GeoIP *_geoip_v6,
 #endif
 			   bool _track_visitors,
+#ifdef HAVE_AVAHI
+			   bool _resolve_forwarded_to,
+#endif
 			   const Net::Log::OneLineOptions _one_line_options,
 			   bool _jsonl,
 			   bool _single_site,
@@ -126,6 +134,9 @@ ResultWriter::ResultWriter(bool _raw, bool _gzip,
 #endif
 	 per_site(_per_site, _per_site_filename, _per_site_nested),
 	 one_line_options(_one_line_options),
+#ifdef HAVE_AVAHI
+	 resolve_forwarded_to(_resolve_forwarded_to),
+#endif
 	 jsonl(_jsonl),
 	 raw(_raw), gzip(_gzip),
 	 track_visitors(_track_visitors)
@@ -174,8 +185,21 @@ ResultWriter::LookupGeoIP(const char *address) const noexcept
 #endif // HAVE_LIBGEOIP
 
 void
-ResultWriter::Append(const Net::Log::Datagram &d)
+ResultWriter::Append(Net::Log::Datagram &&d)
 {
+#ifdef HAVE_AVAHI
+	if (resolve_forwarded_to && d.forwarded_to != nullptr) {
+		/* extract the IP address, stripping the port and
+		   square brackets (IPv6) */
+		if (const auto e = ExtractHost(d.forwarded_to); !e.host.empty())
+			/* remove the scope name (IPv6) because Avahi
+			   doesn't understand it and query the Avahi
+			   address resolver */
+			if (const char *name = address_resolver.ResolveAddress(std::string{Split(e.host, '%').first}))
+				d.forwarded_to = name;
+	}
+#endif // HAVE_AVAHI
+
 	if (buffer_fill > sizeof(buffer) - 16384)
 		FlushBuffer();
 
@@ -229,7 +253,7 @@ void
 ResultWriter::Write(std::span<const std::byte> payload)
 {
 	if (per_site.IsDefined()) {
-		const auto d = Net::Log::ParseDatagram(payload);
+		auto d = Net::Log::ParseDatagram(payload);
 		if (d.site == nullptr)
 			// TODO: where to log datagrams without a site?
 			return;
@@ -285,7 +309,7 @@ ResultWriter::Write(std::span<const std::byte> payload)
 			/* skip this site */
 			return;
 
-		Append(d);
+		Append(std::move(d));
 	} else if (socket.IsDefined()) {
 		/* if fd2 is a packet socket, send raw
 		   datagrams to it */

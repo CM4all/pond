@@ -12,6 +12,10 @@
 #include "net/log/OneLine.hxx"
 #include "config.h"
 
+#ifdef HAVE_AVAHI
+#include "CachedAddressResolver.hxx"
+#endif
+
 #ifdef HAVE_LIBGEOIP
 #include <GeoIP.h>
 #endif
@@ -51,6 +55,12 @@ class ResultWriter {
 
 	Net::Log::OneLineOptions one_line_options;
 
+#ifdef HAVE_AVAHI
+	CachedAddressResolver address_resolver;
+
+	const bool resolve_forwarded_to;
+#endif // HAVE_AVAHI
+
 	const bool jsonl;
 
 	const bool raw, gzip, track_visitors;
@@ -64,6 +74,9 @@ public:
 		     GeoIP *_geoip_v4, GeoIP *_geoip_v6,
 #endif
 		     bool _track_visitors,
+#ifdef HAVE_AVAHI
+		     bool _resolve_forwarded_to,
+#endif
 		     Net::Log::OneLineOptions _one_line_options,
 		     bool _jsonl,
 		     bool _single_site,
@@ -104,5 +117,5 @@ private:
 	const char *LookupGeoIP(const char *address) const noexcept;
 #endif
 
-	void Append(const Net::Log::Datagram &d);
+	void Append(Net::Log::Datagram &&d);
 };

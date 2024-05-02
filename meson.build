@@ -173,6 +173,15 @@ executable('cm4all-pond',
   install: true,
   install_dir: 'sbin')
 
+client_sources = []
+
+if avahi_dep.found()
+  client_sources += [
+    'src/client/SimpleAddressResolver.cxx',
+    'src/client/CachedAddressResolver.cxx',
+  ]
+endif
+
 executable('cm4all-pond-client',
   'src/client/Main.cxx',
   'src/client/ResultWriter.cxx',
@@ -182,6 +191,7 @@ executable('cm4all-pond-client',
   'src/client/Client.cxx',
   'src/client/Send.cxx',
   'src/client/Open.cxx',
+  client_sources,
   include_directories: inc,
   dependencies: [
     libgeoip,

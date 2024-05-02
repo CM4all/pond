@@ -224,6 +224,10 @@ The following command-line options are available:
 
  Show the address of the server each request was forwarded to.
 
+.. option:: --resolve-forwarded-to
+
+ Show the name of the server each request was forwarded to.
+
 .. option:: --no-referer
 
  Do not show the HTTP ``Referer`` request header.

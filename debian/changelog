@@ -1,6 +1,6 @@
 cm4all-pond (0.33) unstable; urgency=low
 
-  * 
+  * client: add option --resolve-forwarded-to
 
  --   
 

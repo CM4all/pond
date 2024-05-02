@@ -73,6 +73,10 @@ struct QueryOptions {
 #endif
 	bool track_visitors = false;
 	bool per_site_nested = false;
+
+#ifdef HAVE_AVAHI
+	bool resolve_forwarded_to = false;
+#endif
 };
 
 static void
@@ -211,9 +215,14 @@ ParseFilterItem(Filter &filter, PondGroupSitePayload &group_site,
 		options.track_visitors = true;
 	else if (StringIsEqual(p, "--host"))
 		options.one_line.show_host = true;
-	else if (StringIsEqual(p, "--forwarded-to"))
+	else if (StringIsEqual(p, "--forwarded-to")) {
 		options.one_line.show_forwarded_to = true;
-	else if (StringIsEqual(p, "--no-referer"))
+#ifdef HAVE_AVAHI
+	} else if (StringIsEqual(p, "--resolve-forwarded-to")) {
+		options.one_line.show_forwarded_to = true;
+		options.resolve_forwarded_to = true;
+#endif
+	} else if (StringIsEqual(p, "--no-referer"))
 		options.one_line.show_http_referer = false;
 	else if (StringIsEqual(p, "--no-agent"))
 		options.one_line.show_user_agent = false;
@@ -311,6 +320,9 @@ Query(const PondServerSpecification &server, ConstBuffer<const char *> args)
 				   geoip_v4, geoip_v6,
 #endif
 				   options.track_visitors,
+#ifdef HAVE_AVAHI
+				   options.resolve_forwarded_to,
+#endif
 				   options.one_line,
 				   options.jsonl,
 				   single_site,
@@ -575,6 +587,9 @@ try {
 			   "    [--anonymize] [--track-visitors]\n"
 			   "    [--per-site=PATH] [--per-site-file=FILENAME] [--per-site-nested]\n"
 			   "    [--host] [--forwarded-to] [--no-referer] [--no-agent]\n"
+#ifdef HAVE_AVAHI
+			   "    [--resolve-forwarded-to]\n"
+#endif
 			   "    [--iso8601]\n"
 			   "    [--jsonl]\n"
 			   "    [type=http_access|http_error|submission]\n"
