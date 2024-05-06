@@ -1,6 +1,6 @@
 cm4all-pond (0.34) unstable; urgency=low
 
-  * 
+  * zeroconf: append the host name to the service name
 
  --   
 
