@@ -226,6 +226,8 @@ ParseFilterItem(Filter &filter, PondGroupSitePayload &group_site,
 		options.one_line.show_http_referer = false;
 	else if (StringIsEqual(p, "--no-agent"))
 		options.one_line.show_user_agent = false;
+	else if (StringIsEqual(p, "--content-type"))
+		options.one_line.show_content_type = true;
 	else if (StringIsEqual(p, "--iso8601"))
 		options.one_line.iso8601 = true;
 	else if (StringIsEqual(p, "--jsonl"))
@@ -587,6 +589,7 @@ try {
 			   "    [--anonymize] [--track-visitors]\n"
 			   "    [--per-site=PATH] [--per-site-file=FILENAME] [--per-site-nested]\n"
 			   "    [--host] [--forwarded-to] [--no-referer] [--no-agent]\n"
+			   "    [--content-type]\n"
 #ifdef HAVE_AVAHI
 			   "    [--resolve-forwarded-to]\n"
 #endif
