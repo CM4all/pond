@@ -147,23 +147,23 @@ ParseFilterItem(Filter &filter, PondGroupSitePayload &group_site,
 			throw "Duplicate generator name";
 	} else if (auto since = IsFilter(p, "since")) {
 		auto t = ParseTimePoint(since);
-		filter.since = Net::Log::FromSystem(t.first);
+		filter.timestamp.since = Net::Log::FromSystem(t.first);
 	} else if (auto until = IsFilter(p, "until")) {
 		auto t = ParseTimePoint(until);
-		filter.until = Net::Log::FromSystem(t.first + t.second);
+		filter.timestamp.until = Net::Log::FromSystem(t.first + t.second);
 	} else if (auto time = IsFilter(p, "time")) {
 		auto t = ParseTimePoint(time);
-		filter.since = Net::Log::FromSystem(t.first);
-		filter.until = Net::Log::FromSystem(t.first + t.second);
+		filter.timestamp.since = Net::Log::FromSystem(t.first);
+		filter.timestamp.until = Net::Log::FromSystem(t.first + t.second);
 	} else if (auto date_string = IsFilter(p, "date")) {
 		const auto date = ParseLocalDate(date_string);
-		filter.since = Net::Log::FromSystem(date);
-		filter.until = Net::Log::FromSystem(date + std::chrono::hours(24));
+		filter.timestamp.since = Net::Log::FromSystem(date);
+		filter.timestamp.until = Net::Log::FromSystem(date + std::chrono::hours(24));
 	} else if (StringIsEqual(p, "today")) {
 		const auto midnight =
 			PrecedingMidnightLocal(std::chrono::system_clock::now());
-		filter.since = Net::Log::FromSystem(midnight);
-		filter.until = Net::Log::FromSystem(midnight + std::chrono::hours(24));
+		filter.timestamp.since = Net::Log::FromSystem(midnight);
+		filter.timestamp.until = Net::Log::FromSystem(midnight + std::chrono::hours(24));
 	} else if (auto type_string = IsFilter(p, "type")) {
 		filter.type = Net::Log::ParseType(type_string);
 		if (filter.type == Net::Log::Type::UNSPECIFIED)
@@ -332,11 +332,11 @@ Query(const PondServerSpecification &server, ConstBuffer<const char *> args)
 				   options.per_site_filename,
 				   options.per_site_nested);
 
-	if (filter.since != Net::Log::TimePoint::min())
-		client.Send(id, PondRequestCommand::FILTER_SINCE, filter.since);
+	if (filter.timestamp.HasSince())
+		client.Send(id, PondRequestCommand::FILTER_SINCE, filter.timestamp.since);
 
-	if (filter.until != Net::Log::TimePoint::max())
-		client.Send(id, PondRequestCommand::FILTER_UNTIL, filter.until);
+	if (filter.timestamp.HasUntil())
+		client.Send(id, PondRequestCommand::FILTER_UNTIL, filter.timestamp.until);
 
 	if (filter.http_status) {
 		PondFilterHttpStatusPayload status;

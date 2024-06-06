@@ -34,8 +34,8 @@ Selection::Rewind() noexcept
 {
 	assert(!cursor);
 
-	if (filter.since != Net::Log::TimePoint::min()) {
-		const auto *record = cursor.TimeLowerBound(filter.since);
+	if (filter.timestamp.HasSince()) {
+		const auto *record = cursor.TimeLowerBound(filter.timestamp.since);
 		if (record == nullptr)
 			return;
 
@@ -61,7 +61,7 @@ Selection::OnAppend(const Record &record) noexcept
 Selection::operator bool() const noexcept
 {
 	return cursor && (!cursor->GetParsed().HasTimestamp() ||
-			  cursor->GetParsed().timestamp - until_offset <= filter.until);
+			  cursor->GetParsed().timestamp - until_offset <= filter.timestamp.until);
 }
 
 Selection &

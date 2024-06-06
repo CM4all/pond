@@ -21,8 +21,29 @@ struct Filter {
 
 	std::string http_uri_starts_with;
 
-	Net::Log::TimePoint since = Net::Log::TimePoint::min();
-	Net::Log::TimePoint until = Net::Log::TimePoint::max();
+	struct {
+		Net::Log::TimePoint since = Net::Log::TimePoint::min();
+		Net::Log::TimePoint until = Net::Log::TimePoint::max();
+
+		constexpr bool HasSince() const noexcept {
+			return since != Net::Log::TimePoint::min();
+		}
+
+		constexpr bool HasUntil() const noexcept {
+			return until != Net::Log::TimePoint::max();
+		}
+
+		constexpr operator bool() const noexcept {
+			return HasSince() || HasUntil();
+		}
+
+		constexpr bool operator()(const auto &d) const noexcept {
+			return !*this ||
+				(d.HasTimestamp() &&
+				 d.timestamp >= since && d.timestamp <= until);
+
+		}
+	} timestamp;
 
 	Net::Log::Type type = Net::Log::Type::UNSPECIFIED;
 

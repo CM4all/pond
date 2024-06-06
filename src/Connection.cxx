@@ -273,14 +273,14 @@ try {
 		    current.command != PondRequestCommand::QUERY)
 			throw SimplePondError{"Misplaced FILTER_SINCE"};
 
-		if (current.filter.since != Net::Log::TimePoint::min())
+		if (current.filter.timestamp.HasSince())
 			throw SimplePondError{"Duplicate FILTER_SINCE"};
 
 		if (payload.size() != sizeof(uint64_t))
 			throw SimplePondError{"Malformed FILTER_SINCE"};
 
-		current.filter.since = Net::Log::TimePoint(Net::Log::Duration(FromBE64(*(const uint64_t *)(const void *)payload.data())));
-		if (current.filter.since == Net::Log::TimePoint::min())
+		current.filter.timestamp.since = Net::Log::TimePoint(Net::Log::Duration(FromBE64(*(const uint64_t *)(const void *)payload.data())));
+		if (!current.filter.timestamp.HasSince())
 			throw SimplePondError{"Malformed FILTER_SINCE"};
 		return BufferedResult::AGAIN;
 
@@ -289,14 +289,14 @@ try {
 		    current.command != PondRequestCommand::QUERY)
 			throw SimplePondError{"Misplaced FILTER_UNTIL"};
 
-		if (current.filter.until != Net::Log::TimePoint::max())
+		if (current.filter.timestamp.HasUntil())
 			throw SimplePondError{"Duplicate FILTER_UNTIL"};
 
 		if (payload.size() != sizeof(uint64_t))
 			throw SimplePondError{"Malformed FILTER_UNTIL"};
 
-		current.filter.until = Net::Log::TimePoint(Net::Log::Duration(FromBE64(*(const uint64_t *)(const void *)payload.data())));
-		if (current.filter.until == Net::Log::TimePoint::max())
+		current.filter.timestamp.until = Net::Log::TimePoint(Net::Log::Duration(FromBE64(*(const uint64_t *)(const void *)payload.data())));
+		if (!current.filter.timestamp.HasUntil())
 			throw SimplePondError{"Malformed FILTER_UNTIL"};
 		return BufferedResult::AGAIN;
 

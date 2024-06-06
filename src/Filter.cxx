@@ -21,13 +21,6 @@ MatchFilter(const char *value, const std::set<std::string, std::less<>> &filter)
 	return filter.empty() || (value != nullptr && filter.contains(NullableStringView(value)));
 }
 
-static constexpr bool
-MatchTimestamp(Net::Log::TimePoint timestamp,
-	       Net::Log::TimePoint since, Net::Log::TimePoint until) noexcept
-{
-	return timestamp >= since && timestamp <= until;
-}
-
 [[gnu::pure]]
 static bool
 MatchHttpUriStartsWith(const char *http_uri,
@@ -64,10 +57,7 @@ Filter::operator()(const SmallDatagram &d, std::span<const std::byte> raw) const
 	return MatchFilter(d.site, sites) &&
 		(type == Net::Log::Type::UNSPECIFIED ||
 		 type == d.type) &&
-		((since == Net::Log::TimePoint::min() &&
-		  until == Net::Log::TimePoint::max()) ||
-		 (d.HasTimestamp() &&
-		  MatchTimestamp(d.timestamp, since, until))) &&
+		timestamp(d) &&
 		MatchMore(raw);
 }
 
@@ -78,9 +68,6 @@ Filter::operator()(const Net::Log::Datagram &d) const noexcept
 		(type == Net::Log::Type::UNSPECIFIED ||
 		 type == d.type) &&
 		http_status(static_cast<uint16_t>(d.http_status)) &&
-		((since == Net::Log::TimePoint::min() &&
-		  until == Net::Log::TimePoint::max()) ||
-		 (d.HasTimestamp() &&
-		  MatchTimestamp(d.timestamp, since, until))) &&
+		timestamp(d) &&
 		MatchHttpUriStartsWith(d.http_uri, http_uri_starts_with);
 }
