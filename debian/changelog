@@ -5,7 +5,7 @@ cm4all-pond (0.34) unstable; urgency=low
   * protocol: add FILTER_DURATION_LONGER
   * protocol: add attribute CONTENT_TYPE
 
- --   
+ -- Max Kellermann <mk@cm4all.com>  Thu, 06 Jun 2024 17:55:20 +0200
 
 cm4all-pond (0.33) unstable; urgency=low
 
