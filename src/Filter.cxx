@@ -41,9 +41,7 @@ MatchHttpUriStartsWith(const char *http_uri,
 inline bool
 Filter::MatchMore(std::span<const std::byte> raw) const noexcept
 {
-	if (!http_status && hosts.empty() &&
-	    generators.empty() &&
-	    http_uri_starts_with.empty())
+	if (!NeedMore())
 		return true;
 
 	try {
