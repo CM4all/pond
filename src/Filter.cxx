@@ -69,5 +69,7 @@ Filter::operator()(const Net::Log::Datagram &d) const noexcept
 		 type == d.type) &&
 		http_status(static_cast<uint16_t>(d.http_status)) &&
 		timestamp(d) &&
+		MatchFilter(d.host, hosts) &&
+		MatchFilter(d.generator, generators) &&
 		MatchHttpUriStartsWith(d.http_uri, http_uri_starts_with);
 }
