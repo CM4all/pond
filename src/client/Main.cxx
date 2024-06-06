@@ -164,6 +164,9 @@ ParseFilterItem(Filter &filter, PondGroupSitePayload &group_site,
 			PrecedingMidnightLocal(std::chrono::system_clock::now());
 		filter.timestamp.since = Net::Log::FromSystem(midnight);
 		filter.timestamp.until = Net::Log::FromSystem(midnight + std::chrono::hours(24));
+	} else if (auto duration_longer = IsFilter(p, "duration_longer")) {
+		auto d = ParseDuration(duration_longer);
+		filter.duration.longer = std::chrono::duration_cast<Net::Log::Duration>(d.first);
 	} else if (auto type_string = IsFilter(p, "type")) {
 		filter.type = Net::Log::ParseType(type_string);
 		if (filter.type == Net::Log::Type::UNSPECIFIED)
@@ -337,6 +340,10 @@ Query(const PondServerSpecification &server, ConstBuffer<const char *> args)
 
 	if (filter.timestamp.HasUntil())
 		client.Send(id, PondRequestCommand::FILTER_UNTIL, filter.timestamp.until);
+
+	if (filter.duration.HasLonger())
+		client.Send(id, PondRequestCommand::FILTER_DURATION_LONGER,
+			    filter.duration.longer);
 
 	if (filter.http_status) {
 		PondFilterHttpStatusPayload status;

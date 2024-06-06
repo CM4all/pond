@@ -121,6 +121,12 @@ enum class PondRequestCommand : uint16_t {
 	 * the exact string to compare with.
 	 */
 	FILTER_GENERATOR = 18,
+
+	/**
+	 * Specify a filter on the "duration" attribute.  Payload is
+	 * a 64 bit unsigned integer [microseconds].
+	 */
+	FILTER_DURATION_LONGER = 19,
 };
 
 enum class PondResponseCommand : uint16_t {

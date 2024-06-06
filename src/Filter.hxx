@@ -45,6 +45,24 @@ struct Filter {
 		}
 	} timestamp;
 
+	struct {
+		Net::Log::Duration longer = Net::Log::Duration::zero();
+
+		constexpr bool HasLonger() const noexcept {
+			return longer != Net::Log::Duration::zero();
+		}
+
+		constexpr operator bool() const noexcept {
+			return HasLonger();
+		}
+
+		constexpr bool operator()(const auto &d) const noexcept {
+			return !*this ||
+				(d.valid_duration && d.duration >= longer);
+
+		}
+	} duration;
+
 	Net::Log::Type type = Net::Log::Type::UNSPECIFIED;
 
 	struct {
@@ -74,6 +92,7 @@ private:
 	[[gnu::pure]]
 	bool NeedMore() const noexcept {
 		return http_status || !hosts.empty() ||
+			duration ||
 			!generators.empty() ||
 			!http_uri_starts_with.empty();
 	}

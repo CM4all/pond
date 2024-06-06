@@ -35,6 +35,7 @@ inline bool
 Filter::MatchMore(const Net::Log::Datagram &d) const noexcept
 {
 	return http_status(static_cast<uint16_t>(d.http_status)) &&
+		duration(d) &&
 		MatchFilter(d.host, hosts) &&
 		MatchFilter(d.generator, generators) &&
 		MatchHttpUriStartsWith(d.http_uri, http_uri_starts_with);

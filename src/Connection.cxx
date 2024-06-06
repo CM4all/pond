@@ -484,6 +484,22 @@ try {
 			throw SimplePondError{"Duplicate FILTER_GENERATOR"};
 
 		return BufferedResult::AGAIN;
+
+	case PondRequestCommand::FILTER_DURATION_LONGER:
+		if (!current.MatchId(id) ||
+		    current.command != PondRequestCommand::QUERY)
+			throw SimplePondError{"Misplaced FILTER_DURATION_LONGER"};
+
+		if (current.filter.duration.HasLonger())
+			throw SimplePondError{"Duplicate FILTER_DURATION_LONGER"};
+
+		if (payload.size() != sizeof(uint64_t))
+			throw SimplePondError{"Malformed FILTER_DURATION_LONGER"};
+
+		current.filter.duration.longer = Net::Log::Duration{FromBE64(*(const uint64_t *)(const void *)payload.data())};
+		if (!current.filter.duration.HasLonger())
+			throw SimplePondError{"Malformed FILTER_DURATION_LONGER"};
+		return BufferedResult::AGAIN;
 	}
 
 	throw SimplePondError{"Command not implemented"};
