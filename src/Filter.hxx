@@ -33,7 +33,7 @@ struct Filter {
 			return status >= begin && status < end;
 		}
 
-		operator bool() const noexcept {
+		constexpr operator bool() const noexcept {
 			return begin != 0 || end != UINT16_MAX;
 		}
 	} http_status;
