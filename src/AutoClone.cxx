@@ -13,6 +13,10 @@
 #include "util/DeleteDisposer.hxx"
 #include "util/SpanCast.hxx"
 
+#ifdef HAVE_LIBSYSTEMD
+#include <systemd/sd-daemon.h>
+#endif
+
 #include <memory>
 
 #include <net/if.h>
@@ -233,6 +237,10 @@ AutoCloneOperation::AutoCloneOperation(BlockingOperationHandler &_handler,
 		       BIND_THIS_METHOD(OnTimeout))
 {
 	timeout_event.Schedule(std::chrono::seconds(10));
+
+#ifdef HAVE_LIBSYSTEMD
+	sd_notify(0, "STATUS=Initiating auto_clone");
+#endif
 }
 
 AutoCloneOperation::~AutoCloneOperation() noexcept
@@ -266,6 +274,10 @@ AutoCloneOperation::OnTimeout() noexcept
 
 	logger(1, "Cloning from ", best->GetKey());
 
+#ifdef HAVE_LIBSYSTEMD
+	sd_notifyf(0, "STATUS=Cloning from %s", best->GetKey().c_str());
+#endif
+
 	/* remove all other servers */
 	servers.remove_and_dispose_if([best](auto &i) { return &i != best; },
 				      DeleteDisposer{});
@@ -283,6 +295,9 @@ void
 AutoCloneOperation::OnServerFinished(Server &) noexcept
 {
 	logger(1, "Finished auto_clone");
+#ifdef HAVE_LIBSYSTEMD
+	sd_notify(0, "STATUS=");
+#endif
 
 	handler.OnOperationFinished();
 }
@@ -292,6 +307,9 @@ AutoCloneOperation::OnServerError(Server &server,
 				  std::exception_ptr e) noexcept
 {
 	logger(2, "Server '", server.GetKey(), "' failed: ", e);
+#ifdef HAVE_LIBSYSTEMD
+	sd_notify(0, "STATUS=");
+#endif
 
 	delete &server;
 

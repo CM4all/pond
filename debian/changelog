@@ -1,6 +1,7 @@
 cm4all-pond (0.34) unstable; urgency=low
 
   * zeroconf: append the host name to the service name
+  * systemd: send STATUS= during auto-clone
   * protocol: add FILTER_DURATION_LONGER
   * protocol: add attribute CONTENT_TYPE
 
