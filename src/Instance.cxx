@@ -21,6 +21,10 @@
 #include "lib/avahi/Service.hxx"
 #endif
 
+#ifdef HAVE_LIBSYSTEMD
+#include <systemd/sd-daemon.h>
+#endif
+
 #include <cassert>
 
 #include <sys/socket.h>
@@ -202,6 +206,10 @@ Instance::OnExit() noexcept
 {
 	if (should_exit)
 		return;
+
+#ifdef HAVE_LIBSYSTEMD
+	sd_notify(0, "STOPPING=1");
+#endif
 
 	should_exit = true;
 
