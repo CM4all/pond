@@ -47,7 +47,7 @@ Filter::MatchMore(std::span<const std::byte> raw) const noexcept
 	try {
 		const auto d = Net::Log::ParseDatagram(raw);
 
-		if (http_status && !http_status(static_cast<uint16_t>(d.http_status)))
+		if (!http_status(static_cast<uint16_t>(d.http_status)))
 			return false;
 
 		return MatchFilter(d.host, hosts) &&
