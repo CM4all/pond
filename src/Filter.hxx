@@ -78,6 +78,13 @@ private:
 			!http_uri_starts_with.empty();
 	}
 
+	/**
+	 * Match all filter attributes that cannot be checked with
+	 * #SmallDatagram.
+	 */
+	[[gnu::pure]]
+	bool MatchMore(const Net::Log::Datagram &d) const noexcept;
+
 	[[gnu::pure]]
 	bool MatchMore(std::span<const std::byte> raw) const noexcept;
 };

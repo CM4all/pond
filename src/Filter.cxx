@@ -32,6 +32,15 @@ MatchHttpUriStartsWith(const char *http_uri,
 }
 
 inline bool
+Filter::MatchMore(const Net::Log::Datagram &d) const noexcept
+{
+	return http_status(static_cast<uint16_t>(d.http_status)) &&
+		MatchFilter(d.host, hosts) &&
+		MatchFilter(d.generator, generators) &&
+		MatchHttpUriStartsWith(d.http_uri, http_uri_starts_with);
+}
+
+inline bool
 Filter::MatchMore(std::span<const std::byte> raw) const noexcept
 {
 	if (!NeedMore())
@@ -39,13 +48,7 @@ Filter::MatchMore(std::span<const std::byte> raw) const noexcept
 
 	try {
 		const auto d = Net::Log::ParseDatagram(raw);
-
-		if (!http_status(static_cast<uint16_t>(d.http_status)))
-			return false;
-
-		return MatchFilter(d.host, hosts) &&
-			MatchFilter(d.generator, generators) &&
-			MatchHttpUriStartsWith(d.http_uri, http_uri_starts_with);
+		return MatchMore(d);
 	} catch (...) {
 		return false;
 	}
@@ -67,9 +70,6 @@ Filter::operator()(const Net::Log::Datagram &d) const noexcept
 	return MatchFilter(d.site, sites) &&
 		(type == Net::Log::Type::UNSPECIFIED ||
 		 type == d.type) &&
-		http_status(static_cast<uint16_t>(d.http_status)) &&
 		timestamp(d) &&
-		MatchFilter(d.host, hosts) &&
-		MatchFilter(d.generator, generators) &&
-		MatchHttpUriStartsWith(d.http_uri, http_uri_starts_with);
+		MatchMore(d);
 }
