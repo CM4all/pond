@@ -2,6 +2,7 @@ cm4all-pond (0.35) unstable; urgency=low
 
   * client: show REMOTE_HOST in message lines
   * client: support ISO8601 time stamps in message lines
+  * client: show Conten-Type in JSONL response
 
  --   
 

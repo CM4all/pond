@@ -10,6 +10,7 @@
 #include "time/ISO8601.hxx"
 #include "net/log/String.hxx"
 #include "net/log/Datagram.hxx"
+#include "net/log/ContentType.hxx"
 #include "util/StringBuffer.hxx"
 
 char *
@@ -65,6 +66,10 @@ FormatJson(char *buffer, char *end,
 
 	if (d.valid_length)
 		o.AddMember("length", d.length);
+
+	if (const auto content_type = Net::Log::ToString(d.content_type);
+	    !content_type.empty())
+		o.AddMember("content_type", content_type);
 
 	if (d.valid_traffic) {
 		o.AddMember("traffic_received", d.traffic_received);
