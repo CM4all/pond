@@ -1,6 +1,6 @@
 cm4all-pond (0.35) unstable; urgency=low
 
-  * 
+  * client: show REMOTE_HOST in message lines
 
  --   
 
