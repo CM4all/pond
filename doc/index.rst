@@ -236,6 +236,10 @@ The following command-line options are available:
 
  Do not show the HTTP ``User-Agent`` request header.
 
+.. option:: --content-type
+
+ Show the HTTP ``Content-Type`` response header.
+
 .. option:: --iso8601
 
  Print the time stamp in ISO-8601 format.
