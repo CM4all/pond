@@ -5,7 +5,7 @@ cm4all-pond (0.35) unstable; urgency=low
   * client: support ISO8601 time stamps in message lines
   * client: show Conten-Type in JSONL response
 
- --   
+ -- Max Kellermann <mk@cm4all.com>  Fri, 14 Jun 2024 13:09:59 +0200
 
 cm4all-pond (0.34) unstable; urgency=low
 
