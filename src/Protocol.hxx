@@ -35,6 +35,8 @@ enum class PondRequestCommand : uint16_t {
 	 * Option for #QUERY which follows incoming new records
 	 * instead of printing past ones.  The response never ends
 	 * until the client sends #CANCEL (or closes the connection).
+	 *
+	 * This is similar to #CONTINUE, but only prints new records.
 	 */
 	FOLLOW = 5,
 
@@ -127,6 +129,16 @@ enum class PondRequestCommand : uint16_t {
 	 * a 64 bit unsigned integer [microseconds].
 	 */
 	FILTER_DURATION_LONGER = 19,
+
+	/**
+	 * Option for #QUERY which follows incoming new records after
+	 * printing past ones.  The response never ends until the
+	 * client sends #CANCEL (or closes the connection).
+	 *
+	 * This is similar to #FOLLOW, but also prints matching past
+	 * records.
+	 */
+	CONTINUE = 20,
 };
 
 enum class PondResponseCommand : uint16_t {

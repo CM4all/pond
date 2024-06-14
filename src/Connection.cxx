@@ -24,6 +24,7 @@ Connection::Request::Clear() noexcept
 	group_site.max_sites = 0;
 	window.max = 0;
 	follow = false;
+	continue_ = false;
 	selection.reset();
 	address.clear();
 }
@@ -318,7 +319,8 @@ try {
 
 	case PondRequestCommand::FOLLOW:
 		if (!current.MatchId(id) ||
-		    current.command != PondRequestCommand::QUERY)
+		    current.command != PondRequestCommand::QUERY ||
+		    current.continue_)
 			throw SimplePondError{"Misplaced FOLLOW"};
 
 		if (current.follow)
@@ -344,8 +346,8 @@ try {
 		if (!current.filter.sites.empty())
 			throw SimplePondError{"FILTER_SITE and GROUP_SITE are mutually exclusive"};
 
-		if (current.follow)
-			throw SimplePondError{"FOLLOW and GROUP_SITE are mutually exclusive"};
+		if (current.follow || current.continue_)
+			throw SimplePondError{"FOLLOW/CONTINUE and GROUP_SITE are mutually exclusive"};
 
 		if (current.group_site.max_sites > 0)
 			throw SimplePondError{"Duplicate GROUP_SITE"};
@@ -404,8 +406,8 @@ try {
 		    current.command != PondRequestCommand::QUERY)
 			throw SimplePondError{"Misplaced WINDOW"};
 
-		if (current.follow)
-			throw SimplePondError{"FOLLOW and WINDOW are mutually exclusive"};
+		if (current.follow || current.continue_)
+			throw SimplePondError{"FOLLOW/CONTINUE and WINDOW are mutually exclusive"};
 
 		if (current.HasWindow())
 			throw SimplePondError{"Duplicate WINDOW"};
@@ -499,6 +501,27 @@ try {
 		current.filter.duration.longer = Net::Log::Duration{FromBE64(*(const uint64_t *)(const void *)payload.data())};
 		if (!current.filter.duration.HasLonger())
 			throw SimplePondError{"Malformed FILTER_DURATION_LONGER"};
+		return BufferedResult::AGAIN;
+
+	case PondRequestCommand::CONTINUE:
+		if (!current.MatchId(id) ||
+		    current.command != PondRequestCommand::QUERY ||
+		    current.follow)
+			throw SimplePondError{"Misplaced CONTINUE"};
+
+		if (current.continue_)
+			throw SimplePondError{"Duplicate CONTINUE"};
+
+		if (current.HasGroupSite())
+			throw SimplePondError{"CONTINUE and GROUP_SITE are mutually exclusive"};
+
+		if (current.HasWindow())
+			throw SimplePondError{"CONTINUE and WINDOW are mutually exclusive"};
+
+		if (!payload.empty())
+			throw SimplePondError{"Malformed CONTINUE"};
+
+		current.continue_ = true;
 		return BufferedResult::AGAIN;
 	}
 
@@ -676,7 +699,7 @@ Connection::OnBufferedWrite()
 		/* no more sites, end this response */
 	}
 
-	if (current.follow) {
+	if (current.follow || current.continue_) {
 		current.selection->AddAppendListener(*this);
 	} else {
 		Send(current.id, PondResponseCommand::END, {});

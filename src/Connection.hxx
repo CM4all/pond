@@ -35,7 +35,7 @@ class Connection final
 
 	struct Request {
 		uint16_t id = 0;
-		bool follow = false;
+		bool follow = false, continue_ = false;
 		PondRequestCommand command = PondRequestCommand::NOP;
 
 		Filter filter;

@@ -65,7 +65,7 @@ struct QueryOptions {
 
 	bool jsonl = false;
 
-	bool follow = false;
+	bool follow = false, continue_ = false;
 	bool raw = false;
 	bool gzip = false;
 #ifdef HAVE_LIBGEOIP
@@ -202,9 +202,17 @@ ParseFilterItem(Filter &filter, PondGroupSitePayload &group_site,
 		options.per_site_filename = per_site_filename;
 	} else if (StringIsEqual(p, "--per-site-nested")) {
 		options.per_site_nested = true;
-	} else if (StringIsEqual(p, "--follow"))
+	} else if (StringIsEqual(p, "--follow")) {
+		if (options.continue_)
+			throw "Cannot use both --follow and --continue";
+
 		options.follow = true;
-	else if (StringIsEqual(p, "--raw"))
+	} else if (StringIsEqual(p, "--continue")) {
+		if (options.follow)
+			throw "Cannot use both --follow and --continue";
+
+		options.continue_ = true;
+	} else if (StringIsEqual(p, "--raw"))
 		options.raw = true;
 	else if (StringIsEqual(p, "--gzip"))
 		options.gzip = true;
@@ -363,6 +371,9 @@ Query(const PondServerSpecification &server, ConstBuffer<const char *> args)
 
 	if (options.follow)
 		client.Send(id, PondRequestCommand::FOLLOW);
+
+	if (options.continue_)
+		client.Send(id, PondRequestCommand::CONTINUE);
 
 	client.Send(id, PondRequestCommand::COMMIT);
 
@@ -588,7 +599,7 @@ try {
 			   "\n"
 			   "Commands:\n"
 			   "  query\n"
-			   "    [--follow]\n"
+			   "    [--follow] [--continue]\n"
 			   "    [--raw] [--gzip]\n"
 #ifdef HAVE_LIBGEOIP
 			   "    [--geoip]\n"
