@@ -619,6 +619,7 @@ try {
 			   "    [uri-prefix=VALUE]\n"
 			   "    [generator=VALUE]\n"
 			   "    [since=ISO8601] [until=ISO8601] [date=YYYY-MM-DD] [today]\n"
+			   "    [duration_longer=DURATION]\n"
 			   "    [window=COUNT[@SKIP]]\n"
 			   "  stats\n"
 			   "  inject <RAWFILE\n"

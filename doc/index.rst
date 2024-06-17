@@ -283,6 +283,10 @@ The following filters are available:
 - :samp:`date=YYYY-MM-DD` is a shortcut which shows records on a
   certain date (according to the client's time zone)
 - :samp:`today` is a shortcut which shows records only of today
+- :samp:`duration_longer=DURATION` shows only records with a duration
+  longer than the specified value.  The value is a positive integer
+  with one of the units ``us``, ``ms``, ``s``, ``m``, ``h``, ``d``.
+  Example: :samp:`duration_longer=500ms`.
 - :samp:`status=STATUS[:END]` shows only records with the specified
   status.  If "END" is also given, then this is the open end of a
   range.  Example: :samp:`status=500:600` shows all server errors.
