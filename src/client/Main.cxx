@@ -617,6 +617,7 @@ try {
 			   "    [site=VALUE] [group_site=[MAX][@SKIP]]\n"
 			   "    [host=VALUE]\n"
 			   "    [uri-prefix=VALUE]\n"
+			   "    [status=STATUSCODE[:END]]\n"
 			   "    [generator=VALUE]\n"
 			   "    [since=ISO8601] [until=ISO8601] [date=YYYY-MM-DD] [today]\n"
 			   "    [duration_longer=DURATION]\n"
