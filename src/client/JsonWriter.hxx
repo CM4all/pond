@@ -6,6 +6,7 @@
 
 #include <fmt/core.h>
 
+#include <algorithm> // for std::copy()
 #include <utility>
 #include <cinttypes>
 #include <string_view>
