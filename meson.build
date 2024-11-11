@@ -1,10 +1,10 @@
 project('CM4all Pond', 'cpp', version: '0.36',
   meson_version: '>= 1.0',
   default_options: [
-    'cpp_std=c++2a',
+    'cpp_std=c++20',
     'warning_level=3',
 
-    'fmt:cpp_std=c++2a',
+    'fmt:cpp_std=c++20',
   ],
 )
 
