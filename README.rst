@@ -20,6 +20,7 @@ You need:
 - `Meson 1.0 <http://mesonbuild.com/>`__ and `Ninja <https://ninja-build.org/>`__
 
 Optional dependencies:
+
 - `Avahi <https://www.avahi.org/>`__
 - `systemd <https://www.freedesktop.org/wiki/Software/systemd/>`__
 - libgeoip
