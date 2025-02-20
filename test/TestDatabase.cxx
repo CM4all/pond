@@ -14,7 +14,7 @@ static const Record &
 Push(Database &db, const Net::Log::Datagram &src)
 {
     std::byte buffer[16384];
-    size_t size = Net::Log::Serialize(buffer, sizeof(buffer), src);
+    size_t size = Net::Log::Serialize(buffer, src);
     return db.Emplace({buffer, size});
 }
 
@@ -23,7 +23,7 @@ CheckPush(Database &db, const Net::Log::Datagram &src,
           const ClockCache<std::chrono::steady_clock> &clock)
 {
     std::byte buffer[16384];
-    size_t size = Net::Log::Serialize(buffer, sizeof(buffer), src);
+    size_t size = Net::Log::Serialize(buffer, src);
     return db.CheckEmplace({buffer, size}, clock);
 }
 
