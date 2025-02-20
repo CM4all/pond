@@ -8,13 +8,12 @@
 #include "Selection.hxx"
 #include "io/Iovec.hxx"
 #include "net/SocketError.hxx"
+#include "net/PeerCredentials.hxx"
 #include "net/log/Parser.hxx"
 #include "util/ByteOrder.hxx"
 #include "util/SpanCast.hxx"
 
 #include <array>
-
-#include <sys/socket.h>
 
 void
 Connection::Request::Clear() noexcept
@@ -45,7 +44,7 @@ bool
 Connection::IsLocalAdmin() const noexcept
 {
 	const auto cred = GetSocket().GetPeerCredentials();
-	return cred.pid != -1 && (cred.uid == 0 || cred.uid == geteuid());
+	return cred.IsDefined() && (cred.GetUid() == 0 || cred.GetUid() == geteuid());
 }
 
 static constexpr PondHeader
