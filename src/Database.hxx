@@ -35,8 +35,7 @@ protected:
 class Database {
 	const LargeAllocation allocation;
 
-	const double per_site_message_rate_limit;
-	const double per_site_message_burst;
+	const TokenBucketConfig per_site_message_rate_limit;
 
 	uint64_t last_id = 0;
 
@@ -62,9 +61,9 @@ class Database {
 			list.clear();
 		}
 
-		bool CheckRateLimit(double now, double rate, double burst,
-				    size_t size) noexcept {
-			return rate_limiter.Check(now, rate, burst, size);
+		bool CheckRateLimit(const TokenBucketConfig config,
+				    double now, double size) noexcept {
+			return rate_limiter.Check(config, now, size);
 		}
 	};
 

@@ -22,8 +22,10 @@ NullableStringView(const char *s) noexcept
 
 Database::Database(size_t max_size, double _per_site_message_rate_limit)
 	:allocation(AlignHugePageUp(max_size)),
-	 per_site_message_rate_limit(_per_site_message_rate_limit),
-	 per_site_message_burst(10 * per_site_message_rate_limit), // TODO: make burst configurable
+	 per_site_message_rate_limit{
+		.rate = _per_site_message_rate_limit,
+		.burst = 10 * _per_site_message_rate_limit, // TODO: make burst configurable
+	 },
 	 all_records({(std::byte *)allocation.get(), allocation.size()})
 {
 	EnableHugePages(allocation.get(), allocation.size());
@@ -76,7 +78,7 @@ const Record *
 Database::CheckEmplace(std::span<const std::byte> raw,
 		       const ClockCache<std::chrono::steady_clock> &clock)
 try {
-	if (per_site_message_rate_limit <= 0)
+	if (per_site_message_rate_limit.rate <= 0)
 		/* no rate limit configured */
 		return &Emplace(raw);
 
@@ -94,8 +96,7 @@ try {
 		const auto float_now = ToFloatSeconds(now.time_since_epoch());
 
 		auto &per_site = GetPerSite(site);
-		if (!per_site.CheckRateLimit(float_now, per_site_message_rate_limit,
-					     per_site_message_burst, 1))
+		if (!per_site.CheckRateLimit(per_site_message_rate_limit, float_now, 1))
 			throw RateLimitExceeded();
 	}, sizeof(Record) + raw.size(), ++last_id, raw);
 
