@@ -91,7 +91,8 @@ private:
 
 	/* virtual methods from class AvahiServiceExplorerListener */
 	void OnAvahiNewObject(const std::string &key,
-			      SocketAddress address) noexcept override {
+			      SocketAddress address,
+			      [[maybe_unused]] AvahiStringList *txt) noexcept override {
 		const bool was_empty = servers.empty();
 		servers.emplace_back(key, address);
 

@@ -324,7 +324,8 @@ AutoCloneOperation::OnServerError(Server &server,
 
 void
 AutoCloneOperation::OnAvahiNewObject(const std::string &key,
-				     SocketAddress address) noexcept
+				     SocketAddress address,
+				     [[maybe_unused]] AvahiStringList *txt) noexcept
 {
 	auto *server = new Server(*this, db, key);
 	servers.push_back(*server);
