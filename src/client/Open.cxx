@@ -7,6 +7,7 @@
 #include "event/Loop.hxx"
 #include "event/CoarseTimerEvent.hxx"
 #include "event/net/ConnectSocket.hxx"
+#include "net/AllocatedSocketAddress.hxx"
 #include "net/UniqueSocketDescriptor.hxx"
 #include "net/RConnectSocket.hxx"
 
