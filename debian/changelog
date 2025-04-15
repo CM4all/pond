@@ -1,6 +1,7 @@
 cm4all-pond (0.36) unstable; urgency=low
 
-  * 
+  * switch to C++23
+  * require Meson 1.2
 
  --   
 
