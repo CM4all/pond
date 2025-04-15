@@ -14,7 +14,7 @@ Building Pond
 
 You need:
 
-- a C++20 compliant compiler (e.g. GCC or clang)
+- a C++23 compliant compiler (e.g. GCC or clang)
 - `libfmt <https://fmt.dev/>`__
 - `zlib <https://www.zlib.net/>`__
 - `Meson 1.2 <http://mesonbuild.com/>`__ and `Ninja <https://ninja-build.org/>`__
