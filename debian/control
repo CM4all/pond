@@ -3,7 +3,7 @@ Section: net
 Priority: extra
 Maintainer: Max Kellermann <mk@cm4all.com>
 Build-Depends: debhelper (>= 13~),
- meson (>= 1.0),
+ meson (>= 1.2),
  g++ (>= 4:10),
  libc6-dev (>= 2.13),
  libsystemd-dev,
