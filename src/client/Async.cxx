@@ -34,11 +34,12 @@ try {
 		memcpy(&header, r.data(), sizeof(header));
 		r = r.subspan(sizeof(header));
 
-		const auto payload = r.first(FromBE16(header.size));
-		if (r.size() < payload.size())
+		const std::size_t payload_size = FromBE16(header.size);
+		if (r.size() < payload_size)
 			/* need more data */
 			return;
 
+		const auto payload = r.first(payload_size);
 		input.Consume(sizeof(header) + payload.size());
 
 		if (!handler.OnPondDatagram(FromBE16(header.id),
