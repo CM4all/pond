@@ -4,7 +4,7 @@ cm4all-pond (0.36) unstable; urgency=low
   * switch to C++23
   * require Meson 1.2
 
- --   
+ -- Max Kellermann <mk@cm4all.com>  Fri, 09 May 2025 15:27:51 +0200
 
 cm4all-pond (0.35) unstable; urgency=low
 
