@@ -23,12 +23,11 @@ MatchFilter(const char *value, const std::set<std::string, std::less<>> &filter)
 
 [[gnu::pure]]
 static bool
-MatchHttpUriStartsWith(const char *http_uri,
+MatchHttpUriStartsWith(std::string_view http_uri,
 		       std::string_view http_uri_starts_with) noexcept
 {
 	return http_uri_starts_with.empty() ||
-		(http_uri != nullptr &&
-		 StringStartsWith(http_uri, http_uri_starts_with));
+		http_uri.starts_with(http_uri_starts_with);
 }
 
 inline bool
