@@ -1,6 +1,6 @@
 cm4all-pond (0.37) unstable; urgency=low
 
-  * 
+  * stop when unknown attribute is encountered
 
  --   
 
