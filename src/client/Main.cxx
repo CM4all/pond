@@ -15,7 +15,6 @@
 #include "time/Parser.hxx"
 #include "time/Math.hxx"
 #include "time/Convert.hxx"
-#include "util/ConstBuffer.hxx"
 #include "util/PrintException.hxx"
 #include "util/StringAPI.hxx"
 #include "util/StringCompare.hxx"
@@ -31,6 +30,7 @@
 #include <fmt/core.h>
 
 #include <concepts>
+#include <span>
 
 #include <stdlib.h>
 #include <poll.h>
@@ -257,7 +257,7 @@ MakePollfd(FileDescriptor fd, short events) noexcept
 }
 
 static void
-Query(const PondServerSpecification &server, ConstBuffer<const char *> args)
+Query(const PondServerSpecification &server, std::span<const char *const> args)
 {
 	Filter filter;
 	PondGroupSitePayload group_site{0, 0};
@@ -265,7 +265,8 @@ Query(const PondServerSpecification &server, ConstBuffer<const char *> args)
 	QueryOptions options;
 
 	while (!args.empty()) {
-		const char *p = args.shift();
+		const char *p = args.front();
+		args = args.subspan(1);
 		try {
 			ParseFilterItem(filter, group_site, window,
 					options, p);
@@ -443,7 +444,7 @@ Query(const PondServerSpecification &server, ConstBuffer<const char *> args)
 }
 
 static void
-Stats(const PondServerSpecification &server, ConstBuffer<const char *> args)
+Stats(const PondServerSpecification &server, std::span<const char *const> args)
 {
 	if (!args.empty())
 		throw "Bad arguments";
@@ -528,7 +529,7 @@ ReadPackets(FileDescriptor fd,
 }
 
 static void
-Inject(const PondServerSpecification &server, ConstBuffer<const char *> args)
+Inject(const PondServerSpecification &server, std::span<const char *const> args)
 {
 	if (!args.empty())
 		throw "Bad arguments";
@@ -544,9 +545,9 @@ Inject(const PondServerSpecification &server, ConstBuffer<const char *> args)
 }
 
 static void
-Clone(const PondServerSpecification &server, ConstBuffer<const char *> args)
+Clone(const PondServerSpecification &server, std::span<const char *const> args)
 {
-	if (args.size != 1)
+	if (args.size() != 1)
 		throw "Bad arguments";
 
 	const char *other_server = args.front();
@@ -580,7 +581,7 @@ Clone(const PondServerSpecification &server, ConstBuffer<const char *> args)
 }
 
 static void
-Cancel(const PondServerSpecification &server, ConstBuffer<const char *> args)
+Cancel(const PondServerSpecification &server, std::span<const char *const> args)
 {
 	if (!args.empty())
 		throw "Bad arguments";
@@ -593,8 +594,8 @@ Cancel(const PondServerSpecification &server, ConstBuffer<const char *> args)
 int
 main(int argc, char **argv)
 try {
-	ConstBuffer<const char *> args(argv + 1, argc - 1);
-	if (args.size < 2) {
+	std::span<const char *const> args{argv + 1, static_cast<std::size_t>(argc - 1)};
+	if (args.size() < 2) {
 		fmt::print("Usage: {} SERVER[:PORT] COMMAND ...\n"
 			   "\n"
 			   "Commands:\n"
@@ -631,13 +632,15 @@ try {
 	}
 
 	PondServerSpecification server;
-	server.host = args.shift();
+	server.host = args.front();
+	args = args.subspan(1);
 #ifdef HAVE_AVAHI
 	if (auto zs = StringAfterPrefix(server.host, "zeroconf/"))
 		server.zeroconf_service = MakeZeroconfServiceType(zs, "_tcp");
 #endif // HAVE_AVAHI
 
-	const char *const command = args.shift();
+	const char *const command = args.front();
+	args = args.subspan(1);
 
 	if (StringIsEqual(command, "query")) {
 		Query(server, args);
