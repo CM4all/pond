@@ -1,1 +1,2 @@
 usr/bin/cm4all-pond-client
+bash-completion/cm4all-pond-client usr/share/bash-completion/completions

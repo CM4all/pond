@@ -1,0 +1,78 @@
+_pond_client () {
+    local cur="${COMP_WORDS[COMP_CWORD]}"
+
+    echo "COMP_CWORD=$COMP_CWORD" >>/tmp/log
+    echo "cur=$cur" >>/tmp/log
+
+    if [ $COMP_CWORD -le 1 ]; then
+        COMPREPLY=( $(compgen -W "@pond zeroconf/pond" -- "$cur" ) )
+        return
+    fi
+
+    if [ $COMP_CWORD -eq 2 ]; then
+        COMPREPLY=( $(compgen -W "
+            query
+            stats
+            inject
+            clone
+            cancel
+        " -- "$cur"
+        ) )
+        return
+    fi
+
+    local command="${COMP_WORDS[2]}"
+    echo "command2=$command" >>/tmp/log
+
+    if [ "$command" = "query" ]; then
+	case "$cur" in
+	    -*)
+                COMPREPLY=( $(compgen -W "
+                    --follow
+                    --continue
+                    --raw
+                    --gzip
+                    --geoip
+                    --anonymize
+                    track-visitors
+                    --per-site=
+                    --per-site-file=
+                    --per-site-nested
+                    --host
+                    --forwarded-to
+                    --no-referer
+                    --no-agent
+                    --content-type
+                    --resolve-forwarded-to
+                    --iso8601
+                    --jsonl
+                " -- "$cur"
+                ) )
+                ;;
+
+	    *)
+                COMPREPLY=( $(compgen -W "
+                     type=http_access
+                     type=http_error
+                     type=submission
+                     site=
+                     group_site=
+                     host=
+                     uri-prefix=
+                     status=
+                     generator=
+                     since=
+                     until=
+                     date=
+                     today
+                     duration_longer=
+                     window=
+                     " -- "$cur"
+                ) )
+                compopt -o nospace
+                ;;
+	esac
+    fi
+}
+
+complete -F _pond_client cm4all-pond-client
