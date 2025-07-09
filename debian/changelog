@@ -5,7 +5,7 @@ cm4all-pond (0.37) unstable; urgency=low
   * client: add bash-completion
   * debian: start daemon during initial installation, stop on uninstall
 
- --   
+ -- Max Kellermann <mk@cm4all.com>  Wed, 09 Jul 2025 23:37:35 +0200
 
 cm4all-pond (0.36) unstable; urgency=low
 
