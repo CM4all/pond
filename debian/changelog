@@ -3,6 +3,7 @@ cm4all-pond (0.37) unstable; urgency=low
   * stop when unknown attribute is encountered
   * protocol: add command TRUNCATED
   * client: add bash-completion
+  * debian: start daemon during initial installation, stop on uninstall
 
  --   
 

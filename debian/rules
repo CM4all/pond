@@ -9,7 +9,7 @@ MESON_OPTIONS = \
 	--werror
 
 %:
-	dh $@ --no-start --restart-after-upgrade --with sphinxdoc
+	dh $@ --restart-after-upgrade --with sphinxdoc
 
 override_dh_auto_configure:
 	dh_auto_configure -- $(MESON_OPTIONS)
