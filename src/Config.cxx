@@ -10,11 +10,14 @@
 #include "io/config/ConfigParser.hxx"
 #include "pg/Interval.hxx"
 #include "util/StringAPI.hxx"
+#include "util/StringCompare.hxx"
 #include "util/StringParser.hxx"
 
 #ifdef HAVE_AVAHI
 #include "lib/avahi/Check.hxx"
 #endif
+
+using std::string_view_literals::operator""sv;
 
 void
 Config::Check()
@@ -147,11 +150,10 @@ PondConfigParser::Listener::ParseLine(FileLineParser &line)
 							 POND_DEFAULT_PORT, true);
 	} else if (StringIsEqual(word, "interface")) {
 		config.interface = line.ExpectValueAndEnd();
-	} else if (StringIsEqual(word, "zeroconf_service")) {
 #ifdef HAVE_AVAHI
-		config.zeroconf_service = MakeZeroconfServiceType(line.ExpectValueAndEnd(),
-								  "_tcp");
+	} else if (config.zeroconf.ParseLine(word, line)) {
 #else
+	} else if (StringStartsWith(word, "zeroconf_"sv)) {
 		throw std::runtime_error{"Zeroconf support is disabled"};
 #endif // HAVE_AVAHI
 	} else

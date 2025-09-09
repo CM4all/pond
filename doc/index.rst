@@ -114,9 +114,18 @@ The ``listener`` block can contain the following settings:
   start with a slash :file:`/`, and abstract sockets start with the
   symbol ``@``.
 - ``interface``: limit this listener to the given network interface.
+
 - ``zeroconf_service``: if specified, then register this listener as
   Zeroconf service in the local Avahi daemon.  This can be used by
   clients to discover Pond servers.
+
+- ``zeroconf_domain`` (optional): The name of the Zeroconf domain.
+
+- ``zeroconf_interface``: publish the Zeroconf service only on the
+  given interface.
+
+- ``zeroconf_protocol`` (optional): Publish only protocol ``inet`` or
+  ``inet6``.
 
 ``@include``
 ------------

@@ -133,7 +133,7 @@ Instance::AddListener(const ListenerConfig &config)
 #ifdef HAVE_AVAHI
 	auto &listener = listeners.front();
 
-	if (!config.zeroconf_service.empty()) {
+	if (config.zeroconf.IsEnabled()) {
 		/* ask the kernel for the effective address via
 		   getsockname(), because it may have changed, e.g. if
 		   the kernel has selected a port for us */
@@ -143,7 +143,7 @@ Instance::AddListener(const ListenerConfig &config)
 				? nullptr
 				: config.interface.c_str();
 
-			avahi_services.emplace_front(config.zeroconf_service.c_str(),
+			avahi_services.emplace_front(config.zeroconf,
 						     interface, local_address,
 						     config.v6only);
 		}

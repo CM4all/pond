@@ -7,6 +7,10 @@
 #include "net/SocketConfig.hxx"
 #include "config.h"
 
+#ifdef HAVE_AVAHI
+#include "lib/avahi/ServiceConfig.hxx"
+#endif
+
 #include <chrono>
 #include <forward_list>
 
@@ -24,7 +28,7 @@ struct DatabaseConfig {
 
 struct ListenerConfig : SocketConfig {
 #ifdef HAVE_AVAHI
-	std::string zeroconf_service;
+	Avahi::ServiceConfig zeroconf;
 #endif
 
 	ListenerConfig() {
@@ -50,7 +54,7 @@ struct Config {
 #ifdef HAVE_AVAHI
 	const ListenerConfig *GetZeroconfListener() const noexcept {
 		for (const auto &i : listeners)
-			if (!i.zeroconf_service.empty())
+			if (i.zeroconf.IsEnabled())
 				return &i;
 
 		return nullptr;

@@ -24,10 +24,15 @@
 static AvahiIfIndex
 GetAvahiIfIndex(const ListenerConfig &listener)
 {
-	if (listener.interface.empty())
+	const char *name;
+	if (!listener.zeroconf.interface.empty())
+		name = listener.zeroconf.interface.c_str();
+	else if (!listener.interface.empty())
+		name = listener.interface.c_str();
+	else
 		return AVAHI_IF_UNSPEC;
 
-	int i = if_nametoindex(listener.interface.c_str());
+	int i = if_nametoindex(name);
 	if (i == 0)
 		throw FmtSocketError("Failed to find interface '{}'",
 				     listener.interface);
@@ -229,8 +234,8 @@ AutoCloneOperation::AutoCloneOperation(BlockingOperationHandler &_handler,
 	 db(_db),
 	 explorer(avahi_client, *this,
 		  GetAvahiIfIndex(listener),
-		  AVAHI_PROTO_UNSPEC,
-		  listener.zeroconf_service.c_str(),
+		  listener.zeroconf.protocol,
+		  listener.zeroconf.service.c_str(),
 		  nullptr,
 		  *this),
 	 timeout_event(avahi_client.GetEventLoop(),
