@@ -2,6 +2,7 @@ cm4all-pond (0.38) unstable; urgency=low
 
   * add listener options "zeroconf_domain", "zeroconf_interface",
     "zeroconf_protocol"
+  * client: add new datagram types to the usage text
 
  --   
 

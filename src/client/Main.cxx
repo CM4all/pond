@@ -614,7 +614,7 @@ try {
 #endif
 			   "    [--iso8601]\n"
 			   "    [--jsonl]\n"
-			   "    [type=http_access|http_error|submission]\n"
+			   "    [type=http_access|http_error|submission|ssh|job|history]\n"
 			   "    [site=VALUE] [group_site=[MAX][@SKIP]]\n"
 			   "    [host=VALUE]\n"
 			   "    [uri-prefix=VALUE]\n"
