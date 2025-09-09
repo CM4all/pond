@@ -47,7 +47,7 @@ Instance::OnUdpDatagram(std::span<const std::byte> payload,
 }
 
 void
-Instance::OnUdpError(std::exception_ptr ep) noexcept
+Instance::OnUdpError(std::exception_ptr &&error) noexcept
 {
-	logger(1, "UDP receiver error: ", ep);
+	logger(1, "UDP receiver error: ", std::move(error));
 }
