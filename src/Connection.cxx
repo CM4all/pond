@@ -172,16 +172,16 @@ Connection::CommitQuery() noexcept
 
 		if (current.site_iterator == nullptr) {
 			current.selection.reset(new Selection(AnyRecordList(), Filter()));
-			socket.ScheduleWrite();
+			socket.DeferWrite();
 			return;
 		}
 
 		current.selection.reset(new Selection(db.Select(*current.site_iterator,
 								current.filter)));
-		socket.ScheduleWrite();
+		socket.DeferWrite();
 	} else {
 		current.selection.reset(new Selection(db.Select(current.filter)));
-		socket.ScheduleWrite();
+		socket.DeferWrite();
 	}
 
 	/* the response will be assembled by
@@ -738,6 +738,6 @@ Connection::OnAppend(const Record &record) noexcept
 	   AppendListener and prepare for sending the record to our
 	   client */
 	assert(selection);
-	socket.ScheduleWrite();
+	socket.DeferWrite();
 	return false;
 }
