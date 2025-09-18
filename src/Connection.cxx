@@ -619,10 +619,12 @@ bool
 Connection::OnBufferedWrite()
 {
 	if (!send_queue.empty()) {
-		if (!send_queue.Flush(GetSocket()))
+		if (!send_queue.Flush(GetSocket())) {
 			/* still not empty, try again in the next
 			   call */
+			socket.ScheduleWrite();
 			return true;
+		}
 
 		if (!current.IsDefined()) {
 			/* the response was already finished (when the
@@ -644,10 +646,12 @@ Connection::OnBufferedWrite()
 	if (current.HasWindow()) {
 		unsigned n_skipped = 0;
 		while (selection && current.window.skip > 0) {
-			if (++n_skipped > 1024 * 1024)
+			if (++n_skipped > 1024 * 1024) {
 				/* yield to avoid DoS by a huge number
 				   of skips */
+				socket.ScheduleWrite();
 				return true;
+			}
 
 			++selection;
 			--current.window.skip;
@@ -670,13 +674,17 @@ Connection::OnBufferedWrite()
 				current.Clear();
 				if (send_queue.empty())
 					socket.UnscheduleWrite();
+				else
+					socket.ScheduleWrite();
 				return true;
 			}
 		}
 
 		selection += n;
-		if (selection)
+		if (selection) {
+			socket.ScheduleWrite();
 			return true;
+		}
 	}
 
 	if (current.site_iterator != nullptr &&
@@ -692,6 +700,7 @@ Connection::OnBufferedWrite()
 			   will send the new site's data */
 			selection = db.Select(*current.site_iterator,
 					      current.filter);
+			socket.ScheduleWrite();
 			return true;
 		}
 
@@ -708,6 +717,8 @@ Connection::OnBufferedWrite()
 
 	if (send_queue.empty())
 		socket.UnscheduleWrite();
+	else
+		socket.ScheduleWrite();
 	return true;
 }
 
