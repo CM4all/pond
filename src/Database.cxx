@@ -24,6 +24,8 @@ NullableStringView(const char *s) noexcept
 void
 Database::PerSite::OnAbandoned() noexcept
 {
+	if (list.IsExpendable())
+		delete this;
 }
 
 Database::Database(size_t max_size, double _per_site_message_rate_limit)
@@ -70,8 +72,14 @@ Database::Compress() noexcept
 {
 	all_records.Compress();
 
-	for (auto &i : site_list)
-		i.Compress();
+	for (auto i = site_list.begin(); i != site_list.end();) {
+		i->Compress();
+
+		if (i->IsExpendable())
+			i = site_list.erase_and_dispose(i, DeleteDisposer{});
+		else
+			++i;
+	}
 }
 
 const Record &

@@ -37,6 +37,10 @@ public:
 		skip_deque.Compress();
 	}
 
+	bool IsExpendable() const noexcept {
+		return list.empty() && append_listeners.empty();
+	}
+
 	using const_iterator = typename List::const_iterator;
 
 	const_iterator begin() const noexcept {

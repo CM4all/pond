@@ -194,12 +194,6 @@ TEST(Database, PerSite)
 		i = db.GetNextSite(i);
 		ASSERT_TRUE(i);
 
-		const auto b = db.Select(i, {});
-		EXPECT_FALSE(b);
-
-		i = db.GetNextSite(i);
-		ASSERT_TRUE(i);
-
 		const auto cc = db.Select(i, {});
 		ASSERT_TRUE(cc);
 		EXPECT_EQ(cc->GetParsed().timestamp, MakeTimestamp(11));
@@ -245,12 +239,6 @@ TEST(Database, PerSite)
 		ASSERT_TRUE(a);
 		EXPECT_EQ(a->GetParsed().timestamp, MakeTimestamp(19));
 		EXPECT_STREQ(a->GetParsed().site, "a");
-
-		i = db.GetNextSite(i);
-		ASSERT_TRUE(i);
-
-		const auto b = db.Select(i, {});
-		EXPECT_FALSE(b);
 
 		i = db.GetNextSite(i);
 		ASSERT_TRUE(i);

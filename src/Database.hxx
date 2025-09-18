@@ -37,8 +37,8 @@ class Database {
 	FullRecordList all_records;
 
 	struct PerSite final
-		: IntrusiveHashSetHook<>,
-		  IntrusiveListHook<>,
+		: IntrusiveHashSetHook<IntrusiveHookMode::AUTO_UNLINK>,
+		  IntrusiveListHook<IntrusiveHookMode::AUTO_UNLINK>,
 		  SharedAnchor
 	{
 		const std::string site;
@@ -57,6 +57,10 @@ class Database {
 
 		~PerSite() noexcept {
 			list.clear();
+		}
+
+		bool IsExpendable() const noexcept {
+			return list.IsExpendable() && IsAbandoned();
 		}
 
 		void Compress() noexcept {
