@@ -10,8 +10,8 @@
 void
 SetupProcess() noexcept
 {
-    signal(SIGPIPE, SIG_IGN);
+	signal(SIGPIPE, SIG_IGN);
 
-    /* reduce glibc's thread cancellation overhead */
-    pthread_setcancelstate(PTHREAD_CANCEL_DISABLE, nullptr);
+	/* reduce glibc's thread cancellation overhead */
+	pthread_setcancelstate(PTHREAD_CANCEL_DISABLE, nullptr);
 }
