@@ -47,6 +47,17 @@ Database::~Database() noexcept
 	all_records.clear();
 }
 
+void
+Database::Clear() noexcept
+{
+	site_list.clear();
+	per_site_records.clear();
+
+	all_records.clear();
+
+	// TODO: madvise(MADV_DONTNEED)
+}
+
 const Record &
 Database::Emplace(std::span<const std::byte> raw)
 {

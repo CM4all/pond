@@ -98,14 +98,7 @@ public:
 		return all_records.size();
 	}
 
-	void Clear() noexcept {
-		site_list.clear();
-		per_site_records.clear();
-
-		all_records.clear();
-
-		// TODO: madvise(MADV_DONTNEED)
-	}
+	void Clear() noexcept;
 
 	void DeleteOlderThan(Net::Log::TimePoint t) noexcept {
 		while (!all_records.empty() &&
