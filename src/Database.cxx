@@ -120,6 +120,20 @@ try {
 	return nullptr;
 }
 
+Database::PerSite &
+Database::GetPerSite(std::string_view site) noexcept
+{
+	auto [it, inserted] =
+		per_site_records.insert_check(site);
+	if (inserted) {
+		auto *per_site = new PerSite(site);
+		it = per_site_records.insert_commit(it, *per_site);
+		site_list.push_back(*per_site);
+	}
+
+	return *it;
+}
+
 AnyRecordList
 Database::GetList(Filter &filter) noexcept
 {

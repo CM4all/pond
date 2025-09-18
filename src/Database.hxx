@@ -165,17 +165,8 @@ public:
 	Selection Select(SiteIterator &site, const Filter &filter) noexcept;
 
 private:
-	auto &GetPerSite(std::string_view site) noexcept {
-		auto [it, inserted] =
-			per_site_records.insert_check(site);
-		if (inserted) {
-			auto *per_site = new PerSite(site);
-			it = per_site_records.insert_commit(it, *per_site);
-			site_list.push_back(*per_site);
-		}
-
-		return *it;
-	}
+	[[gnu::pure]]
+	PerSite &GetPerSite(std::string_view site) noexcept;
 
 	auto &GetPerSiteRecords(std::string_view site) noexcept {
 		return GetPerSite(site).list;
