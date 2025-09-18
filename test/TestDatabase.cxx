@@ -142,6 +142,8 @@ TEST(Database, PerSite)
 	Push(db, {.timestamp = MakeTimestamp(18), .site = "c"});
 	Push(db, {.timestamp = MakeTimestamp(19), .site = "a"});
 
+	db.Compress();
+
 	for (unsigned i = 11; i <= 18; ++i, ++(*c)) {
 		ASSERT_TRUE(*c);
 		EXPECT_EQ((*c)->GetParsed().timestamp, MakeTimestamp(i));
@@ -157,6 +159,8 @@ TEST(Database, PerSite)
 	EXPECT_FALSE(*c);
 
 	c.reset();
+
+	db.Compress();
 
 	ASSERT_TRUE(db.Select({.sites={"a"}}));
 	ASSERT_EQ(db.Select({.sites={"a"}})->GetParsed().timestamp, MakeTimestamp(19));
