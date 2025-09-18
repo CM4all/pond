@@ -5,6 +5,7 @@
 #include "PerSitePath.hxx"
 #include "lib/fmt/RuntimeError.hxx"
 #include "lib/fmt/SystemError.hxx"
+#include "io/FileAt.hxx"
 #include "io/FileWriter.hxx"
 #include "io/MakeDirectory.hxx"
 #include "io/Open.hxx"
@@ -72,15 +73,13 @@ PerSitePath::Open(const char *site)
 	last_directory.Close();
 
 	if (nested && nested_buffer.Set(site)) {
-		last_directory = MakeNestedDirectory(current_directory,
-						     nested_buffer.GetParent());
+		last_directory = MakeNestedDirectory({current_directory, nested_buffer.GetParent()});
 		current_directory = last_directory;
 		current_filename = nested_buffer.GetTail();
 	}
 
 	if (filename != nullptr) {
-		last_directory = MakeDirectory(current_directory,
-					       current_filename);
+		last_directory = MakeDirectory({current_directory, current_filename});
 		current_directory = last_directory;
 		current_filename = filename;
 	}
@@ -98,5 +97,5 @@ PerSitePath::Open(const char *site)
 		throw FmtErrno("Failed to check output file: {}",
 			       current_filename);
 
-	return FileWriter(current_directory, current_filename);
+	return FileWriter({current_directory, current_filename});
 }
