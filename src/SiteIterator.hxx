@@ -4,14 +4,28 @@
 
 #pragma once
 
+#include "util/SharedLease.hxx"
+
 /**
  * This class is used by Database::GetFirstSite() and
  * Database::GetNextSite() to iterate over all sites.
  */
 class SiteIterator {
-protected:
+	friend class Database;
+
+	SharedLease lease;
+
+	SiteIterator(SharedAnchor &anchor) noexcept
+		:lease(anchor) {}
+
+public:
 	SiteIterator() noexcept = default;
-	~SiteIterator() noexcept = default;
-	SiteIterator(const SiteIterator &) = delete;
-	SiteIterator &operator=(const SiteIterator &) = delete;
+
+	// these declarations prevent accidental copies
+	SiteIterator(SiteIterator &&) = default;
+	SiteIterator &operator=(SiteIterator &&) = default;
+
+	constexpr operator bool() const noexcept {
+		return static_cast<bool>(lease);
+	}
 };

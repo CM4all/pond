@@ -124,34 +124,34 @@ Connection::Send(uint16_t id, PondResponseCommand command,
 		throw std::runtime_error("Short send");
 }
 
-static SiteIterator *
-FindNonEmpty(Database &db, const Filter &filter, SiteIterator *i) noexcept
+static SiteIterator
+FindNonEmpty(Database &db, const Filter &filter, SiteIterator &&i) noexcept
 {
-	while (i != nullptr) {
-		auto selection = db.Select(*i, filter);
+	while (i) {
+		auto selection = db.Select(i, filter);
 		if (selection)
 			break;
 
-		i = db.GetNextSite(*i);
+		i = db.GetNextSite(i);
 	}
 
 	return i;
 }
 
-static SiteIterator *
-SkipNonEmpty(Database &db, const Filter &filter, SiteIterator *i,
+static SiteIterator
+SkipNonEmpty(Database &db, const Filter &filter, SiteIterator &&i,
 	     unsigned n) noexcept
 {
-	if (i == nullptr)
-		return nullptr;
+	if (!i)
+		return {};
 
 	/* skip empty sites at the beginning */
-	i = FindNonEmpty(db, filter, i);
+	i = FindNonEmpty(db, filter, std::move(i));
 
 	/* now skip "n" more sites (ignoring empty sites in
 	   between) */
-	while (i != nullptr && n-- > 0)
-		i = FindNonEmpty(db, filter, db.GetNextSite(*i));
+	while (i && n-- > 0)
+		i = FindNonEmpty(db, filter, db.GetNextSite(i));
 
 	return i;
 }
@@ -161,7 +161,7 @@ Connection::CommitQuery() noexcept
 {
 	auto &db = instance.GetDatabase();
 
-	current.site_iterator = nullptr;
+	current.site_iterator = {};
 
 	if (current.follow) {
 		current.selection.reset(new Selection(db.Follow(current.filter, *this)));
@@ -170,13 +170,13 @@ Connection::CommitQuery() noexcept
 						     db.GetFirstSite(),
 						     current.group_site.skip_sites);
 
-		if (current.site_iterator == nullptr) {
+		if (!current.site_iterator) {
 			current.selection.reset(new Selection(AnyRecordList(), Filter()));
 			socket.DeferWrite();
 			return;
 		}
 
-		current.selection.reset(new Selection(db.Select(*current.site_iterator,
+		current.selection.reset(new Selection(db.Select(current.site_iterator,
 								current.filter)));
 		socket.DeferWrite();
 	} else {
@@ -687,18 +687,18 @@ Connection::OnBufferedWrite()
 		}
 	}
 
-	if (current.site_iterator != nullptr &&
+	if (current.site_iterator &&
 	    --current.group_site.max_sites > 0) {
 		auto &db = instance.GetDatabase();
-		auto next = db.GetNextSite(*current.site_iterator);
-		current.site_iterator = FindNonEmpty(db, current.filter, next);
+		current.site_iterator = FindNonEmpty(db, current.filter,
+						     db.GetNextSite(current.site_iterator));
 		// TODO: max_sites
-		if (current.site_iterator != nullptr) {
+		if (current.site_iterator) {
 			/* we have another site; return from this
 			   method, leaving the "write" scheduled, so
 			   we'll be called again and this next call
 			   will send the new site's data */
-			selection = db.Select(*current.site_iterator,
+			selection = db.Select(current.site_iterator,
 					      current.filter);
 			socket.ScheduleWrite();
 			return true;

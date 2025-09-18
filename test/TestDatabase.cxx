@@ -79,20 +79,20 @@ TEST(Database, PerSite)
 		auto i = db.GetFirstSite();
 		ASSERT_TRUE(i);
 
-		const auto a = db.Select(*i, {});
+		const auto a = db.Select(i, {});
 		ASSERT_TRUE(a);
 		EXPECT_EQ(a->GetParsed().timestamp, MakeTimestamp(1));
 		EXPECT_STREQ(a->GetParsed().site, "a");
 
-		i = db.GetNextSite(*i);
+		i = db.GetNextSite(i);
 		ASSERT_TRUE(i);
 
-		const auto b = db.Select(*i, {});
+		const auto b = db.Select(i, {});
 		ASSERT_TRUE(b);
 		EXPECT_EQ(b->GetParsed().timestamp, MakeTimestamp(1));
 		EXPECT_STREQ(b->GetParsed().site, "b");
 
-		i = db.GetNextSite(*i);
+		i = db.GetNextSite(i);
 		ASSERT_FALSE(i);
 	}
 
@@ -130,28 +130,28 @@ TEST(Database, PerSite)
 		auto i = db.GetFirstSite();
 		ASSERT_TRUE(i);
 
-		const auto a = db.Select(*i, {});
+		const auto a = db.Select(i, {});
 		ASSERT_TRUE(a);
 		EXPECT_EQ(a->GetParsed().timestamp, MakeTimestamp(1));
 		EXPECT_STREQ(a->GetParsed().site, "a");
 
-		i = db.GetNextSite(*i);
+		i = db.GetNextSite(i);
 		ASSERT_TRUE(i);
 
-		const auto b = db.Select(*i, {});
+		const auto b = db.Select(i, {});
 		ASSERT_TRUE(b);
 		EXPECT_EQ(b->GetParsed().timestamp, MakeTimestamp(1));
 		EXPECT_STREQ(b->GetParsed().site, "b");
 
-		i = db.GetNextSite(*i);
+		i = db.GetNextSite(i);
 		ASSERT_TRUE(i);
 
-		const auto cc = db.Select(*i, {});
+		const auto cc = db.Select(i, {});
 		ASSERT_TRUE(cc);
 		EXPECT_EQ(cc->GetParsed().timestamp, MakeTimestamp(9));
 		EXPECT_STREQ(cc->GetParsed().site, "c");
 
-		i = db.GetNextSite(*i);
+		i = db.GetNextSite(i);
 		ASSERT_FALSE(i);
 	}
 
@@ -186,26 +186,26 @@ TEST(Database, PerSite)
 		auto i = db.GetFirstSite();
 		ASSERT_TRUE(i);
 
-		const auto a = db.Select(*i, {});
+		const auto a = db.Select(i, {});
 		ASSERT_TRUE(a);
 		EXPECT_EQ(a->GetParsed().timestamp, MakeTimestamp(11));
 		EXPECT_STREQ(a->GetParsed().site, "a");
 
-		i = db.GetNextSite(*i);
+		i = db.GetNextSite(i);
 		ASSERT_TRUE(i);
 
-		const auto b = db.Select(*i, {});
+		const auto b = db.Select(i, {});
 		EXPECT_FALSE(b);
 
-		i = db.GetNextSite(*i);
+		i = db.GetNextSite(i);
 		ASSERT_TRUE(i);
 
-		const auto cc = db.Select(*i, {});
+		const auto cc = db.Select(i, {});
 		ASSERT_TRUE(cc);
 		EXPECT_EQ(cc->GetParsed().timestamp, MakeTimestamp(11));
 		EXPECT_STREQ(cc->GetParsed().site, "c");
 
-		i = db.GetNextSite(*i);
+		i = db.GetNextSite(i);
 		ASSERT_FALSE(i);
 	}
 
@@ -241,24 +241,24 @@ TEST(Database, PerSite)
 		auto i = db.GetFirstSite();
 		ASSERT_TRUE(i);
 
-		const auto a = db.Select(*i, {});
+		const auto a = db.Select(i, {});
 		ASSERT_TRUE(a);
 		EXPECT_EQ(a->GetParsed().timestamp, MakeTimestamp(19));
 		EXPECT_STREQ(a->GetParsed().site, "a");
 
-		i = db.GetNextSite(*i);
+		i = db.GetNextSite(i);
 		ASSERT_TRUE(i);
 
-		const auto b = db.Select(*i, {});
+		const auto b = db.Select(i, {});
 		EXPECT_FALSE(b);
 
-		i = db.GetNextSite(*i);
+		i = db.GetNextSite(i);
 		ASSERT_TRUE(i);
 
-		const auto cc = db.Select(*i, {});
+		const auto cc = db.Select(i, {});
 		EXPECT_FALSE(cc);
 
-		i = db.GetNextSite(*i);
+		i = db.GetNextSite(i);
 		ASSERT_FALSE(i);
 	}
 

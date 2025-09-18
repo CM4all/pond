@@ -21,6 +21,11 @@ NullableStringView(const char *s) noexcept
 	return s != nullptr ? std::string_view{s} : std::string_view{};
 }
 
+void
+Database::PerSite::OnAbandoned() noexcept
+{
+}
+
 Database::Database(size_t max_size, double _per_site_message_rate_limit)
 	:allocation(AlignHugePageUp(max_size)),
 	 per_site_message_rate_limit{
@@ -184,11 +189,12 @@ Database::Follow(const Filter &filter, AppendListener &l) noexcept
 }
 
 Selection
-Database::Select(SiteIterator &_site, const Filter &filter) noexcept
+Database::Select(const SiteIterator &_site, const Filter &filter) noexcept
 {
+	assert(_site);
 	assert(filter.sites.empty());
 
-	auto &site = static_cast<PerSite &>(_site);
+	auto &site = static_cast<PerSite &>(_site.lease.GetAnchor());
 	Selection selection(site.list, filter);
 	selection.Rewind();
 	return selection;

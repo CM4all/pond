@@ -11,7 +11,9 @@
 #include "util/TokenBucket.hxx"
 #include "util/IntrusiveForwardList.hxx"
 #include "util/IntrusiveHashSet.hxx"
+#include "util/SharedLease.hxx"
 
+#include <cassert>
 #include <span>
 #include <string>
 
@@ -36,7 +38,7 @@ class Database {
 
 	struct PerSite final
 		: public IntrusiveHashSetHook<>,
-		  SiteIterator
+		  SharedAnchor
 	{
 		const std::string site;
 
@@ -66,6 +68,9 @@ class Database {
 				    double now, double size) noexcept {
 			return rate_limiter.Check(config, now, size);
 		}
+
+		// virtual methods from SharedAnchor
+		void OnAbandoned() noexcept override;
 
 		struct GetSite {
 			constexpr std::string_view operator()(const PerSite &per_site) const noexcept {
@@ -143,24 +148,25 @@ public:
 	Selection Select(const Filter &filter) noexcept;
 	Selection Follow(const Filter &filter, AppendListener &l) noexcept;
 
-	SiteIterator *GetFirstSite(unsigned skip=0) noexcept {
+	SiteIterator GetFirstSite(unsigned skip=0) noexcept {
 		for (auto i = site_list.begin(); i != site_list.end(); ++i)
 			if (skip-- == 0)
-				return &*i;
+				return {*i};
 
-		return nullptr;
+		return {};
 	}
 
-	SiteIterator *GetNextSite(SiteIterator &_previous) noexcept {
-		auto &previous = static_cast<PerSite &>(_previous);
+	SiteIterator GetNextSite(const SiteIterator &_previous) noexcept {
+		assert(_previous);
+		auto &previous = static_cast<PerSite &>(_previous.lease.GetAnchor());
 		auto i = site_list.iterator_to(previous);
 		++i;
 		if (i == site_list.end())
-			return nullptr;
-		return &*i;
+			return {};
+		return {*i};
 	}
 
-	Selection Select(SiteIterator &site, const Filter &filter) noexcept;
+	Selection Select(const SiteIterator &site, const Filter &filter) noexcept;
 
 private:
 	[[gnu::pure]]

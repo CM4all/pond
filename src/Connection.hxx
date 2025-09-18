@@ -8,6 +8,7 @@
 #include "Filter.hxx"
 #include "AppendListener.hxx"
 #include "SendQueue.hxx"
+#include "SiteIterator.hxx"
 #include "net/UniqueSocketDescriptor.hxx"
 #include "event/net/BufferedSocket.hxx"
 #include "util/IntrusiveList.hxx"
@@ -49,7 +50,7 @@ class Connection final
 		/**
 		 * The current site being iterated in GROUP_SITE mode.
 		 */
-		SiteIterator *site_iterator;
+		SiteIterator site_iterator;
 
 		std::string address;
 
