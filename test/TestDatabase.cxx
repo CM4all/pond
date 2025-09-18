@@ -1,8 +1,14 @@
 #include "Database.hxx"
+#include "Filter.hxx"
+#include "Selection.hxx"
 #include "net/log/Serializer.hxx"
 #include "time/ClockCache.hxx"
 
 #include <gtest/gtest.h>
+
+#include <optional>
+
+using std::string_view_literals::operator""sv;
 
 static constexpr auto
 MakeTimestamp(unsigned t)
@@ -55,6 +61,106 @@ TEST(Database, Basic)
 	auto oldest = db.GetAllRecords().front().GetParsed().timestamp + Net::Log::Duration(16);
 	db.DeleteOlderThan(oldest);
 	EXPECT_EQ(db.GetAllRecords().front().GetParsed().timestamp, oldest);
+}
+
+TEST(Database, PerSite)
+{
+	Database db{64 * 1024};
+	EXPECT_TRUE(db.GetAllRecords().empty());
+
+	for (unsigned i = 1; i <= 8; ++i) {
+		Push(db, {.timestamp = MakeTimestamp(i), .site = "a"});
+		Push(db, {.timestamp = MakeTimestamp(i), .site = "b"});
+	}
+
+	ASSERT_FALSE(db.GetAllRecords().empty());
+	EXPECT_EQ(db.GetAllRecords().front().GetParsed().timestamp, MakeTimestamp(1));
+	EXPECT_EQ(db.GetAllRecords().back().GetParsed().timestamp, MakeTimestamp(8));
+
+	for (const char *site : {"a", "b"}) {
+		auto selection = db.Select({.sites={site}});
+
+		for (unsigned i = 1; i <= 8; ++i, ++selection) {
+			ASSERT_TRUE(selection);
+			EXPECT_EQ(selection->GetParsed().timestamp, MakeTimestamp(i));
+		}
+
+		EXPECT_FALSE(selection);
+	}
+
+	std::optional<Selection> c = db.Select({.sites={"c"}});
+	EXPECT_FALSE(*c);
+	c->Rewind();
+	EXPECT_FALSE(*c);
+
+	Push(db, {.timestamp = MakeTimestamp(9), .site = "c"});
+	c->Rewind();
+	EXPECT_TRUE(*c);
+
+	for (unsigned i = 10; i <= 16; ++i) {
+		Push(db, {.timestamp = MakeTimestamp(i), .site = "a"});
+		Push(db, {.timestamp = MakeTimestamp(i), .site = "c"});
+		EXPECT_TRUE(*c);
+	}
+
+	for (unsigned i = 9; i <= 16; ++i, ++(*c)) {
+		c->FixDeleted();
+		ASSERT_TRUE(*c);
+		EXPECT_EQ((*c)->GetParsed().timestamp, MakeTimestamp(i));
+	}
+	EXPECT_FALSE(*c);
+
+	c->Rewind();
+	ASSERT_TRUE(*c);
+	EXPECT_EQ((*c)->GetParsed().timestamp, MakeTimestamp(9));
+
+	EXPECT_TRUE(db.Select({.sites={"a"}}));
+	EXPECT_TRUE(db.Select({.sites={"b"}}));
+
+	db.DeleteOlderThan(MakeTimestamp(10));
+
+	ASSERT_TRUE(db.Select({.sites={"a"}}));
+	ASSERT_EQ(db.Select({.sites={"a"}})->GetParsed().timestamp, MakeTimestamp(10));
+	EXPECT_FALSE(db.Select({.sites={"b"}}));
+
+	c->FixDeleted();
+	ASSERT_TRUE(*c);
+	EXPECT_EQ((*c)->GetParsed().timestamp, MakeTimestamp(10));
+
+	db.DeleteOlderThan(MakeTimestamp(11));
+
+	ASSERT_TRUE(db.Select({.sites={"a"}}));
+	ASSERT_EQ(db.Select({.sites={"a"}})->GetParsed().timestamp, MakeTimestamp(11));
+	EXPECT_FALSE(db.Select({.sites={"b"}}));
+
+	c->FixDeleted();
+	ASSERT_TRUE(*c);
+	EXPECT_EQ((*c)->GetParsed().timestamp, MakeTimestamp(11));
+
+	Push(db, {.timestamp = MakeTimestamp(17), .site = "c"});
+	Push(db, {.timestamp = MakeTimestamp(18), .site = "c"});
+	Push(db, {.timestamp = MakeTimestamp(19), .site = "a"});
+
+	for (unsigned i = 11; i <= 18; ++i, ++(*c)) {
+		ASSERT_TRUE(*c);
+		EXPECT_EQ((*c)->GetParsed().timestamp, MakeTimestamp(i));
+	}
+	EXPECT_FALSE(*c);
+
+	c->Rewind();
+	ASSERT_TRUE(*c);
+	EXPECT_EQ((*c)->GetParsed().timestamp, MakeTimestamp(11));
+
+	db.DeleteOlderThan(MakeTimestamp(19));
+	c->FixDeleted();
+	EXPECT_FALSE(*c);
+
+	c.reset();
+
+	ASSERT_TRUE(db.Select({.sites={"a"}}));
+	ASSERT_EQ(db.Select({.sites={"a"}})->GetParsed().timestamp, MakeTimestamp(19));
+	EXPECT_FALSE(db.Select({.sites={"b"}}));
+	EXPECT_FALSE(db.Select({.sites={"c"}}));
 }
 
 static bool
