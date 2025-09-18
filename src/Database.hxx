@@ -9,8 +9,8 @@
 #include "system/LargeAllocation.hxx"
 #include "util/TokenBucket.hxx"
 #include "util/IntrusiveForwardList.hxx"
+#include "util/IntrusiveHashSet.hxx"
 
-#include <unordered_map>
 #include <span>
 #include <string>
 
@@ -45,7 +45,12 @@ class Database {
 	 */
 	FullRecordList all_records;
 
-	struct PerSite final : SiteIterator {
+	struct PerSite final
+		: public IntrusiveHashSetHook<>,
+		  SiteIterator
+	{
+		const std::string site;
+
 		IntrusiveForwardListHook list_siblings;
 
 		/**
@@ -57,6 +62,9 @@ class Database {
 
 		TokenBucket rate_limiter;
 
+		explicit PerSite(std::string_view _site) noexcept
+			:site(_site) {}
+
 		~PerSite() noexcept {
 			list.clear();
 		}
@@ -65,10 +73,20 @@ class Database {
 				    double now, double size) noexcept {
 			return rate_limiter.Check(config, now, size);
 		}
+
+		struct GetSite {
+			constexpr std::string_view operator()(const PerSite &per_site) const noexcept {
+				return per_site.site;
+			}
+		};
 	};
 
 	// TODO: purge empty items eventually
-	std::unordered_map<std::string, PerSite> per_site_records;
+	IntrusiveHashSet<
+		PerSite, 65536,
+		IntrusiveHashSetOperators<PerSite, PerSite::GetSite,
+					  std::hash<std::string_view>,
+					  std::equal_to<std::string_view>>> per_site_records;
 
 	/**
 	 * A linked list of all sites; this can be used to iterate
@@ -147,22 +165,20 @@ public:
 	Selection Select(SiteIterator &site, const Filter &filter) noexcept;
 
 private:
-	template<typename S>
-	auto &GetPerSite(S &&site) noexcept {
-		auto e = per_site_records.emplace(std::piecewise_construct,
-						  std::forward_as_tuple(std::forward<S>(site)),
-						  std::forward_as_tuple());
-		auto &per_site = e.first->second;
+	auto &GetPerSite(std::string_view site) noexcept {
+		auto [it, inserted] =
+			per_site_records.insert_check(site);
+		if (inserted) {
+			auto *per_site = new PerSite(site);
+			it = per_site_records.insert_commit(it, *per_site);
+			site_list.push_back(*per_site);
+		}
 
-		if (e.second)
-			site_list.push_back(per_site);
-
-		return per_site;
+		return *it;
 	}
 
-	template<typename S>
-	auto &GetPerSiteRecords(S &&site) noexcept {
-		return GetPerSite(std::forward<S>(site)).list;
+	auto &GetPerSiteRecords(std::string_view site) noexcept {
+		return GetPerSite(site).list;
 	}
 
 	AnyRecordList GetList(Filter &filter) noexcept;

@@ -11,6 +11,7 @@
 #include "system/VmaName.hxx"
 #include "time/Cast.hxx"
 #include "time/ClockCache.hxx"
+#include "util/DeleteDisposer.hxx"
 
 #include <assert.h>
 
@@ -44,6 +45,7 @@ Database::Database(size_t max_size, double _per_site_message_rate_limit)
 
 Database::~Database() noexcept
 {
+	per_site_records.clear_and_dispose(DeleteDisposer{});
 	all_records.clear();
 }
 
@@ -51,7 +53,7 @@ void
 Database::Clear() noexcept
 {
 	site_list.clear();
-	per_site_records.clear();
+	per_site_records.clear_and_dispose(DeleteDisposer{});
 
 	all_records.clear();
 
