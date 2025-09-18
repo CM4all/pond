@@ -188,7 +188,7 @@ Database::Select(SiteIterator &_site, const Filter &filter) noexcept
 {
 	assert(filter.sites.empty());
 
-	auto &site = (PerSite &)_site;
+	auto &site = static_cast<PerSite &>(_site);
 	Selection selection(site.list, filter);
 	selection.Rewind();
 	return selection;

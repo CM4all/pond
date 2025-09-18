@@ -152,7 +152,7 @@ public:
 	}
 
 	SiteIterator *GetNextSite(SiteIterator &_previous) noexcept {
-		auto &previous = (PerSite &)_previous;
+		auto &previous = static_cast<PerSite &>(_previous);
 		auto i = site_list.iterator_to(previous);
 		++i;
 		if (i == site_list.end())
