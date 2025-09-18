@@ -69,6 +69,10 @@ class Database {
 			list.clear();
 		}
 
+		void Compress() noexcept {
+			list.Compress();
+		}
+
 		bool CheckRateLimit(const TokenBucketConfig config,
 				    double now, double size) noexcept {
 			return rate_limiter.Check(config, now, size);
@@ -117,6 +121,11 @@ public:
 	}
 
 	void Clear() noexcept;
+
+	/**
+	 * Shrink data structures to fit the actual size.
+	 */
+	void Compress() noexcept;
 
 	void DeleteOlderThan(Net::Log::TimePoint t) noexcept {
 		while (!all_records.empty() &&

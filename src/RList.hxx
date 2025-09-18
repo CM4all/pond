@@ -33,6 +33,10 @@ public:
 	RecordList(const RecordList &) = delete;
 	RecordList &operator=(const RecordList &) = delete;
 
+	void Compress() noexcept {
+		skip_deque.Compress();
+	}
+
 	using const_iterator = typename List::const_iterator;
 
 	const_iterator begin() const noexcept {

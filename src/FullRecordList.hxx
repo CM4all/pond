@@ -23,6 +23,10 @@ public:
 		assert(append_listeners.empty());
 	}
 
+	void Compress() noexcept {
+		skip_deque.Compress();
+	}
+
 	template<typename... Args>
 	reference emplace_back(Args... args) {
 		auto &record =

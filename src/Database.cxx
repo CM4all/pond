@@ -60,6 +60,15 @@ Database::Clear() noexcept
 	// TODO: madvise(MADV_DONTNEED)
 }
 
+void
+Database::Compress() noexcept
+{
+	all_records.Compress();
+
+	for (auto &i : site_list)
+		i.Compress();
+}
+
 const Record &
 Database::Emplace(std::span<const std::byte> raw)
 {

@@ -43,6 +43,7 @@ Instance::Instance(const Config &config)
 {
 	shutdown_listener.Enable();
 	sighup_event.Enable();
+	compress_timer.Schedule(std::chrono::hours{1});
 }
 
 Instance::~Instance() noexcept = default;
@@ -201,6 +202,13 @@ Instance::MaybeScheduleMaxAgeTimer() noexcept
 		max_age_timer.Schedule(max_age_interval);
 }
 
+inline void
+Instance::OnCompressTimer() noexcept
+{
+	database.Compress();
+	compress_timer.Schedule(std::chrono::hours{1});
+}
+
 void
 Instance::OnExit() noexcept
 {
@@ -219,6 +227,7 @@ Instance::OnExit() noexcept
 	blocking_operation.reset();
 
 	max_age_timer.Cancel();
+	compress_timer.Cancel();
 
 #ifdef HAVE_AVAHI
 	DisableZeroconf();
@@ -235,6 +244,8 @@ Instance::OnExit() noexcept
 void
 Instance::OnReload(int) noexcept
 {
+	database.Compress();
+	compress_timer.Schedule(std::chrono::hours{1});
 }
 
 #ifdef HAVE_AVAHI

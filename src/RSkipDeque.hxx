@@ -72,6 +72,10 @@ public:
 	RecordSkipDeque(const RecordSkipDeque &) = delete;
 	RecordSkipDeque &operator=(const RecordSkipDeque &) = delete;
 
+	void Compress() noexcept {
+		deque.shrink_to_fit();
+	}
+
 	/**
 	 * Remove pointers to deleted #Record instances from this
 	 * container.

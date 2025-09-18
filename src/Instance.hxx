@@ -10,6 +10,7 @@
 #include "event/ShutdownListener.hxx"
 #include "event/SignalEvent.hxx"
 #include "event/CoarseTimerEvent.hxx"
+#include "event/FarTimerEvent.hxx"
 #include "event/net/UdpHandler.hxx"
 #include "io/Logger.hxx"
 #include "util/IntrusiveList.hxx"
@@ -78,6 +79,11 @@ class Instance final
 	 */
 	CoarseTimerEvent max_age_timer;
 
+	/**
+	 * Call Database::Compress() once an hour.
+	 */
+	FarTimerEvent compress_timer{event_loop, BIND_THIS_METHOD(OnCompressTimer)};
+
 	Database database;
 
 	/**
@@ -135,6 +141,7 @@ public:
 
 private:
 	void OnMaxAgeTimer() noexcept;
+	void OnCompressTimer() noexcept;
 
 	/**
 	 * Schedule the #max_age_timer if a #max_age is configured
