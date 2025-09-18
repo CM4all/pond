@@ -6,6 +6,7 @@
 
 #include "FullRecordList.hxx"
 #include "RList.hxx"
+#include "SiteIterator.hxx"
 #include "system/LargeAllocation.hxx"
 #include "util/TokenBucket.hxx"
 #include "util/IntrusiveForwardList.hxx"
@@ -19,18 +20,6 @@ struct Filter;
 class Selection;
 class AppendListener;
 class AnyRecordList;
-
-/**
- * This class is used by Database::GetFirstSite() and
- * Database::GetNextSite() to iterate over all sites.
- */
-class SiteIterator {
-protected:
-	SiteIterator() noexcept = default;
-	~SiteIterator() noexcept = default;
-	SiteIterator(const SiteIterator &) = delete;
-	SiteIterator &operator=(const SiteIterator &) = delete;
-};
 
 class Database {
 	const LargeAllocation allocation;
