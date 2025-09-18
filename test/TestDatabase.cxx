@@ -68,9 +68,32 @@ TEST(Database, PerSite)
 	Database db{64 * 1024};
 	EXPECT_TRUE(db.GetAllRecords().empty());
 
+	EXPECT_FALSE(db.GetFirstSite());
+
 	for (unsigned i = 1; i <= 8; ++i) {
 		Push(db, {.timestamp = MakeTimestamp(i), .site = "a"});
 		Push(db, {.timestamp = MakeTimestamp(i), .site = "b"});
+	}
+
+	{
+		auto i = db.GetFirstSite();
+		ASSERT_TRUE(i);
+
+		const auto a = db.Select(*i, {});
+		ASSERT_TRUE(a);
+		EXPECT_EQ(a->GetParsed().timestamp, MakeTimestamp(1));
+		EXPECT_STREQ(a->GetParsed().site, "a");
+
+		i = db.GetNextSite(*i);
+		ASSERT_TRUE(i);
+
+		const auto b = db.Select(*i, {});
+		ASSERT_TRUE(b);
+		EXPECT_EQ(b->GetParsed().timestamp, MakeTimestamp(1));
+		EXPECT_STREQ(b->GetParsed().site, "b");
+
+		i = db.GetNextSite(*i);
+		ASSERT_FALSE(i);
 	}
 
 	ASSERT_FALSE(db.GetAllRecords().empty());
@@ -103,6 +126,35 @@ TEST(Database, PerSite)
 		EXPECT_TRUE(*c);
 	}
 
+	{
+		auto i = db.GetFirstSite();
+		ASSERT_TRUE(i);
+
+		const auto a = db.Select(*i, {});
+		ASSERT_TRUE(a);
+		EXPECT_EQ(a->GetParsed().timestamp, MakeTimestamp(1));
+		EXPECT_STREQ(a->GetParsed().site, "a");
+
+		i = db.GetNextSite(*i);
+		ASSERT_TRUE(i);
+
+		const auto b = db.Select(*i, {});
+		ASSERT_TRUE(b);
+		EXPECT_EQ(b->GetParsed().timestamp, MakeTimestamp(1));
+		EXPECT_STREQ(b->GetParsed().site, "b");
+
+		i = db.GetNextSite(*i);
+		ASSERT_TRUE(i);
+
+		const auto cc = db.Select(*i, {});
+		ASSERT_TRUE(cc);
+		EXPECT_EQ(cc->GetParsed().timestamp, MakeTimestamp(9));
+		EXPECT_STREQ(cc->GetParsed().site, "c");
+
+		i = db.GetNextSite(*i);
+		ASSERT_FALSE(i);
+	}
+
 	for (unsigned i = 9; i <= 16; ++i, ++(*c)) {
 		c->FixDeleted();
 		db.Compress();
@@ -129,6 +181,33 @@ TEST(Database, PerSite)
 	EXPECT_EQ((*c)->GetParsed().timestamp, MakeTimestamp(10));
 
 	db.DeleteOlderThan(MakeTimestamp(11));
+
+	{
+		auto i = db.GetFirstSite();
+		ASSERT_TRUE(i);
+
+		const auto a = db.Select(*i, {});
+		ASSERT_TRUE(a);
+		EXPECT_EQ(a->GetParsed().timestamp, MakeTimestamp(11));
+		EXPECT_STREQ(a->GetParsed().site, "a");
+
+		i = db.GetNextSite(*i);
+		ASSERT_TRUE(i);
+
+		const auto b = db.Select(*i, {});
+		EXPECT_FALSE(b);
+
+		i = db.GetNextSite(*i);
+		ASSERT_TRUE(i);
+
+		const auto cc = db.Select(*i, {});
+		ASSERT_TRUE(cc);
+		EXPECT_EQ(cc->GetParsed().timestamp, MakeTimestamp(11));
+		EXPECT_STREQ(cc->GetParsed().site, "c");
+
+		i = db.GetNextSite(*i);
+		ASSERT_FALSE(i);
+	}
 
 	ASSERT_TRUE(db.Select({.sites={"a"}}));
 	ASSERT_EQ(db.Select({.sites={"a"}})->GetParsed().timestamp, MakeTimestamp(11));
@@ -157,6 +236,31 @@ TEST(Database, PerSite)
 	db.DeleteOlderThan(MakeTimestamp(19));
 	c->FixDeleted();
 	EXPECT_FALSE(*c);
+
+	{
+		auto i = db.GetFirstSite();
+		ASSERT_TRUE(i);
+
+		const auto a = db.Select(*i, {});
+		ASSERT_TRUE(a);
+		EXPECT_EQ(a->GetParsed().timestamp, MakeTimestamp(19));
+		EXPECT_STREQ(a->GetParsed().site, "a");
+
+		i = db.GetNextSite(*i);
+		ASSERT_TRUE(i);
+
+		const auto b = db.Select(*i, {});
+		EXPECT_FALSE(b);
+
+		i = db.GetNextSite(*i);
+		ASSERT_TRUE(i);
+
+		const auto cc = db.Select(*i, {});
+		EXPECT_FALSE(cc);
+
+		i = db.GetNextSite(*i);
+		ASSERT_FALSE(i);
+	}
 
 	c.reset();
 
