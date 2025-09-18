@@ -105,6 +105,7 @@ TEST(Database, PerSite)
 
 	for (unsigned i = 9; i <= 16; ++i, ++(*c)) {
 		c->FixDeleted();
+		db.Compress();
 		ASSERT_TRUE(*c);
 		EXPECT_EQ((*c)->GetParsed().timestamp, MakeTimestamp(i));
 	}
