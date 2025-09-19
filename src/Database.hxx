@@ -149,9 +149,9 @@ public:
 	Selection Follow(const Filter &filter, AppendListener &l) noexcept;
 
 	SiteIterator GetFirstSite(unsigned skip=0) noexcept {
-		for (auto i = site_list.begin(); i != site_list.end(); ++i)
+		for (auto &i : site_list)
 			if (skip-- == 0)
-				return {*i};
+				return {i};
 
 		return {};
 	}
