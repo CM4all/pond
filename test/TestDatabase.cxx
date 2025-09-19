@@ -1,12 +1,14 @@
 #include "Database.hxx"
 #include "Filter.hxx"
 #include "Selection.hxx"
+#include "AppendListener.hxx"
 #include "net/log/Serializer.hxx"
 #include "time/ClockCache.hxx"
 
 #include <gtest/gtest.h>
 
 #include <optional>
+#include <vector>
 
 using std::string_view_literals::operator""sv;
 
@@ -331,4 +333,59 @@ TEST(Database, PerSiteRateLimit)
 	/* no site, no rate limit */
 	d.site = nullptr;
 	EXPECT_FALSE(IsRateLimited(db, d, clock, 256));
+}
+
+struct TestAppendListener : public AppendListener {
+	std::vector<const Record *> records;
+
+	bool OnAppend(const Record &record) noexcept override {
+		records.push_back(&record);
+		return true; // Keep listener active
+	}
+};
+
+TEST(Database, AppendListener)
+{
+	Database db(64 * 1024);
+	TestAppendListener listener;
+
+	// Register listener with site filter
+	Filter filter;
+	filter.sites.insert("test_site");
+	auto selection = db.Follow(filter, listener);
+
+	EXPECT_TRUE(listener.records.empty());
+
+	// Add records with different site values
+	Push(db, {.timestamp = MakeTimestamp(1), .site = "test_site"});
+	Push(db, {.timestamp = MakeTimestamp(2), .site = "other_site"});
+	Push(db, {.timestamp = MakeTimestamp(3), .site = "test_site"});
+	Push(db, {.timestamp = MakeTimestamp(4), .site = "another_site"});
+
+	// Verify AppendListener was invoked only for matching site
+	EXPECT_EQ(listener.records.size(), 2u);
+	EXPECT_EQ(listener.records[0]->GetParsed().timestamp, MakeTimestamp(1));
+	EXPECT_STREQ(listener.records[0]->GetParsed().site, "test_site");
+	EXPECT_EQ(listener.records[1]->GetParsed().timestamp, MakeTimestamp(3));
+	EXPECT_STREQ(listener.records[1]->GetParsed().site, "test_site");
+
+	// Clear the vector
+	listener.records.clear();
+
+	// Clear database and add more records
+	db.Clear();
+
+	Push(db, {.timestamp = MakeTimestamp(10), .site = "test_site"});
+	Push(db, {.timestamp = MakeTimestamp(11), .site = "different_site"});
+	Push(db, {.timestamp = MakeTimestamp(12), .site = "test_site"});
+
+	// Verify AppendListener was invoked again for matching site
+	EXPECT_EQ(listener.records.size(), 2u);
+	EXPECT_EQ(listener.records[0]->GetParsed().timestamp, MakeTimestamp(10));
+	EXPECT_STREQ(listener.records[0]->GetParsed().site, "test_site");
+	EXPECT_EQ(listener.records[1]->GetParsed().timestamp, MakeTimestamp(12));
+	EXPECT_STREQ(listener.records[1]->GetParsed().site, "test_site");
+
+	// Clear the vector again
+	listener.records.clear();
 }
