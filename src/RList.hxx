@@ -56,6 +56,7 @@ public:
 
 	void clear() noexcept {
 		list.clear();
+		skip_deque.clear();
 	}
 
 	void push_back(Record &record) noexcept {

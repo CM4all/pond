@@ -72,6 +72,12 @@ public:
 	RecordSkipDeque(const RecordSkipDeque &) = delete;
 	RecordSkipDeque &operator=(const RecordSkipDeque &) = delete;
 
+	void clear() noexcept {
+		deque.clear();
+		deque.shrink_to_fit();
+		the_last = nullptr;
+	}
+
 	void Compress() noexcept {
 		deque.shrink_to_fit();
 	}
