@@ -93,7 +93,7 @@ class Database {
 	IntrusiveForwardList<
 		PerSite,
 		IntrusiveForwardListMemberHookTraits<&PerSite::list_siblings>,
-		IntrusiveForwardListOptions{.constant_time_size = true, .cache_last = true}> site_list;
+		IntrusiveForwardListOptions{.cache_last = true}> site_list;
 
 public:
 	explicit Database(size_t max_size, double _per_site_message_rate_limit=-1);
