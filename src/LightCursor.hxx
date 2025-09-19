@@ -6,11 +6,10 @@
 
 #include "AnyList.hxx"
 
+#include <cassert>
 #include <cstddef>
+#include <cstdint>
 #include <utility>
-
-#include <assert.h>
-#include <stdint.h>
 
 class Record;
 
