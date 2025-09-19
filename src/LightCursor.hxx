@@ -24,9 +24,9 @@ class LightCursor {
 	const Record *next = nullptr;
 
 public:
-	explicit LightCursor(std::nullptr_t) noexcept {}
+	explicit constexpr LightCursor(std::nullptr_t) noexcept {}
 
-	explicit LightCursor(const AnyRecordList &_list) noexcept
+	explicit constexpr LightCursor(const AnyRecordList &_list) noexcept
 		:list(_list) {}
 
 	/**
@@ -56,17 +56,17 @@ public:
 	/**
 	 * Does this instance point to a valid record?
 	 */
-	operator bool() const noexcept {
+	constexpr operator bool() const noexcept {
 		return next != nullptr;
 	}
 
-	const Record &operator*() const noexcept {
+	constexpr const Record &operator*() const noexcept {
 		assert(next != nullptr);
 
 		return *next;
 	}
 
-	const Record *operator->() const noexcept {
+	constexpr const Record *operator->() const noexcept {
 		assert(next != nullptr);
 
 		return next;
@@ -83,9 +83,7 @@ public:
 	}
 
 protected:
-	const Record *First() const noexcept;
-
-	void SetNext(const Record &record) noexcept {
+	constexpr void SetNext(const Record &record) noexcept {
 		next = &record;
 	}
 };
