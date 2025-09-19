@@ -59,11 +59,6 @@ public:
 		list.clear();
 	}
 
-	template<typename Disposer>
-	void clear_and_dispose(Disposer &&d) noexcept {
-		list.clear_and_dispose(std::forward<Disposer>(d));
-	}
-
 	void push_back(Record &record) noexcept {
 		list.push_back(record);
 		skip_deque.UpdateNew(record);
