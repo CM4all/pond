@@ -148,28 +148,28 @@ Database::GetPerSite(std::string_view site) noexcept
 	return *it;
 }
 
-AnyRecordList
+std::pair<AnyRecordList, SharedLease>
 Database::GetList(Filter &filter) noexcept
 {
 	if (filter.HasOneSite()) {
-		auto &list = GetPerSiteRecords(*filter.sites.begin());
+		auto &per_site = GetPerSite(*filter.sites.begin());
 
 		/* the PerSiteRecordList is already filtered for site;
 		   we can disable it in the Filter, because that check
 		   would be redundant */
 		filter.sites.clear();
 
-		return list;
+		return {per_site.list, per_site};
 	} else
-		return GetAllRecords();
+		return {GetAllRecords(), {}};
 }
 
 inline Selection
 Database::MakeSelection(const Filter &_filter) noexcept
 {
 	Filter filter(_filter);
-	auto list = GetList(filter);
-	return Selection(list, filter);
+	auto [list, lease] = GetList(filter);
+	return Selection(list, filter, std::move(lease));
 }
 
 Selection
@@ -195,7 +195,7 @@ Database::Select(const SiteIterator &_site, const Filter &filter) noexcept
 	assert(filter.sites.empty());
 
 	auto &site = static_cast<PerSite &>(_site.lease.GetAnchor());
-	Selection selection(site.list, filter);
+	Selection selection(site.list, filter, _site.lease);
 	selection.Rewind();
 	return selection;
 }

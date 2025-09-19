@@ -176,6 +176,6 @@ private:
 		return GetPerSite(site).list;
 	}
 
-	AnyRecordList GetList(Filter &filter) noexcept;
+	std::pair<AnyRecordList, SharedLease> GetList(Filter &filter) noexcept;
 	Selection MakeSelection(const Filter &filter) noexcept;
 };
