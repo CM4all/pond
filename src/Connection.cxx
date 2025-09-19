@@ -38,7 +38,13 @@ Connection::Connection(Instance &_instance, UniqueSocketDescriptor &&_fd) noexce
 	socket.DeferRead();
 }
 
-Connection::~Connection() noexcept = default;
+Connection::~Connection() noexcept
+{
+	/* unregister the AppendListener manually so it occurs before
+	   Selection's SharedLease gets destructed; this allows
+	   Database::PerSite::OnAbandoned() to clean up early */
+	AppendListener::Unregister();
+}
 
 bool
 Connection::IsLocalAdmin() const noexcept
