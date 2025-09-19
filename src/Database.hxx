@@ -145,9 +145,13 @@ public:
 	const Record *CheckEmplace(std::span<const std::byte> raw,
 				   const ClockCache<std::chrono::steady_clock> &clock);
 
+	[[gnu::pure]]
 	Selection Select(const Filter &filter) noexcept;
+
+	[[gnu::pure]]
 	Selection Follow(const Filter &filter, AppendListener &l) noexcept;
 
+	[[gnu::pure]]
 	SiteIterator GetFirstSite(unsigned skip=0) noexcept {
 		for (auto &i : site_list)
 			if (skip-- == 0)
@@ -156,6 +160,7 @@ public:
 		return {};
 	}
 
+	[[gnu::pure]]
 	SiteIterator GetNextSite(const SiteIterator &_previous) noexcept {
 		assert(_previous);
 		auto &previous = static_cast<PerSite &>(_previous.lease.GetAnchor());
@@ -165,6 +170,7 @@ public:
 		return {*i};
 	}
 
+	[[gnu::pure]]
 	Selection Select(const SiteIterator &site, const Filter &filter) noexcept;
 
 private:
