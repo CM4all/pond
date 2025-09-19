@@ -59,8 +59,14 @@ Database::~Database() noexcept
 void
 Database::Clear() noexcept
 {
-	site_list.clear();
-	per_site_records.clear_and_dispose(DeleteDisposer{});
+	for (auto i = site_list.begin(); i != site_list.end();) {
+		i->list.clear();
+
+		if (i->IsExpendable())
+			i = site_list.erase_and_dispose(i, DeleteDisposer{});
+		else
+			++i;
+	}
 
 	all_records.clear();
 

@@ -4,6 +4,7 @@ cm4all-pond (0.38) unstable; urgency=low
     "zeroconf_protocol"
   * reduce the number of epoll_ctl() system calls
   * compress data structures once per hour
+  * fix crash when cloning while there are active queries
   * client: add new datagram types to the usage text
 
  --   
