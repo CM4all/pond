@@ -26,7 +26,6 @@ public:
 	RecordList() = default;
 
 	~RecordList() noexcept {
-		assert(list.empty());
 		assert(append_listeners.empty());
 	}
 

@@ -55,10 +55,6 @@ class Database {
 		explicit PerSite(std::string_view _site) noexcept
 			:site(_site) {}
 
-		~PerSite() noexcept {
-			list.clear();
-		}
-
 		bool IsExpendable() const noexcept {
 			return list.IsExpendable() && IsAbandoned();
 		}
