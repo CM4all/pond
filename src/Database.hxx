@@ -159,8 +159,7 @@ public:
 	SiteIterator GetNextSite(const SiteIterator &_previous) noexcept {
 		assert(_previous);
 		auto &previous = static_cast<PerSite &>(_previous.lease.GetAnchor());
-		auto i = site_list.iterator_to(previous);
-		++i;
+		const auto i = std::next(site_list.iterator_to(previous));
 		if (i == site_list.end())
 			return {};
 		return {*i};
