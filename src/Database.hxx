@@ -9,7 +9,7 @@
 #include "SiteIterator.hxx"
 #include "system/LargeAllocation.hxx"
 #include "util/TokenBucket.hxx"
-#include "util/IntrusiveForwardList.hxx"
+#include "util/IntrusiveList.hxx"
 #include "util/IntrusiveHashSet.hxx"
 #include "util/SharedLease.hxx"
 
@@ -37,12 +37,11 @@ class Database {
 	FullRecordList all_records;
 
 	struct PerSite final
-		: public IntrusiveHashSetHook<>,
+		: IntrusiveHashSetHook<>,
+		  IntrusiveListHook<>,
 		  SharedAnchor
 	{
 		const std::string site;
-
-		IntrusiveForwardListHook list_siblings;
 
 		/**
 		 * A chronological list for each site.  This list does not
@@ -90,10 +89,7 @@ class Database {
 	 * A linked list of all sites; this can be used to iterate
 	 * incrementally over all known sites.
 	 */
-	IntrusiveForwardList<
-		PerSite,
-		IntrusiveForwardListMemberHookTraits<&PerSite::list_siblings>,
-		IntrusiveForwardListOptions{.cache_last = true}> site_list;
+	IntrusiveList<PerSite> site_list;
 
 public:
 	explicit Database(size_t max_size, double _per_site_message_rate_limit=-1);
