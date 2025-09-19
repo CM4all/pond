@@ -82,7 +82,6 @@ class Database {
 		};
 	};
 
-	// TODO: purge empty items eventually
 	IntrusiveHashSet<
 		PerSite, 65536,
 		IntrusiveHashSetOperators<PerSite, PerSite::GetSite,
