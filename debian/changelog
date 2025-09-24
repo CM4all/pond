@@ -7,7 +7,7 @@ cm4all-pond (0.38) unstable; urgency=low
   * fix crash when cloning while there are active queries
   * client: add new datagram types to the usage text
 
- --   
+ -- Max Kellermann <mk@cm4all.com>  Wed, 24 Sep 2025 08:20:01 +0200
 
 cm4all-pond (0.37) unstable; urgency=low
 
