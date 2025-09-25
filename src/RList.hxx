@@ -100,6 +100,15 @@ public:
 		return skip_deque.TimeLowerBound(since);
 	}
 
+	[[gnu::pure]]
+	const Record *LastUntil(Net::Log::TimePoint until) noexcept {
+		if (list.empty())
+			return nullptr;
+
+		skip_deque.FixDeleted(front());
+		return skip_deque.LastUntil(until);
+	}
+
 	void AddAppendListener(AppendListener &l) noexcept {
 		append_listeners.Add(l);
 	}

@@ -19,6 +19,20 @@ Selection::SkipMismatches() noexcept
 		++cursor;
 }
 
+inline bool
+Selection::IsDefinedReverse() const noexcept
+{
+	return cursor && (!cursor->GetParsed().HasTimestamp() ||
+			  cursor->GetParsed().timestamp + until_offset >= filter.timestamp.since);
+}
+
+void
+Selection::ReverseSkipMismatches() noexcept
+{
+	while (IsDefinedReverse() && !filter(cursor->GetParsed(), cursor->GetRaw()))
+		--cursor;
+}
+
 bool
 Selection::FixDeleted() noexcept
 {
@@ -44,6 +58,19 @@ Selection::Rewind() noexcept
 		cursor.Rewind();
 
 	SkipMismatches();
+}
+
+void
+Selection::SeekLast() noexcept
+{
+	assert(!cursor);
+
+	const auto *record = cursor.LastUntil(filter.timestamp.until);
+	if (record == nullptr)
+		return;
+
+	cursor.SetNext(*record);
+	ReverseSkipMismatches();
 }
 
 bool

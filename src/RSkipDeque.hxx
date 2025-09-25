@@ -57,7 +57,7 @@ class RecordSkipDeque {
 	/**
 	 * The last record in the list, which however may not be in
 	 * the #deque.  It is needed to find the real end of the list
-	 * in TimeRange().
+	 * in LastUntil().
 	 */
 	const Record *the_last = nullptr;
 
@@ -96,4 +96,11 @@ public:
 	 */
 	[[gnu::pure]]
 	const Record *TimeLowerBound(Net::Log::TimePoint since) const noexcept;
+
+	/**
+	 * Find the last record not after the given time or `nullptr`
+	 * if no such record was found.
+	 */
+	[[gnu::pure]]
+	const Record *LastUntil(Net::Log::TimePoint until) const noexcept;
 };

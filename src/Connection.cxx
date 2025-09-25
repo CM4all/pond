@@ -181,6 +181,17 @@ Connection::CommitQuery()
 			throw SimplePondError{"FOLLOW/CONTINUE and WINDOW are mutually exclusive"};
 	}
 
+	if (current.last) {
+		if (current.HasGroupSite())
+			throw SimplePondError{"LAST and GROUP_SITE are mutually exclusive"};
+
+		if (current.HasWindow())
+			throw SimplePondError{"LAST and WINDOW are mutually exclusive"};
+
+		if (current.follow)
+			throw SimplePondError{"LAST and FOLLOW are mutually exclusive"};
+	}
+
 	current.site_iterator = {};
 
 	if (current.follow) {
@@ -198,6 +209,9 @@ Connection::CommitQuery()
 
 		current.selection.reset(new Selection(db.Select(current.site_iterator,
 								current.filter)));
+		socket.DeferWrite();
+	} else if (current.last) {
+		current.selection.reset(new Selection(db.SelectLast(current.filter)));
 		socket.DeferWrite();
 	} else {
 		current.selection.reset(new Selection(db.Select(current.filter)));
@@ -513,6 +527,20 @@ try {
 			throw SimplePondError{"Malformed CONTINUE"};
 
 		current.continue_ = true;
+		return BufferedResult::AGAIN;
+
+	case PondRequestCommand::LAST:
+		if (!current.MatchId(id) ||
+		    current.command != PondRequestCommand::QUERY)
+			throw SimplePondError{"Misplaced LAST"};
+
+		if (current.last)
+			throw SimplePondError{"Duplicate LAST"};
+
+		if (!payload.empty())
+			throw SimplePondError{"Malformed CONTINUE"};
+
+		current.last = true;
 		return BufferedResult::AGAIN;
 	}
 

@@ -195,6 +195,14 @@ Database::Select(const Filter &filter) noexcept
 }
 
 Selection
+Database::SelectLast(const Filter &filter) noexcept
+{
+	auto selection = MakeSelection(filter);
+	selection.SeekLast();
+	return selection;
+}
+
+Selection
 Database::Follow(const Filter &filter, AppendListener &l) noexcept
 {
 	auto selection = MakeSelection(filter);

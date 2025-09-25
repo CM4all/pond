@@ -62,6 +62,25 @@ TEST(Database, Basic)
 	   for newer records */
 	EXPECT_NE(db.GetAllRecords().front().GetParsed().timestamp, MakeTimestamp(1));
 
+	/* test SelectLast() */
+	{
+		Filter filter;
+		auto selection = db.SelectLast(filter);
+		ASSERT_TRUE(selection);
+		EXPECT_EQ(selection->GetParsed().timestamp, MakeTimestamp(32767));
+
+		++selection;
+		EXPECT_FALSE(selection);
+
+		filter.timestamp.until = MakeTimestamp(32750);
+		selection = db.SelectLast(filter);
+		ASSERT_TRUE(selection);
+		EXPECT_EQ(selection->GetParsed().timestamp, MakeTimestamp(32750));
+
+		++selection;
+		EXPECT_FALSE(selection);
+	}
+
 	/* test DeleteOlderThan() */
 	auto oldest = db.GetAllRecords().front().GetParsed().timestamp + Net::Log::Duration(16);
 	db.DeleteOlderThan(oldest);
@@ -113,6 +132,12 @@ TEST(Database, PerSite)
 			EXPECT_EQ(selection->GetParsed().timestamp, MakeTimestamp(i));
 		}
 
+		EXPECT_FALSE(selection);
+
+		selection = db.SelectLast({.sites={site}});
+		ASSERT_TRUE(selection);
+		EXPECT_EQ(selection->GetParsed().timestamp, MakeTimestamp(8));
+		++selection;
 		EXPECT_FALSE(selection);
 	}
 

@@ -66,6 +66,7 @@ struct QueryOptions {
 	bool jsonl = false;
 
 	bool follow = false, continue_ = false;
+	bool last = false;
 	bool raw = false;
 	bool gzip = false;
 #ifdef HAVE_LIBGEOIP
@@ -212,6 +213,8 @@ ParseFilterItem(Filter &filter, PondGroupSitePayload &group_site,
 			throw "Cannot use both --follow and --continue";
 
 		options.continue_ = true;
+	} else if (StringIsEqual(p, "--last")) {
+		options.last = true;
 	} else if (StringIsEqual(p, "--raw"))
 		options.raw = true;
 	else if (StringIsEqual(p, "--gzip"))
@@ -375,6 +378,9 @@ Query(const PondServerSpecification &server, std::span<const char *const> args)
 
 	if (options.continue_)
 		client.Send(id, PondRequestCommand::CONTINUE);
+
+	if (options.last)
+		client.Send(id, PondRequestCommand::LAST);
 
 	client.Send(id, PondRequestCommand::COMMIT);
 

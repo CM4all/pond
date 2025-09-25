@@ -1,6 +1,6 @@
 cm4all-pond (0.39) unstable; urgency=low
 
-  * 
+  * protocol: add command LAST
 
  --   
 

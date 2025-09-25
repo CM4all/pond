@@ -59,3 +59,16 @@ RecordSkipDeque::TimeLowerBound(Net::Log::TimePoint since) const noexcept
 
 	return &i->record;
 }
+
+const Record *
+RecordSkipDeque::LastUntil(Net::Log::TimePoint until) const noexcept
+{
+	auto i = std::upper_bound(deque.begin(), deque.end(), until, [](const auto a, const auto &b){
+		return a < b.time;
+	});
+
+	if (i == deque.end())
+		return the_last;
+
+	return &i->record;
+}

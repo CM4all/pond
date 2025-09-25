@@ -17,6 +17,16 @@ AnyRecordList::TimeLowerBound(Net::Log::TimePoint since) const noexcept
 }
 
 const Record *
+AnyRecordList::LastUntil(Net::Log::TimePoint last) const noexcept
+{
+	return all != nullptr
+		? all->LastUntil(last)
+		: (per_site != nullptr
+		   ? per_site->LastUntil(last)
+		   : nullptr);
+}
+
+const Record *
 AnyRecordList::First() const noexcept
 {
 	return all != nullptr

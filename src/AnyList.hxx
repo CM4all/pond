@@ -32,6 +32,9 @@ public:
 	const Record *TimeLowerBound(Net::Log::TimePoint since) const noexcept;
 
 	[[gnu::pure]]
+	const Record *LastUntil(Net::Log::TimePoint until) const noexcept;
+
+	[[gnu::pure]]
 	const Record *First() const noexcept;
 
 	[[gnu::pure]]

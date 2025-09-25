@@ -143,6 +143,12 @@ public:
 	[[gnu::pure]]
 	Selection Select(const Filter &filter) noexcept;
 
+	/**
+	 * Like Select(), but seek the last matching record (if any).
+	 */
+	[[gnu::pure]]
+	Selection SelectLast(const Filter &filter) noexcept;
+
 	[[gnu::pure]]
 	Selection Follow(const Filter &filter, AppendListener &l) noexcept;
 

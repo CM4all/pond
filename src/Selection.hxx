@@ -33,6 +33,7 @@ public:
 
 	bool FixDeleted() noexcept;
 	void Rewind() noexcept;
+	void SeekLast() noexcept;
 
 	void AddAppendListener(AppendListener &l) noexcept {
 		cursor.AddAppendListener(l);
@@ -63,4 +64,7 @@ public:
 
 private:
 	void SkipMismatches() noexcept;
+
+	bool IsDefinedReverse() const noexcept;
+	void ReverseSkipMismatches() noexcept;
 };

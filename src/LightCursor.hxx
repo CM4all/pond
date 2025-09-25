@@ -52,6 +52,10 @@ public:
 		return list.TimeLowerBound(since);
 	}
 
+	const Record *LastUntil(Net::Log::TimePoint until) const noexcept {
+		return list.LastUntil(until);
+	}
+
 	void AddAppendListener(AppendListener &l) noexcept {
 		list.AddAppendListener(l);
 	}

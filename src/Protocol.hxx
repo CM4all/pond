@@ -139,6 +139,11 @@ enum class PondRequestCommand : uint16_t {
 	 * records.
 	 */
 	CONTINUE = 20,
+
+	/**
+	 * Print only the last matching record.
+	 */
+	LAST = 21,
 };
 
 enum class PondResponseCommand : uint16_t {
