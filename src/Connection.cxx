@@ -266,11 +266,9 @@ try {
 		if (HasNullByte(ToStringView(payload)))
 			throw SimplePondError{"Malformed FILTER_SITE"};
 
-		{
-			auto e = current.filter.sites.emplace(ToStringView(payload));
-			if (!e.second)
-				throw SimplePondError{"Duplicate FILTER_SITE"};
-		}
+		if (auto e = current.filter.sites.emplace(ToStringView(payload));
+		    !e.second)
+			throw SimplePondError{"Duplicate FILTER_SITE"};
 
 		return BufferedResult::AGAIN;
 
