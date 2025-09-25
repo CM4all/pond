@@ -116,7 +116,7 @@ private:
 	void Send(uint16_t id, PondResponseCommand command,
 		  std::span<const std::byte> payload);
 
-	void CommitQuery() noexcept;
+	void CommitQuery();
 	void CommitClone();
 
 	BufferedResult OnPacket(uint16_t id, PondRequestCommand cmd,

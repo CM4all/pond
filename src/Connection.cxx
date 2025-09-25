@@ -163,9 +163,23 @@ SkipNonEmpty(Database &db, const Filter &filter, SiteIterator &&i,
 }
 
 inline void
-Connection::CommitQuery() noexcept
+Connection::CommitQuery()
 {
 	auto &db = instance.GetDatabase();
+
+	if (!current.filter.sites.empty() && current.HasGroupSite())
+		throw SimplePondError{"FILTER_SITE and GROUP_SITE are mutually exclusive"};
+
+	if (current.follow && current.continue_)
+		throw SimplePondError{"FOLLOW and CONTINUE are mutually exclusive"};
+
+	if (current.follow || current.continue_) {
+		if (current.HasGroupSite())
+			throw SimplePondError{"FOLLOW/CONTINUE and GROUP_SITE are mutually exclusive"};
+
+		if (current.HasWindow())
+			throw SimplePondError{"FOLLOW/CONTINUE and WINDOW are mutually exclusive"};
+	}
 
 	current.site_iterator = {};
 
@@ -260,9 +274,6 @@ try {
 		    current.command != PondRequestCommand::QUERY)
 			throw SimplePondError{"Misplaced FILTER_SITE"};
 
-		if (current.HasGroupSite())
-			throw SimplePondError{"FILTER_SITE and GROUP_SITE are mutually exclusive"};
-
 		if (HasNullByte(ToStringView(payload)))
 			throw SimplePondError{"Malformed FILTER_SITE"};
 
@@ -322,18 +333,11 @@ try {
 
 	case PondRequestCommand::FOLLOW:
 		if (!current.MatchId(id) ||
-		    current.command != PondRequestCommand::QUERY ||
-		    current.continue_)
+		    current.command != PondRequestCommand::QUERY)
 			throw SimplePondError{"Misplaced FOLLOW"};
 
 		if (current.follow)
 			throw SimplePondError{"Duplicate FOLLOW"};
-
-		if (current.HasGroupSite())
-			throw SimplePondError{"FOLLOW and GROUP_SITE are mutually exclusive"};
-
-		if (current.HasWindow())
-			throw SimplePondError{"FOLLOW and WINDOW are mutually exclusive"};
 
 		if (!payload.empty())
 			throw SimplePondError{"Malformed FOLLOW"};
@@ -345,12 +349,6 @@ try {
 		if (!current.MatchId(id) ||
 		    current.command != PondRequestCommand::QUERY)
 			throw SimplePondError{"Misplaced GROUP_SITE"};
-
-		if (!current.filter.sites.empty())
-			throw SimplePondError{"FILTER_SITE and GROUP_SITE are mutually exclusive"};
-
-		if (current.follow || current.continue_)
-			throw SimplePondError{"FOLLOW/CONTINUE and GROUP_SITE are mutually exclusive"};
 
 		if (current.group_site.max_sites > 0)
 			throw SimplePondError{"Duplicate GROUP_SITE"};
@@ -408,9 +406,6 @@ try {
 		if (!current.MatchId(id) ||
 		    current.command != PondRequestCommand::QUERY)
 			throw SimplePondError{"Misplaced WINDOW"};
-
-		if (current.follow || current.continue_)
-			throw SimplePondError{"FOLLOW/CONTINUE and WINDOW are mutually exclusive"};
 
 		if (current.HasWindow())
 			throw SimplePondError{"Duplicate WINDOW"};
@@ -508,18 +503,11 @@ try {
 
 	case PondRequestCommand::CONTINUE:
 		if (!current.MatchId(id) ||
-		    current.command != PondRequestCommand::QUERY ||
-		    current.follow)
+		    current.command != PondRequestCommand::QUERY)
 			throw SimplePondError{"Misplaced CONTINUE"};
 
 		if (current.continue_)
 			throw SimplePondError{"Duplicate CONTINUE"};
-
-		if (current.HasGroupSite())
-			throw SimplePondError{"CONTINUE and GROUP_SITE are mutually exclusive"};
-
-		if (current.HasWindow())
-			throw SimplePondError{"CONTINUE and WINDOW are mutually exclusive"};
 
 		if (!payload.empty())
 			throw SimplePondError{"Malformed CONTINUE"};
