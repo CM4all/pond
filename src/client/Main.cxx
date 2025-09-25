@@ -271,7 +271,7 @@ Query(const PondServerSpecification &server, std::span<const char *const> args)
 			ParseFilterItem(filter, group_site, window,
 					options, p);
 		} catch (...) {
-			std::throw_with_nested(FmtRuntimeError("Failed to parse '{}'", p));
+			std::throw_with_nested(FmtRuntimeError("Failed to parse {:?}", p));
 		}
 	}
 

@@ -34,7 +34,7 @@ GetAvahiIfIndex(const ListenerConfig &listener)
 
 	int i = if_nametoindex(name);
 	if (i == 0)
-		throw FmtSocketError("Failed to find interface '{}'",
+		throw FmtSocketError("Failed to find interface {:?}",
 				     listener.interface);
 
 	return AvahiIfIndex(i);
