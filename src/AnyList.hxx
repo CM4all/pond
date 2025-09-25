@@ -35,7 +35,13 @@ public:
 	const Record *First() const noexcept;
 
 	[[gnu::pure]]
+	const Record *Last() const noexcept;
+
+	[[gnu::pure]]
 	const Record *Next(const Record &r) const noexcept;
+
+	[[gnu::pure]]
+	const Record *Previous(const Record &r) const noexcept;
 
 	void AddAppendListener(AppendListener &l) const noexcept;
 };

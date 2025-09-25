@@ -60,6 +60,11 @@ public:
 	 */
 	Cursor &operator++() noexcept;
 
+	/**
+	 * Skip to the previous record.
+	 */
+	Cursor &operator--() noexcept;
+
 	void OnAppend(const Record &record) noexcept;
 
 private:

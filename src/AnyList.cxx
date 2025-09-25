@@ -27,11 +27,29 @@ AnyRecordList::First() const noexcept
 }
 
 const Record *
+AnyRecordList::Last() const noexcept
+{
+	return all != nullptr
+		? all->Last()
+		: (per_site != nullptr
+		   ? per_site->Last()
+		   : nullptr);
+}
+
+const Record *
 AnyRecordList::Next(const Record &r) const noexcept
 {
 	return all != nullptr
 		? all->Next(r)
 		: per_site->Next(r);
+}
+
+const Record *
+AnyRecordList::Previous(const Record &r) const noexcept
+{
+	return all != nullptr
+		? all->Previous(r)
+		: per_site->Previous(r);
 }
 
 void

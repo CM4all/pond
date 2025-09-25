@@ -49,6 +49,17 @@ Cursor::operator++() noexcept
 	return *this;
 }
 
+Cursor &
+Cursor::operator--() noexcept
+{
+	assert(*this);
+
+	LightCursor::operator--();
+	CheckUpdateId();
+
+	return *this;
+}
+
 inline void
 Cursor::CheckUpdateId() noexcept
 {

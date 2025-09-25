@@ -35,6 +35,10 @@ public:
 		next = list.First();
 	}
 
+	void SeekLast() noexcept {
+		next = list.Last();
+	}
+
 	/**
 	 * If the pointed-to #Record has been deleted, rewind to the
 	 * first record.
@@ -78,6 +82,16 @@ public:
 		assert(next != nullptr);
 
 		next = list.Next(*next);
+		return *this;
+	}
+
+	/**
+	 * Skip to the previous record.
+	 */
+	LightCursor &operator--() noexcept {
+		assert(next != nullptr);
+
+		next = list.Previous(*next);
 		return *this;
 	}
 

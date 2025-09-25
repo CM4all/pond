@@ -82,6 +82,15 @@ public:
 			: &*i;
 	}
 
+	const Record *Previous(const Record &current) const noexcept {
+		auto i = list.iterator_to(current);
+		if (i == list.begin())
+			return nullptr;
+
+		--i;
+		return &*i;
+	}
+
 	[[gnu::pure]]
 	const Record *TimeLowerBound(Net::Log::TimePoint since) noexcept {
 		if (list.empty())
