@@ -177,6 +177,10 @@ The following command-line options are available:
  Follow the live stream of records as they are received by the server,
  but no past entries are shown.
 
+.. option:: --continue
+
+ Similar to :option:`--follow`, but show past entries first.
+
 .. option:: --jsonl
 
  Write JSON-Lines.
