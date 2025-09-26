@@ -183,7 +183,7 @@ Database::MakeSelection(const Filter &_filter) noexcept
 {
 	Filter filter(_filter);
 	auto [list, lease] = GetList(filter);
-	return Selection(list, filter, std::move(lease));
+	return Selection(list, std::move(filter), std::move(lease));
 }
 
 Selection
