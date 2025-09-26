@@ -29,8 +29,18 @@ Selection::IsDefinedReverse() const noexcept
 void
 Selection::ReverseSkipMismatches() noexcept
 {
-	while (IsDefinedReverse() && !filter(cursor->GetParsed(), cursor->GetRaw()))
+	while (IsDefinedReverse()) {
+		if (filter(cursor->GetParsed(), cursor->GetRaw()))
+			// found a match
+			return;
+
 		--cursor;
+	}
+
+	/* no match found - clear the cursor so our "bool" operator
+	   returns true (this method only checks IsDefinedReverse()
+	   which is different) */
+	cursor = Cursor{nullptr};
 }
 
 bool
