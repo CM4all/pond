@@ -63,13 +63,13 @@ class ResultWriter {
 
 	const bool jsonl;
 
-	const bool raw, gzip, track_visitors;
+	const bool raw, age_only, gzip, track_visitors;
 
 	size_t buffer_fill = 0;
 	char buffer[65536];
 
 public:
-	ResultWriter(bool _raw, bool _gzip,
+	ResultWriter(bool _raw, bool _age_only, bool _gzip,
 #ifdef HAVE_LIBGEOIP
 		     GeoIP *_geoip_v4, GeoIP *_geoip_v6,
 #endif

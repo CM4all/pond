@@ -23,11 +23,15 @@
 #include "util/StringSplit.hxx"
 #endif
 
+#include <fmt/core.h>
+
 #include <algorithm>
 
 #include <fcntl.h>
 #include <string.h> // for strlen(), stpcpy()
 #include <sys/stat.h> // for umask(), fchmod()
+
+using std::string_view_literals::operator""sv;
 
 /**
  * Drop all entries of this file from the page cache.  This avoids
@@ -113,7 +117,7 @@ SendPacket(SocketDescriptor s, std::span<const std::byte> payload)
 	SendMessage(s, MessageHeader{std::span{vec}}, 0);
 }
 
-ResultWriter::ResultWriter(bool _raw, bool _gzip,
+ResultWriter::ResultWriter(bool _raw, bool _age_only, bool _gzip,
 #ifdef HAVE_LIBGEOIP
 			   GeoIP *_geoip_v4, GeoIP *_geoip_v6,
 #endif
@@ -138,7 +142,7 @@ ResultWriter::ResultWriter(bool _raw, bool _gzip,
 	 resolve_forwarded_to(_resolve_forwarded_to),
 #endif
 	 jsonl(_jsonl),
-	 raw(_raw), gzip(_gzip),
+	 raw(_raw), age_only(_age_only), gzip(_gzip),
 	 track_visitors(_track_visitors)
 {
 	if (per_site.IsDefined()) {
@@ -187,6 +191,21 @@ ResultWriter::LookupGeoIP(const char *address) const noexcept
 void
 ResultWriter::Append(Net::Log::Datagram &&d)
 {
+	if (age_only) [[unlikely]] {
+		if (!d.HasTimestamp())
+			return;
+
+		if (buffer_fill > sizeof(buffer) - 64)
+			FlushBuffer();
+
+		const auto age = Net::Log::FromSystem(std::chrono::system_clock::now()) - d.timestamp;
+		const auto age_seconds = std::chrono::duration_cast<std::chrono::seconds>(age);
+		char *p = buffer + buffer_fill;
+		p = fmt::format_to(p, "{}\n"sv, age_seconds.count());
+		buffer_fill = p - buffer;
+		return;
+	}
+
 #ifdef HAVE_AVAHI
 	if (resolve_forwarded_to && d.forwarded_to != nullptr) {
 		/* extract the IP address, stripping the port and

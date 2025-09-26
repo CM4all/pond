@@ -185,6 +185,11 @@ The following command-line options are available:
 
  Show only the most recent record.
 
+.. option:: --age-only
+
+ Show the only the age of each record (in seconds before the current
+ wallclock time).
+
 .. option:: --jsonl
 
  Write JSON-Lines.
