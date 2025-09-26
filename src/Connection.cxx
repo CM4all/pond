@@ -665,12 +665,14 @@ Connection::OnBufferedWrite()
 	auto &selection = *current.selection;
 	selection.FixDeleted();
 
+	static constexpr unsigned MAX_STEPS = 1024 * 1024;
+
 	/* handle window.skip */
 	uint64_t max_records = std::numeric_limits<uint64_t>::max();
 	if (current.HasWindow()) {
 		unsigned n_skipped = 0;
 		while (selection && current.window.skip > 0) {
-			if (++n_skipped > 1024 * 1024) {
+			if (++n_skipped > MAX_STEPS) {
 				/* yield to avoid DoS by a huge number
 				   of skips */
 				socket.ScheduleWrite();
