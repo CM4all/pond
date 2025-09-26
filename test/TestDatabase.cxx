@@ -15,7 +15,10 @@ using std::string_view_literals::operator""sv;
 static constexpr auto
 MakeTimestamp(unsigned t)
 {
-	return Net::Log::TimePoint(Net::Log::Duration(t));
+	/* start at this offset to avoid integer underflows */
+	constexpr Net::Log::Duration offset = std::chrono::hours{24};
+
+	return Net::Log::TimePoint(offset + Net::Log::Duration(t));
 }
 
 static const Record &
