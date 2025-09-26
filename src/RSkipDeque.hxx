@@ -91,12 +91,8 @@ public:
 	void UpdateNew(const Record &last) noexcept;
 
 	/**
-	 * Find the records spanning the given time range.  Returns a
-	 * pair of #Record pointers denoting the first record inside
-	 * the range and the first record after the range.  The first
-	 * is `nullptr` if all records are older, and the second is
-	 * `nullptr` if there are no records after the end of the
-	 * range.
+	 * Find the first record not earlier than the given time or
+	 * `nullptr` if no such record was found.
 	 */
 	[[gnu::pure]]
 	const Record *TimeLowerBound(Net::Log::TimePoint since) const noexcept;
