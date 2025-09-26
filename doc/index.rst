@@ -181,6 +181,10 @@ The following command-line options are available:
 
  Similar to :option:`--follow`, but show past entries first.
 
+.. option:: --last
+
+ Show only the most recent record.
+
 .. option:: --jsonl
 
  Write JSON-Lines.

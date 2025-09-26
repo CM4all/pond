@@ -607,6 +607,7 @@ try {
 			   "Commands:\n"
 			   "  query\n"
 			   "    [--follow] [--continue]\n"
+			   "    [--last]\n"
 			   "    [--raw] [--gzip]\n"
 #ifdef HAVE_LIBGEOIP
 			   "    [--geoip]\n"
