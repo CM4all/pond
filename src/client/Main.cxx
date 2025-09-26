@@ -332,20 +332,23 @@ Query(const PondServerSpecification &server, std::span<const char *const> args)
 	}
 #endif // HAVE_LIBGEOIP
 
-	ResultWriter result_writer(options.raw, options.gzip,
+	ResultWriter result_writer{
+		options.raw,
+		options.gzip,
 #ifdef HAVE_LIBGEOIP
-				   geoip_v4, geoip_v6,
+		geoip_v4, geoip_v6,
 #endif
-				   options.track_visitors,
+		options.track_visitors,
 #ifdef HAVE_AVAHI
-				   options.resolve_forwarded_to,
+		options.resolve_forwarded_to,
 #endif
-				   options.one_line,
-				   options.jsonl,
-				   single_site,
-				   options.per_site,
-				   options.per_site_filename,
-				   options.per_site_nested);
+		options.one_line,
+		options.jsonl,
+		single_site,
+		options.per_site,
+		options.per_site_filename,
+		options.per_site_nested,
+	};
 
 	if (filter.timestamp.HasSince())
 		client.Send(id, PondRequestCommand::FILTER_SINCE, filter.timestamp.since);
