@@ -49,8 +49,8 @@ RecordSkipDeque::TimeLowerBound(Net::Log::TimePoint since) const noexcept
 	assert(since != Net::Log::TimePoint::min());
 
 	auto i = std::lower_bound(deque.begin(), deque.end(), since, [](const auto &a, const auto b){
-			return a.time < b;
-		});
+		return a.time < b;
+	});
 
 	if (i != deque.begin())
 		--i;
