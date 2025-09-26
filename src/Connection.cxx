@@ -190,6 +190,10 @@ Connection::CommitQuery()
 
 		if (current.follow)
 			throw SimplePondError{"LAST and FOLLOW are mutually exclusive"};
+
+		if (!current.continue_)
+			/* stop after transmitting the one last record */
+			current.window.max = 1;
 	}
 
 	current.site_iterator = {};
