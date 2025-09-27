@@ -40,6 +40,28 @@ public:
 	}
 
 	/**
+	 * Opaque struct for Mark() and Restore().
+	 */
+	struct Marker {
+		const Record *record;
+	};
+
+	/**
+	 * Save the current position in an object, to be restored
+	 * using Restore().
+	 */
+	Marker Mark() const noexcept {
+		return {next};
+	}
+
+	/**
+	 * Restore a position saved by Mark().
+	 */
+	void Restore(Marker marker) noexcept {
+		next = marker.record;
+	}
+
+	/**
 	 * If the pointed-to #Record has been deleted, rewind to the
 	 * first record.
 	 *

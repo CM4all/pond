@@ -417,3 +417,48 @@ TEST(Database, AppendListener)
 	// Clear the vector again
 	listener.records.clear();
 }
+
+TEST(Database, MarkRestore)
+{
+	Database db(64 * 1024);
+
+	// Add several records with different sites
+	Push(db, {.timestamp = MakeTimestamp(1), .site = "site_a"});
+	Push(db, {.timestamp = MakeTimestamp(2), .site = "site_b"});
+	Push(db, {.timestamp = MakeTimestamp(3), .site = "site_a"});
+	Push(db, {.timestamp = MakeTimestamp(4), .site = "site_a"});
+	Push(db, {.timestamp = MakeTimestamp(5), .site = "site_b"});
+
+	// Create a selection for site_a records
+	Filter filter;
+	filter.sites.insert("site_a");
+	auto selection = db.Select(filter);
+
+	// Collect markers and expected timestamps as we iterate
+	std::vector<Selection::Marker> markers;
+	std::vector<unsigned> expected_timestamps;
+
+	// Iterate through selection, creating markers at each step
+	for (unsigned expected_ts : {1, 3, 4}) {
+		ASSERT_TRUE(selection);
+		EXPECT_EQ(selection->GetParsed().timestamp, MakeTimestamp(expected_ts));
+		EXPECT_STREQ(selection->GetParsed().site, "site_a");
+
+		// Mark the current position
+		markers.push_back(selection.Mark());
+		expected_timestamps.push_back(expected_ts);
+
+		++selection;
+	}
+
+	// Should be at end now
+	EXPECT_FALSE(selection);
+
+	// Restore each marker in reverse order and verify records
+	for (int i = markers.size() - 1; i >= 0; --i) {
+		selection.Restore(markers[i]);
+		ASSERT_TRUE(selection);
+		EXPECT_EQ(selection->GetParsed().timestamp, MakeTimestamp(expected_timestamps[i]));
+		EXPECT_STREQ(selection->GetParsed().site, "site_a");
+	}
+}

@@ -49,6 +49,14 @@ public:
 	 */
 	void Rewind() noexcept;
 
+	using LightCursor::Marker;
+	using LightCursor::Mark;
+
+	void Restore(Marker marker) noexcept {
+		LightCursor::Restore(marker);
+		CheckUpdateId();
+	}
+
 	/**
 	 * Does this instance point to a valid record?
 	 */

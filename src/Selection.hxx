@@ -32,6 +32,28 @@ public:
 		 lease(std::forward<L>(_lease)) {}
 
 	/**
+	 * Opaque struct for Mark() and Restore().
+	 */
+	struct Marker {
+		Cursor::Marker cursor;
+	};
+
+	/**
+	 * Save the current position in an object, to be restored
+	 * using Restore().
+	 */
+	Marker Mark() const noexcept {
+		return {cursor.Mark()};
+	}
+
+	/**
+	 * Restore a position saved by Mark().
+	 */
+	void Restore(Marker marker) noexcept {
+		cursor.Restore(marker.cursor);
+	}
+
+	/**
 	 * If the pointed-to #Record has been deleted, rewind to the
 	 * first record.
 	 *

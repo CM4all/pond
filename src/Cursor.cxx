@@ -60,7 +60,7 @@ Cursor::operator--() noexcept
 	return *this;
 }
 
-inline void
+void
 Cursor::CheckUpdateId() noexcept
 {
 	if (*this)
