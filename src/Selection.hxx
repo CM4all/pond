@@ -18,7 +18,7 @@ class Selection {
 
 	/**
 	 * A lease for the #Datbase::PerSite that may be referenced by
-	 * #cursor.  The lease ensured that the object does not get
+	 * #cursor.  The lease ensures that the object does not get
 	 * freed as long as this #Selection exists.
 	 */
 	SharedLease lease;
