@@ -19,13 +19,15 @@ Selection::IsDefined() const noexcept
 			  cursor->GetParsed().timestamp - until_offset <= filter.timestamp.until);
 }
 
-void
+inline void
 Selection::SkipMismatches() noexcept
 {
 	while (IsDefined()) {
-		if (filter(cursor->GetParsed(), cursor->GetRaw()))
+		if (filter(cursor->GetParsed(), cursor->GetRaw())) {
 			// found a match
+			state = State::MATCH;
 			return;
+		}
 
 		++cursor;
 	}
@@ -33,6 +35,7 @@ Selection::SkipMismatches() noexcept
 	/* no match found - clear the cursor so our "bool" operator
 	   returns false */
 	cursor.Clear();
+	state = State::END;
 }
 
 inline bool
@@ -42,13 +45,15 @@ Selection::IsDefinedReverse() const noexcept
 			  cursor->GetParsed().timestamp + until_offset >= filter.timestamp.since);
 }
 
-void
+inline void
 Selection::ReverseSkipMismatches() noexcept
 {
 	while (IsDefinedReverse()) {
-		if (filter(cursor->GetParsed(), cursor->GetRaw()))
+		if (filter(cursor->GetParsed(), cursor->GetRaw())) {
 			// found a match
+			state = State::MATCH;
 			return;
+		}
 
 		--cursor;
 	}
@@ -56,6 +61,7 @@ Selection::ReverseSkipMismatches() noexcept
 	/* no match found - clear the cursor so our "bool" operator
 	   returns false */
 	cursor.Clear();
+	state = State::END;
 }
 
 bool
@@ -64,8 +70,8 @@ Selection::FixDeleted() noexcept
 	if (!cursor.FixDeleted())
 		return false;
 
-	ready = false;
-	SkipMismatches();
+	if (state == State::MATCH)
+		state = State::MISMATCH;
 	return true;
 }
 
@@ -83,8 +89,7 @@ Selection::Rewind() noexcept
 	} else
 		cursor.Rewind();
 
-	ready = false;
-	SkipMismatches();
+	state = State::MISMATCH;
 }
 
 void
@@ -96,9 +101,8 @@ Selection::SeekLast() noexcept
 	if (record == nullptr)
 		return;
 
-	ready = false;
 	cursor.SetNext(*record);
-	ReverseSkipMismatches();
+	state = State::MISMATCH_REVERSE;
 }
 
 bool
@@ -110,27 +114,52 @@ Selection::OnAppend(const Record &record) noexcept
 		return false;
 
 	cursor.OnAppend(record);
-	ready = true;
+	state = State::MATCH;
 	return true;
 }
 
 Selection::UpdateResult
 Selection::Update() noexcept
 {
-	// TODO replace with real implementation
-	ready = true;
+	switch (state) {
+	case State::MISMATCH:
+		SkipMismatches();
+		break;
 
-	if (!cursor)
+	case State::MISMATCH_REVERSE:
+		ReverseSkipMismatches();
+		break;
+
+	case State::MATCH:
+		assert(cursor);
+		return UpdateResult::READY;
+
+	case State::END:
 		return UpdateResult::END;
+	}
 
-	return UpdateResult::READY;
+	switch (state) {
+	case State::MISMATCH:
+	case State::MISMATCH_REVERSE:
+		assert(false);
+		std::unreachable();
+
+	case State::MATCH:
+		assert(cursor);
+		return UpdateResult::READY;
+
+	case State::END:
+		return UpdateResult::END;
+	}
+
+	assert(false);
+	std::unreachable();
 }
 
 Selection &
 Selection::operator++() noexcept
 {
 	cursor.operator++();
-	ready = false;
-	SkipMismatches();
+	state = State::MISMATCH;
 	return *this;
 }

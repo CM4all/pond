@@ -25,8 +25,30 @@ class Selection {
 	 */
 	SharedLease lease;
 
-	// TODO replace with real implementation
-	bool ready = true;
+	enum class State {
+		/**
+		 * At a mismatch currently (or unknown); need to call
+		 * SkipMismatches() before using a #Record.
+		 */
+		MISMATCH,
+
+		/**
+		 * Like #MISMATCH, but ReverseSkipMismatches() must be
+		 * used.
+		 */
+		MISMATCH_REVERSE,
+
+		/**
+		 * At a matching #Record.
+		 */
+		MATCH,
+
+		/**
+		 * At the end of the selection, no further records
+		 * (yet).
+		 */
+		END,
+	} state = State::END;
 
 public:
 	template<typename F, typename L>
@@ -41,7 +63,7 @@ public:
 	 */
 	struct Marker {
 		Cursor::Marker cursor;
-		bool ready;
+		State state;
 	};
 
 	/**
@@ -49,7 +71,7 @@ public:
 	 * using Restore().
 	 */
 	Marker Mark() const noexcept {
-		return {cursor.Mark(), ready};
+		return {cursor.Mark(), state};
 	}
 
 	/**
@@ -57,7 +79,7 @@ public:
 	 */
 	void Restore(Marker marker) noexcept {
 		cursor.Restore(marker.cursor);
-		ready = marker.ready;
+		state = marker.state;
 	}
 
 	/**
@@ -104,13 +126,13 @@ public:
 	UpdateResult Update() noexcept;
 
 	const Record &operator*() const noexcept {
-		assert(ready);
+		assert(state == State::MATCH);
 
 		return *cursor;
 	}
 
 	const Record *operator->() const noexcept {
-		assert(ready);
+		assert(state == State::MATCH);
 
 		return cursor.operator->();
 	}
