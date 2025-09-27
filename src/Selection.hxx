@@ -31,8 +31,23 @@ public:
 		 filter(std::forward<F>(_filter)),
 		 lease(std::forward<L>(_lease)) {}
 
+	/**
+	 * If the pointed-to #Record has been deleted, rewind to the
+	 * first record.
+	 *
+	 * @return true if the #Record has been deleted, false if the
+	 * call was a no-op
+	 */
 	bool FixDeleted() noexcept;
+
+	/**
+	 * Move to the first matching record.
+	 */
 	void Rewind() noexcept;
+
+	/**
+	 * Move to the last matching record.
+	 */
 	void SeekLast() noexcept;
 
 	void AddAppendListener(AppendListener &l) noexcept {
@@ -60,11 +75,23 @@ public:
 		return *this;
 	}
 
+	/**
+	 * @return true if the record matched the filter
+	 */
 	bool OnAppend(const Record &record) noexcept;
 
 private:
+	/**
+	 * Skip all records that do not match the filter and move
+	 * forward on until matching record was found (or until there
+	 * are no further records).
+	 */
 	void SkipMismatches() noexcept;
 
 	bool IsDefinedReverse() const noexcept;
+
+	/**
+	 * Like SkipMismatches(), but move backwards.
+	 */
 	void ReverseSkipMismatches() noexcept;
 };
