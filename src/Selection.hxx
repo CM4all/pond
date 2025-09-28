@@ -76,7 +76,9 @@ public:
 		cursor.AddAppendListener(l);
 	}
 
-	operator bool() const noexcept;
+	operator bool() const noexcept {
+		return static_cast<bool>(cursor);
+	}
 
 	const Record &operator*() const noexcept {
 		return *cursor;
@@ -97,6 +99,9 @@ public:
 	bool OnAppend(const Record &record) noexcept;
 
 private:
+	[[gnu::pure]]
+	bool IsDefined() const noexcept;
+
 	/**
 	 * Skip all records that do not match the filter and move
 	 * forward on until matching record was found (or until there

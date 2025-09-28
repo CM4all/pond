@@ -12,11 +12,27 @@
  */
 static constexpr Net::Log::Duration until_offset = std::chrono::seconds(10);
 
+inline bool
+Selection::IsDefined() const noexcept
+{
+	return cursor && (!cursor->GetParsed().HasTimestamp() ||
+			  cursor->GetParsed().timestamp - until_offset <= filter.timestamp.until);
+}
+
 void
 Selection::SkipMismatches() noexcept
 {
-	while (*this && !filter(cursor->GetParsed(), cursor->GetRaw()))
+	while (IsDefined()) {
+		if (filter(cursor->GetParsed(), cursor->GetRaw()))
+			// found a match
+			return;
+
 		++cursor;
+	}
+
+	/* no match found - clear the cursor so our "bool" operator
+	   returns false */
+	cursor.Clear();
 }
 
 inline bool
@@ -38,8 +54,7 @@ Selection::ReverseSkipMismatches() noexcept
 	}
 
 	/* no match found - clear the cursor so our "bool" operator
-	   returns false (this method only checks IsDefinedReverse()
-	   which is different) */
+	   returns false */
 	cursor.Clear();
 }
 
@@ -86,19 +101,13 @@ Selection::SeekLast() noexcept
 bool
 Selection::OnAppend(const Record &record) noexcept
 {
-	assert(!*this);
+	assert(!cursor);
 
 	if (!filter(record.GetParsed(), record.GetRaw()))
 		return false;
 
 	cursor.OnAppend(record);
 	return true;
-}
-
-Selection::operator bool() const noexcept
-{
-	return cursor && (!cursor->GetParsed().HasTimestamp() ||
-			  cursor->GetParsed().timestamp - until_offset <= filter.timestamp.until);
 }
 
 Selection &
