@@ -91,12 +91,6 @@ public:
 	 */
 	Selection &operator++() noexcept;
 
-	Selection &operator+=(size_t n) noexcept {
-		while (n-- > 0)
-			operator++();
-		return *this;
-	}
-
 	/**
 	 * @return true if the record matched the filter
 	 */
