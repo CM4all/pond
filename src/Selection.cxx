@@ -38,7 +38,7 @@ Selection::ReverseSkipMismatches() noexcept
 	}
 
 	/* no match found - clear the cursor so our "bool" operator
-	   returns true (this method only checks IsDefinedReverse()
+	   returns false (this method only checks IsDefinedReverse()
 	   which is different) */
 	cursor = Cursor{nullptr};
 }
