@@ -587,11 +587,13 @@ Connection::OnBufferedClosed() noexcept
 }
 
 /**
+ * @param selection the source of records to be sent; after returning,
+ * sent records will be skipped
  * @param queue push remaining data of a short send to this queue
  */
 static size_t
 SendMulti(SocketDescriptor s, uint16_t id,
-	  Selection selection, uint64_t max_records,
+	  Selection &selection, uint64_t max_records,
 	  SendQueue &queue)
 {
 	constexpr size_t CAPACITY = 256;
@@ -599,10 +601,16 @@ SendMulti(SocketDescriptor s, uint16_t id,
 	std::array<PondIovec, CAPACITY> vecs;
 	std::array<struct mmsghdr, CAPACITY> msgs;
 
+	/* markers for each record so we can seek the Selection
+	   instance without traversing linked lists again */
+	std::array<Selection::Marker, CAPACITY + 1> markers;
+
 	if (max_records > CAPACITY)
 		max_records = CAPACITY;
 
 	size_t n = 0;
+	markers[n] = selection.Mark();
+
 	do {
 		const auto &record = *selection;
 		auto &m = msgs[n].msg_hdr;
@@ -620,6 +628,7 @@ SendMulti(SocketDescriptor s, uint16_t id,
 
 		++n;
 		++selection;
+		markers[n] = selection.Mark();
 	} while (selection && n < max_records);
 
 	int result = sendmmsg(s.Get(), msgs.data(), n,
@@ -635,6 +644,10 @@ SendMulti(SocketDescriptor s, uint16_t id,
 		/* if the last send was short, enqueue the remaining
 		   data */
 		vecs[result - 1].Queue(queue, msgs[result - 1].msg_len);
+
+	/* seeh the Selection instance to one after the last record
+	   that was sent */
+	selection.Restore(markers[result]);
 
 	return result;
 }
@@ -706,7 +719,6 @@ Connection::OnBufferedWrite()
 			}
 		}
 
-		selection += n;
 		if (selection) {
 			socket.ScheduleWrite();
 			return true;
