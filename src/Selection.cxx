@@ -64,6 +64,7 @@ Selection::FixDeleted() noexcept
 	if (!cursor.FixDeleted())
 		return false;
 
+	ready = false;
 	SkipMismatches();
 	return true;
 }
@@ -82,6 +83,7 @@ Selection::Rewind() noexcept
 	} else
 		cursor.Rewind();
 
+	ready = false;
 	SkipMismatches();
 }
 
@@ -94,6 +96,7 @@ Selection::SeekLast() noexcept
 	if (record == nullptr)
 		return;
 
+	ready = false;
 	cursor.SetNext(*record);
 	ReverseSkipMismatches();
 }
@@ -107,13 +110,27 @@ Selection::OnAppend(const Record &record) noexcept
 		return false;
 
 	cursor.OnAppend(record);
+	ready = true;
 	return true;
+}
+
+Selection::UpdateResult
+Selection::Update() noexcept
+{
+	// TODO replace with real implementation
+	ready = true;
+
+	if (!cursor)
+		return UpdateResult::END;
+
+	return UpdateResult::READY;
 }
 
 Selection &
 Selection::operator++() noexcept
 {
 	cursor.operator++();
+	ready = false;
 	SkipMismatches();
 	return *this;
 }

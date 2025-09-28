@@ -8,6 +8,8 @@
 #include "Filter.hxx"
 #include "util/SharedLease.hxx"
 
+#include <cassert>
+
 /**
  * A wrapper for #Cursor which applies a #Filter.
  */
@@ -23,6 +25,9 @@ class Selection {
 	 */
 	SharedLease lease;
 
+	// TODO replace with real implementation
+	bool ready = true;
+
 public:
 	template<typename F, typename L>
 	Selection(const AnyRecordList &_list, F &&_filter,
@@ -36,6 +41,7 @@ public:
 	 */
 	struct Marker {
 		Cursor::Marker cursor;
+		bool ready;
 	};
 
 	/**
@@ -43,7 +49,7 @@ public:
 	 * using Restore().
 	 */
 	Marker Mark() const noexcept {
-		return {cursor.Mark()};
+		return {cursor.Mark(), ready};
 	}
 
 	/**
@@ -51,6 +57,7 @@ public:
 	 */
 	void Restore(Marker marker) noexcept {
 		cursor.Restore(marker.cursor);
+		ready = marker.ready;
 	}
 
 	/**
@@ -76,15 +83,35 @@ public:
 		cursor.AddAppendListener(l);
 	}
 
-	operator bool() const noexcept {
-		return static_cast<bool>(cursor);
-	}
+	enum class UpdateResult {
+		/**
+		 * A #Record is available.
+		 */
+		READY,
+
+		/**
+		 * The selection has ended (but eventually, new
+		 * matching records may be added).
+		 */
+		END,
+	};
+
+	/**
+	 * Update internal state to make this object ready (e.g. skip
+	 * mismatching records).
+	 */
+	[[nodiscard]]
+	UpdateResult Update() noexcept;
 
 	const Record &operator*() const noexcept {
+		assert(ready);
+
 		return *cursor;
 	}
 
 	const Record *operator->() const noexcept {
+		assert(ready);
+
 		return cursor.operator->();
 	}
 

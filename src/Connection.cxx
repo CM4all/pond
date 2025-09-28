@@ -133,12 +133,18 @@ Connection::Send(uint16_t id, PondResponseCommand command,
 static SiteIterator
 FindNonEmpty(Database &db, const Filter &filter, SiteIterator &&i) noexcept
 {
-	while (i) {
+	for (; i; i = db.GetNextSite(i)) {
 		auto selection = db.Select(i, filter);
-		if (selection)
+
+		switch (selection.Update()) {
+		case Selection::UpdateResult::READY:
 			break;
 
-		i = db.GetNextSite(i);
+		case Selection::UpdateResult::END:
+			continue;
+		}
+
+		break;
 	}
 
 	return i;
@@ -611,6 +617,8 @@ SendMulti(SocketDescriptor s, uint16_t id,
 	size_t n = 0;
 	markers[n] = selection.Mark();
 
+	bool more = true;
+
 	do {
 		const auto &record = *selection;
 		auto &m = msgs[n].msg_hdr;
@@ -628,8 +636,23 @@ SendMulti(SocketDescriptor s, uint16_t id,
 
 		++n;
 		++selection;
+
+		const auto update_result = n < max_records
+			? selection.Update()
+			: Selection::UpdateResult::END;
+
 		markers[n] = selection.Mark();
-	} while (selection && n < max_records);
+
+		switch (update_result) {
+		case Selection::UpdateResult::READY:
+			more = true;
+			break;
+
+		case Selection::UpdateResult::END:
+			more = false;
+			break;
+		}
+	} while (more);
 
 	int result = sendmmsg(s.Get(), msgs.data(), n,
 			      MSG_DONTWAIT|MSG_NOSIGNAL);
@@ -684,7 +707,22 @@ Connection::OnBufferedWrite()
 	uint64_t max_records = std::numeric_limits<uint64_t>::max();
 	if (current.HasWindow()) {
 		unsigned n_skipped = 0;
-		while (selection && current.window.skip > 0) {
+
+		while (current.window.skip > 0) {
+			bool is_ready = false;
+
+			switch (selection.Update()) {
+			case Selection::UpdateResult::READY:
+				is_ready =  true;
+				break;
+
+			case Selection::UpdateResult::END:
+				break;
+			}
+
+			if (!is_ready)
+				break;
+
 			if (++n_skipped > MAX_STEPS) {
 				/* yield to avoid DoS by a huge number
 				   of skips */
@@ -699,7 +737,17 @@ Connection::OnBufferedWrite()
 		max_records = current.window.max;
 	}
 
-	if (selection) {
+	bool send_selection = false;
+	switch (selection.Update()) {
+	case Selection::UpdateResult::READY:
+		send_selection = true;
+		break;
+
+	case Selection::UpdateResult::END:
+		break;
+	}
+
+	if (send_selection) {
 		size_t n = SendMulti(GetSocket(), current.id,
 				     selection, max_records,
 				     send_queue);
@@ -719,9 +767,13 @@ Connection::OnBufferedWrite()
 			}
 		}
 
-		if (selection) {
+		switch (selection.Update()) {
+		case Selection::UpdateResult::READY:
 			socket.ScheduleWrite();
 			return true;
+
+		case Selection::UpdateResult::END:
+			break;
 		}
 	}
 
@@ -774,19 +826,16 @@ Connection::OnAppend(const Record &record) noexcept
 	assert(current.selection);
 
 	auto &selection = *current.selection;
-	assert(!selection);
 
 	if (!selection.OnAppend(record)) {
 		/* no matching record was appended: keep the
 		   AppendListener registered */
-		assert(!selection);
 		return true;
 	}
 
 	/* a matching record was appended: unregister the
 	   AppendListener and prepare for sending the record to our
 	   client */
-	assert(selection);
 	socket.DeferWrite();
 	return false;
 }

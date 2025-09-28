@@ -66,19 +66,19 @@ TEST(Database, Basic)
 	{
 		Filter filter;
 		auto selection = db.SelectLast(filter);
-		ASSERT_TRUE(selection);
+		ASSERT_EQ(selection.Update(), Selection::UpdateResult::READY);
 		EXPECT_EQ(selection->GetParsed().timestamp, MakeTimestamp(32767));
 
 		++selection;
-		EXPECT_FALSE(selection);
+		ASSERT_EQ(selection.Update(), Selection::UpdateResult::END);
 
 		filter.timestamp.until = MakeTimestamp(32750);
 		selection = db.SelectLast(filter);
-		ASSERT_TRUE(selection);
+		ASSERT_EQ(selection.Update(), Selection::UpdateResult::READY);
 		EXPECT_EQ(selection->GetParsed().timestamp, MakeTimestamp(32750));
 
 		++selection;
-		EXPECT_FALSE(selection);
+		ASSERT_EQ(selection.Update(), Selection::UpdateResult::END);
 	}
 
 	/* test DeleteOlderThan() */
@@ -103,16 +103,16 @@ TEST(Database, PerSite)
 		auto i = db.GetFirstSite();
 		ASSERT_TRUE(i);
 
-		const auto a = db.Select(i, {});
-		ASSERT_TRUE(a);
+		auto a = db.Select(i, {});
+		ASSERT_EQ(a.Update(), Selection::UpdateResult::READY);
 		EXPECT_EQ(a->GetParsed().timestamp, MakeTimestamp(1));
 		EXPECT_STREQ(a->GetParsed().site, "a");
 
 		i = db.GetNextSite(i);
 		ASSERT_TRUE(i);
 
-		const auto b = db.Select(i, {});
-		ASSERT_TRUE(b);
+		auto b = db.Select(i, {});
+		ASSERT_EQ(b.Update(), Selection::UpdateResult::READY);
 		EXPECT_EQ(b->GetParsed().timestamp, MakeTimestamp(1));
 		EXPECT_STREQ(b->GetParsed().site, "b");
 
@@ -128,56 +128,55 @@ TEST(Database, PerSite)
 		auto selection = db.Select({.sites={site}});
 
 		for (unsigned i = 1; i <= 8; ++i, ++selection) {
-			ASSERT_TRUE(selection);
+			ASSERT_EQ(selection.Update(), Selection::UpdateResult::READY);
 			EXPECT_EQ(selection->GetParsed().timestamp, MakeTimestamp(i));
 		}
 
-		EXPECT_FALSE(selection);
+		ASSERT_EQ(selection.Update(), Selection::UpdateResult::END);
 
 		selection = db.SelectLast({.sites={site}});
-		ASSERT_TRUE(selection);
+		ASSERT_EQ(selection.Update(), Selection::UpdateResult::READY);
 		EXPECT_EQ(selection->GetParsed().timestamp, MakeTimestamp(8));
 		++selection;
-		EXPECT_FALSE(selection);
+		ASSERT_EQ(selection.Update(), Selection::UpdateResult::END);
 	}
 
 	std::optional<Selection> c = db.Select({.sites={"c"}});
-	EXPECT_FALSE(*c);
+	ASSERT_EQ(c->Update(), Selection::UpdateResult::END);
 	c->Rewind();
-	EXPECT_FALSE(*c);
+	ASSERT_EQ(c->Update(), Selection::UpdateResult::END);
 
 	Push(db, {.timestamp = MakeTimestamp(9), .site = "c"});
 	c->Rewind();
-	EXPECT_TRUE(*c);
+	ASSERT_EQ(c->Update(), Selection::UpdateResult::READY);
 
 	for (unsigned i = 10; i <= 16; ++i) {
 		Push(db, {.timestamp = MakeTimestamp(i), .site = "a"});
 		Push(db, {.timestamp = MakeTimestamp(i), .site = "c"});
-		EXPECT_TRUE(*c);
+		ASSERT_EQ(c->Update(), Selection::UpdateResult::READY);
 	}
 
 	{
 		auto i = db.GetFirstSite();
 		ASSERT_TRUE(i);
 
-		const auto a = db.Select(i, {});
-		ASSERT_TRUE(a);
+		auto a = db.Select(i, {});
+		ASSERT_EQ(a.Update(), Selection::UpdateResult::READY);
 		EXPECT_EQ(a->GetParsed().timestamp, MakeTimestamp(1));
 		EXPECT_STREQ(a->GetParsed().site, "a");
 
 		i = db.GetNextSite(i);
-		ASSERT_TRUE(i);
 
-		const auto b = db.Select(i, {});
-		ASSERT_TRUE(b);
+		auto b = db.Select(i, {});
+		ASSERT_EQ(b.Update(), Selection::UpdateResult::READY);
 		EXPECT_EQ(b->GetParsed().timestamp, MakeTimestamp(1));
 		EXPECT_STREQ(b->GetParsed().site, "b");
 
 		i = db.GetNextSite(i);
 		ASSERT_TRUE(i);
 
-		const auto cc = db.Select(i, {});
-		ASSERT_TRUE(cc);
+		auto cc = db.Select(i, {});
+		ASSERT_EQ(cc.Update(), Selection::UpdateResult::READY);
 		EXPECT_EQ(cc->GetParsed().timestamp, MakeTimestamp(9));
 		EXPECT_STREQ(cc->GetParsed().site, "c");
 
@@ -188,26 +187,30 @@ TEST(Database, PerSite)
 	for (unsigned i = 9; i <= 16; ++i, ++(*c)) {
 		c->FixDeleted();
 		db.Compress();
-		ASSERT_TRUE(*c);
+		ASSERT_EQ(c->Update(), Selection::UpdateResult::READY);
 		EXPECT_EQ((*c)->GetParsed().timestamp, MakeTimestamp(i));
 	}
-	EXPECT_FALSE(*c);
+	ASSERT_EQ(c->Update(), Selection::UpdateResult::END);
 
 	c->Rewind();
-	ASSERT_TRUE(*c);
+	ASSERT_EQ(c->Update(), Selection::UpdateResult::READY);
 	EXPECT_EQ((*c)->GetParsed().timestamp, MakeTimestamp(9));
 
-	EXPECT_TRUE(db.Select({.sites={"a"}}));
-	EXPECT_TRUE(db.Select({.sites={"b"}}));
+	EXPECT_EQ(db.Select({.sites={"a"}}).Update(), Selection::UpdateResult::READY);
+	EXPECT_EQ(db.Select({.sites={"b"}}).Update(), Selection::UpdateResult::READY);
 
 	db.DeleteOlderThan(MakeTimestamp(10));
 
-	ASSERT_TRUE(db.Select({.sites={"a"}}));
-	ASSERT_EQ(db.Select({.sites={"a"}})->GetParsed().timestamp, MakeTimestamp(10));
-	EXPECT_FALSE(db.Select({.sites={"b"}}));
+	{
+		auto a = db.Select({.sites={"a"}});
+		ASSERT_EQ(a.Update(), Selection::UpdateResult::READY);
+		ASSERT_EQ(a->GetParsed().timestamp, MakeTimestamp(10));
+	}
+
+	EXPECT_EQ(db.Select({.sites={"b"}}).Update(), Selection::UpdateResult::END);
 
 	c->FixDeleted();
-	ASSERT_TRUE(*c);
+	ASSERT_EQ(c->Update(), Selection::UpdateResult::READY);
 	EXPECT_EQ((*c)->GetParsed().timestamp, MakeTimestamp(10));
 
 	db.DeleteOlderThan(MakeTimestamp(11));
@@ -216,16 +219,16 @@ TEST(Database, PerSite)
 		auto i = db.GetFirstSite();
 		ASSERT_TRUE(i);
 
-		const auto a = db.Select(i, {});
-		ASSERT_TRUE(a);
+		auto a = db.Select(i, {});
+		ASSERT_EQ(a.Update(), Selection::UpdateResult::READY);
 		EXPECT_EQ(a->GetParsed().timestamp, MakeTimestamp(11));
 		EXPECT_STREQ(a->GetParsed().site, "a");
 
 		i = db.GetNextSite(i);
 		ASSERT_TRUE(i);
 
-		const auto cc = db.Select(i, {});
-		ASSERT_TRUE(cc);
+		auto cc = db.Select(i, {});
+		ASSERT_EQ(cc.Update(), Selection::UpdateResult::READY);
 		EXPECT_EQ(cc->GetParsed().timestamp, MakeTimestamp(11));
 		EXPECT_STREQ(cc->GetParsed().site, "c");
 
@@ -233,12 +236,16 @@ TEST(Database, PerSite)
 		ASSERT_FALSE(i);
 	}
 
-	ASSERT_TRUE(db.Select({.sites={"a"}}));
-	ASSERT_EQ(db.Select({.sites={"a"}})->GetParsed().timestamp, MakeTimestamp(11));
-	EXPECT_FALSE(db.Select({.sites={"b"}}));
+	{
+		auto a = db.Select({.sites={"a"}});
+		ASSERT_EQ(a.Update(), Selection::UpdateResult::READY);
+		ASSERT_EQ(a->GetParsed().timestamp, MakeTimestamp(11));
+	}
+
+	EXPECT_EQ(db.Select({.sites={"b"}}).Update(), Selection::UpdateResult::END);
 
 	c->FixDeleted();
-	ASSERT_TRUE(*c);
+	ASSERT_EQ(c->Update(), Selection::UpdateResult::READY);
 	EXPECT_EQ((*c)->GetParsed().timestamp, MakeTimestamp(11));
 
 	Push(db, {.timestamp = MakeTimestamp(17), .site = "c"});
@@ -248,33 +255,34 @@ TEST(Database, PerSite)
 	db.Compress();
 
 	for (unsigned i = 11; i <= 18; ++i, ++(*c)) {
-		ASSERT_TRUE(*c);
+		ASSERT_EQ(c->Update(), Selection::UpdateResult::READY);
 		EXPECT_EQ((*c)->GetParsed().timestamp, MakeTimestamp(i));
 	}
-	EXPECT_FALSE(*c);
+
+	ASSERT_EQ(c->Update(), Selection::UpdateResult::END);
 
 	c->Rewind();
-	ASSERT_TRUE(*c);
+	ASSERT_EQ(c->Update(), Selection::UpdateResult::READY);
 	EXPECT_EQ((*c)->GetParsed().timestamp, MakeTimestamp(11));
 
 	db.DeleteOlderThan(MakeTimestamp(19));
 	c->FixDeleted();
-	EXPECT_FALSE(*c);
+	ASSERT_EQ(c->Update(), Selection::UpdateResult::END);
 
 	{
 		auto i = db.GetFirstSite();
 		ASSERT_TRUE(i);
 
-		const auto a = db.Select(i, {});
-		ASSERT_TRUE(a);
+		auto a = db.Select(i, {});
+		ASSERT_EQ(a.Update(), Selection::UpdateResult::READY);
 		EXPECT_EQ(a->GetParsed().timestamp, MakeTimestamp(19));
 		EXPECT_STREQ(a->GetParsed().site, "a");
 
 		i = db.GetNextSite(i);
 		ASSERT_TRUE(i);
 
-		const auto cc = db.Select(i, {});
-		EXPECT_FALSE(cc);
+		auto cc = db.Select(i, {});
+		ASSERT_EQ(cc.Update(), Selection::UpdateResult::END);
 
 		i = db.GetNextSite(i);
 		ASSERT_FALSE(i);
@@ -284,10 +292,13 @@ TEST(Database, PerSite)
 
 	db.Compress();
 
-	ASSERT_TRUE(db.Select({.sites={"a"}}));
-	ASSERT_EQ(db.Select({.sites={"a"}})->GetParsed().timestamp, MakeTimestamp(19));
-	EXPECT_FALSE(db.Select({.sites={"b"}}));
-	EXPECT_FALSE(db.Select({.sites={"c"}}));
+	{
+		auto a = db.Select({.sites={"a"}});
+		ASSERT_EQ(a.Update(), Selection::UpdateResult::READY);
+		ASSERT_EQ(a->GetParsed().timestamp, MakeTimestamp(19));
+	}
+
+	EXPECT_EQ(db.Select({.sites={"c"}}).Update(), Selection::UpdateResult::END);
 }
 
 static bool
@@ -440,7 +451,7 @@ TEST(Database, MarkRestore)
 
 	// Iterate through selection, creating markers at each step
 	for (unsigned expected_ts : {1, 3, 4}) {
-		ASSERT_TRUE(selection);
+		ASSERT_EQ(selection.Update(), Selection::UpdateResult::READY);
 		EXPECT_EQ(selection->GetParsed().timestamp, MakeTimestamp(expected_ts));
 		EXPECT_STREQ(selection->GetParsed().site, "site_a");
 
@@ -452,12 +463,12 @@ TEST(Database, MarkRestore)
 	}
 
 	// Should be at end now
-	EXPECT_FALSE(selection);
+	ASSERT_EQ(selection.Update(), Selection::UpdateResult::END);
 
 	// Restore each marker in reverse order and verify records
 	for (int i = markers.size() - 1; i >= 0; --i) {
 		selection.Restore(markers[i]);
-		ASSERT_TRUE(selection);
+		ASSERT_EQ(selection.Update(), Selection::UpdateResult::READY);
 		EXPECT_EQ(selection->GetParsed().timestamp, MakeTimestamp(expected_timestamps[i]));
 		EXPECT_STREQ(selection->GetParsed().site, "site_a");
 	}
