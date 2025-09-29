@@ -25,10 +25,6 @@ public:
 	explicit Cursor(const AnyRecordList &_list) noexcept
 		:LightCursor(_list) {}
 
-	LightCursor ToLightCursor() const noexcept {
-		return *this;
-	}
-
 	/**
 	 * If the pointed-to #Record has been deleted, rewind to the
 	 * first record.
