@@ -40,7 +40,7 @@ Selection::ReverseSkipMismatches() noexcept
 	/* no match found - clear the cursor so our "bool" operator
 	   returns false (this method only checks IsDefinedReverse()
 	   which is different) */
-	cursor = Cursor{nullptr};
+	cursor.Clear();
 }
 
 bool

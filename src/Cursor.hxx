@@ -19,11 +19,10 @@ class Cursor
 	uint64_t id;
 
 public:
-	explicit Cursor(std::nullptr_t n) noexcept
-		:LightCursor(n) {}
-
 	explicit Cursor(const AnyRecordList &_list) noexcept
 		:LightCursor(_list) {}
+
+	using LightCursor::Clear;
 
 	/**
 	 * If the pointed-to #Record has been deleted, rewind to the

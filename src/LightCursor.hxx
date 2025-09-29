@@ -23,10 +23,16 @@ class LightCursor {
 	const Record *next = nullptr;
 
 public:
-	explicit constexpr LightCursor(std::nullptr_t) noexcept {}
-
 	explicit constexpr LightCursor(const AnyRecordList &_list) noexcept
 		:list(_list) {}
+
+	/**
+	 * Clear the current record, as if we had arrived at the end
+	 * of the list.
+	 */
+	void Clear() noexcept {
+		next = nullptr;
+	}
 
 	/**
 	 * Rewind to the first record.
