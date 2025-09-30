@@ -116,14 +116,24 @@ public:
 		 * matching records may be added).
 		 */
 		END,
+
+		/**
+		 * The search for a matching record was suspended
+		 * because the maximum number of steps was exceeded.
+		 * Call Update() again to resume.
+		 */
+		AGAIN,
 	};
 
 	/**
 	 * Update internal state to make this object ready (e.g. skip
 	 * mismatching records).
+	 *
+	 * @param max_steps suspend the search after this number of
+	 * steps and return #AGAIN
 	 */
 	[[nodiscard]]
-	UpdateResult Update() noexcept;
+	UpdateResult Update(unsigned max_steps) noexcept;
 
 	const Record &operator*() const noexcept {
 		assert(state == State::MATCH);
@@ -156,12 +166,12 @@ private:
 	 * forward on until matching record was found (or until there
 	 * are no further records).
 	 */
-	UpdateResult SkipMismatches() noexcept;
+	UpdateResult SkipMismatches(unsigned max_steps) noexcept;
 
 	bool IsDefinedReverse() const noexcept;
 
 	/**
 	 * Like SkipMismatches(), but move backwards.
 	 */
-	UpdateResult ReverseSkipMismatches() noexcept;
+	UpdateResult ReverseSkipMismatches(unsigned max_steps) noexcept;
 };

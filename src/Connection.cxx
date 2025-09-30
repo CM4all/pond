@@ -136,9 +136,14 @@ FindNonEmpty(Database &db, const Filter &filter, SiteIterator &&i) noexcept
 	for (; i; i = db.GetNextSite(i)) {
 		auto selection = db.Select(i, filter);
 
-		switch (selection.Update()) {
+		switch (selection.Update(1024 * 1024)) {
 		case Selection::UpdateResult::READY:
 			break;
+
+		case Selection::UpdateResult::AGAIN:
+			/* for now, pretend the site is empty */
+			// TODO make asynchronous
+			continue;
 
 		case Selection::UpdateResult::END:
 			continue;
@@ -599,7 +604,8 @@ Connection::OnBufferedClosed() noexcept
  */
 static size_t
 SendMulti(SocketDescriptor s, uint16_t id,
-	  Selection &selection, uint64_t max_records,
+	  Selection &selection, unsigned max_steps,
+	  uint64_t max_records,
 	  SendQueue &queue)
 {
 	constexpr size_t CAPACITY = 256;
@@ -638,7 +644,7 @@ SendMulti(SocketDescriptor s, uint16_t id,
 		++selection;
 
 		const auto update_result = n < max_records
-			? selection.Update()
+			? selection.Update(max_steps)
 			: Selection::UpdateResult::END;
 
 		markers[n] = selection.Mark();
@@ -648,11 +654,17 @@ SendMulti(SocketDescriptor s, uint16_t id,
 			more = true;
 			break;
 
+		case Selection::UpdateResult::AGAIN:
+			/* more will be handled in the next EventLoop
+			   iteration */
 		case Selection::UpdateResult::END:
 			more = false;
 			break;
 		}
 	} while (more);
+
+	if (n == 0)
+		return 0;
 
 	int result = sendmmsg(s.Get(), msgs.data(), n,
 			      MSG_DONTWAIT|MSG_NOSIGNAL);
@@ -711,10 +723,15 @@ Connection::OnBufferedWrite()
 		while (current.window.skip > 0) {
 			bool is_ready = false;
 
-			switch (selection.Update()) {
+			switch (selection.Update(MAX_STEPS)) {
 			case Selection::UpdateResult::READY:
 				is_ready =  true;
 				break;
+
+			case Selection::UpdateResult::AGAIN:
+				/* resume in the next EventLoop iteration */
+				socket.ScheduleWrite();
+				return true;
 
 			case Selection::UpdateResult::END:
 				break;
@@ -738,10 +755,15 @@ Connection::OnBufferedWrite()
 	}
 
 	bool send_selection = false;
-	switch (selection.Update()) {
+	switch (selection.Update(MAX_STEPS)) {
 	case Selection::UpdateResult::READY:
 		send_selection = true;
 		break;
+
+	case Selection::UpdateResult::AGAIN:
+		/* resume in the next EventLoop iteration */
+		socket.ScheduleWrite();
+		return true;
 
 	case Selection::UpdateResult::END:
 		break;
@@ -749,7 +771,8 @@ Connection::OnBufferedWrite()
 
 	if (send_selection) {
 		size_t n = SendMulti(GetSocket(), current.id,
-				     selection, max_records,
+				     selection, MAX_STEPS,
+				     max_records,
 				     send_queue);
 
 		if (current.HasWindow()) {
@@ -767,8 +790,9 @@ Connection::OnBufferedWrite()
 			}
 		}
 
-		switch (selection.Update()) {
+		switch (selection.Update(1)) {
 		case Selection::UpdateResult::READY:
+		case Selection::UpdateResult::AGAIN:
 			socket.ScheduleWrite();
 			return true;
 

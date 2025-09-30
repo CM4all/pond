@@ -2,6 +2,7 @@ cm4all-pond (0.39) unstable; urgency=low
 
   * protocol: add command LAST
   * server: reduce linked list traversals while sending to clients
+  * server: make filters asynchronous
   * client: add option --age-only
 
  --   
