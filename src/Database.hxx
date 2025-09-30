@@ -153,12 +153,10 @@ public:
 	Selection Follow(const Filter &filter, AppendListener &l) noexcept;
 
 	[[gnu::pure]]
-	SiteIterator GetFirstSite(unsigned skip=0) noexcept {
-		for (auto &i : site_list)
-			if (skip-- == 0)
-				return {i};
-
-		return {};
+	SiteIterator GetFirstSite() noexcept {
+		return site_list.empty()
+			? SiteIterator{}
+			: SiteIterator{site_list.front()};
 	}
 
 	[[gnu::pure]]
