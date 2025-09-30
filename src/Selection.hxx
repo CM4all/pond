@@ -156,12 +156,12 @@ private:
 	 * forward on until matching record was found (or until there
 	 * are no further records).
 	 */
-	void SkipMismatches() noexcept;
+	UpdateResult SkipMismatches() noexcept;
 
 	bool IsDefinedReverse() const noexcept;
 
 	/**
 	 * Like SkipMismatches(), but move backwards.
 	 */
-	void ReverseSkipMismatches() noexcept;
+	UpdateResult ReverseSkipMismatches() noexcept;
 };

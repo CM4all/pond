@@ -19,14 +19,14 @@ Selection::IsDefined() const noexcept
 			  cursor->GetParsed().timestamp - until_offset <= filter.timestamp.until);
 }
 
-inline void
+inline Selection::UpdateResult
 Selection::SkipMismatches() noexcept
 {
 	while (IsDefined()) {
 		if (filter(cursor->GetParsed(), cursor->GetRaw())) {
 			// found a match
 			state = State::MATCH;
-			return;
+			return UpdateResult::READY;
 		}
 
 		++cursor;
@@ -36,6 +36,7 @@ Selection::SkipMismatches() noexcept
 	   returns false */
 	cursor.Clear();
 	state = State::END;
+	return UpdateResult::END;
 }
 
 inline bool
@@ -45,14 +46,14 @@ Selection::IsDefinedReverse() const noexcept
 			  cursor->GetParsed().timestamp + until_offset >= filter.timestamp.since);
 }
 
-inline void
+inline Selection::UpdateResult
 Selection::ReverseSkipMismatches() noexcept
 {
 	while (IsDefinedReverse()) {
 		if (filter(cursor->GetParsed(), cursor->GetRaw())) {
 			// found a match
 			state = State::MATCH;
-			return;
+			return UpdateResult::READY;
 		}
 
 		--cursor;
@@ -62,6 +63,7 @@ Selection::ReverseSkipMismatches() noexcept
 	   returns false */
 	cursor.Clear();
 	state = State::END;
+	return UpdateResult::END;
 }
 
 bool
@@ -123,26 +125,10 @@ Selection::Update() noexcept
 {
 	switch (state) {
 	case State::MISMATCH:
-		SkipMismatches();
-		break;
+		return SkipMismatches();
 
 	case State::MISMATCH_REVERSE:
-		ReverseSkipMismatches();
-		break;
-
-	case State::MATCH:
-		assert(cursor);
-		return UpdateResult::READY;
-
-	case State::END:
-		return UpdateResult::END;
-	}
-
-	switch (state) {
-	case State::MISMATCH:
-	case State::MISMATCH_REVERSE:
-		assert(false);
-		std::unreachable();
+		return ReverseSkipMismatches();
 
 	case State::MATCH:
 		assert(cursor);
