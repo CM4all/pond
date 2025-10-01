@@ -38,6 +38,12 @@ class Connection final
 		uint16_t id = 0;
 		bool follow = false, continue_ = false;
 		bool last = false;
+
+		/**
+		 * Do we need to handle group_site.skip_sites?
+		 */
+		bool pending_skip_sites = false;
+
 		PondRequestCommand command = PondRequestCommand::NOP;
 
 		Filter filter;

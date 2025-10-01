@@ -24,6 +24,7 @@ Connection::Request::Clear() noexcept
 	window.max = 0;
 	follow = false;
 	continue_ = false;
+	pending_skip_sites = false;
 	selection.reset();
 	address.clear();
 }
@@ -210,18 +211,8 @@ Connection::CommitQuery()
 	if (current.follow) {
 		current.selection.reset(new Selection(db.Follow(current.filter, *this)));
 	} else if (current.HasGroupSite()) {
-		current.site_iterator = SkipNonEmpty(db, current.filter,
-						     db.GetFirstSite(),
-						     current.group_site.skip_sites);
-
-		if (!current.site_iterator) {
-			current.selection.reset(new Selection());
-			socket.DeferWrite();
-			return;
-		}
-
-		current.selection.reset(new Selection(db.Select(current.site_iterator,
-								current.filter)));
+		current.site_iterator = db.GetFirstSite();
+		current.pending_skip_sites = true;
 		socket.DeferWrite();
 	} else if (current.last) {
 		current.selection.reset(new Selection(db.SelectLast(current.filter)));
@@ -713,6 +704,24 @@ Connection::OnBufferedWrite()
 	}
 
 	assert(current.command == PondRequestCommand::QUERY);
+
+	if (current.pending_skip_sites) {
+		assert(current.HasGroupSite());
+
+		current.pending_skip_sites = false;
+
+		auto &db = instance.GetDatabase();
+		current.site_iterator = SkipNonEmpty(db, current.filter,
+						     std::move(current.site_iterator),
+						     current.group_site.skip_sites);
+		if (current.site_iterator) {
+			current.selection.reset(new Selection(db.Select(current.site_iterator,
+									current.filter)));
+		} else {
+			current.selection.reset(new Selection());
+		}
+	}
+
 	assert(current.selection);
 
 	auto &selection = *current.selection;
