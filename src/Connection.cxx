@@ -380,7 +380,7 @@ try {
 		    current.command != PondRequestCommand::QUERY)
 			throw SimplePondError{"Misplaced GROUP_SITE"};
 
-		if (current.group_site.max_sites > 0)
+		if (current.HasGroupSite())
 			throw SimplePondError{"Duplicate GROUP_SITE"};
 
 		if (payload.size() != sizeof(current.group_site))
