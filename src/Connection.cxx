@@ -35,6 +35,7 @@ Connection::Connection(Instance &_instance, UniqueSocketDescriptor &&_fd) noexce
 	socket.Init(_fd.Release(), FD_TCP,
 		    std::chrono::seconds(30),
 		    *this);
+	socket.ScheduleReadAndAnyHangup();
 	socket.DeferRead();
 }
 
