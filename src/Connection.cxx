@@ -218,7 +218,7 @@ Connection::CommitQuery()
 						     current.group_site.skip_sites);
 
 		if (!current.site_iterator) {
-			current.selection.reset(new Selection(AnyRecordList{}, Filter{}, SharedLease{}));
+			current.selection.reset(new Selection());
 			socket.DeferWrite();
 			return;
 		}

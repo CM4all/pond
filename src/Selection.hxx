@@ -51,6 +51,12 @@ class Selection {
 	} state = State::END;
 
 public:
+	/**
+	 * Construct an empty instance.
+	 */
+	Selection() noexcept
+		:cursor(AnyRecordList{}) {}
+
 	template<typename F, typename L>
 	Selection(const AnyRecordList &_list, F &&_filter,
 		  L &&_lease) noexcept
