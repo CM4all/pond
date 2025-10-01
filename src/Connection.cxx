@@ -591,6 +591,13 @@ Connection::OnBufferedData()
 }
 
 bool
+Connection::OnBufferedHangup() noexcept
+{
+	Destroy();
+	return false;
+}
+
+bool
 Connection::OnBufferedClosed() noexcept
 {
 	Destroy();

@@ -127,6 +127,7 @@ private:
 
 	/* virtual methods from class BufferedSocketHandler */
 	BufferedResult OnBufferedData() override;
+	bool OnBufferedHangup() noexcept override;
 	bool OnBufferedClosed() noexcept override;
 	bool OnBufferedWrite() override;
 	void OnBufferedError(std::exception_ptr e) noexcept override;
