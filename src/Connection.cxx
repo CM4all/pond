@@ -546,6 +546,20 @@ try {
 
 		current.last = true;
 		return BufferedResult::AGAIN;
+
+	case PondRequestCommand::FILTER_HTTP_METHOD_UNSAFE:
+		if (!current.MatchId(id) ||
+		    current.command != PondRequestCommand::QUERY)
+			throw SimplePondError{"Misplaced FILTER_HTTP_METHOD_UNSAFE"};
+
+		if (current.filter.http_method_unsafe)
+			throw SimplePondError{"Duplicate FILTER_HTTP_METHOD_UNSAFE"};
+
+		if (!payload.empty())
+			throw SimplePondError{"Malformed FILTER_HTTP_METHOD_UNSAFE"};
+
+		current.filter.http_method_unsafe = true;
+		return BufferedResult::AGAIN;
 	}
 
 	throw SimplePondError{"Command not implemented"};

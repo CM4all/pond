@@ -77,6 +77,8 @@ struct Filter {
 		}
 	} http_status;
 
+	bool http_method_unsafe = false;
+
 	bool HasOneSite() const noexcept {
 		return !sites.empty() &&
 			std::next(sites.begin()) == sites.end();
@@ -94,7 +96,8 @@ private:
 		return http_status || !hosts.empty() ||
 			duration ||
 			!generators.empty() ||
-			!http_uri_starts_with.empty();
+			!http_uri_starts_with.empty() ||
+			http_method_unsafe;
 	}
 
 	/**

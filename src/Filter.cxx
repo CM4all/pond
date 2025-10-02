@@ -7,6 +7,8 @@
 #include "net/log/Datagram.hxx"
 #include "net/log/Parser.hxx"
 #include "util/StringCompare.hxx"
+#include "http/Method.hxx"
+#include "http/Status.hxx"
 
 static std::string_view
 NullableStringView(const char *s) noexcept
@@ -34,6 +36,7 @@ inline bool
 Filter::MatchMore(const Net::Log::Datagram &d) const noexcept
 {
 	return http_status(static_cast<uint16_t>(d.http_status)) &&
+		(!http_method_unsafe || (d.http_method != HttpMethod{} && !IsSafeMethod(d.http_method))) &&
 		duration(d) &&
 		MatchFilter(d.host, hosts) &&
 		MatchFilter(d.generator, generators) &&

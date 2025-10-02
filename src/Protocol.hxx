@@ -144,6 +144,12 @@ enum class PondRequestCommand : uint16_t {
 	 * Print only the last matching record.
 	 */
 	LAST = 21,
+
+	/**
+	 * Specify a filter on "unsafe" HTTP methods (according to RFC
+	 * 2616 9.1.1 and RFC 9110 9.2.1).
+	 */
+	FILTER_HTTP_METHOD_UNSAFE = 22,
 };
 
 enum class PondResponseCommand : uint16_t {
