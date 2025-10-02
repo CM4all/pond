@@ -241,7 +241,7 @@ AutoCloneOperation::AutoCloneOperation(BlockingOperationHandler &_handler,
 	 timeout_event(avahi_client.GetEventLoop(),
 		       BIND_THIS_METHOD(OnTimeout))
 {
-	timeout_event.Schedule(std::chrono::seconds(10));
+	timeout_event.Schedule(std::chrono::seconds{90});
 
 #ifdef HAVE_LIBSYSTEMD
 	sd_notify(0, "STATUS=Initiating auto_clone");
@@ -332,6 +332,11 @@ AutoCloneOperation::OnAvahiNewObject(const std::string &key,
 				     SocketAddress address,
 				     [[maybe_unused]] AvahiStringList *txt) noexcept
 {
+	if (servers.empty())
+		/* the first server was just found; reduce the timeout
+		   to 5 seconds to find more servers */
+		timeout_event.ScheduleEarlier(std::chrono::seconds{5});
+
 	auto *server = new Server(*this, db, key);
 	servers.push_back(*server);
 	server->Connect(address);

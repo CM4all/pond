@@ -4,6 +4,7 @@ cm4all-pond (0.39) unstable; urgency=low
   * server: reduce linked list traversals while sending to clients
   * server: make filters asynchronous
   * server: close connection on hangup
+  * server: increase auto_clone discovery timeout to 90 seconds
   * client: add option --age-only
 
  --   
