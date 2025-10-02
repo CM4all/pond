@@ -160,9 +160,6 @@ static SiteIterator
 SkipNonEmpty(Database &db, const Filter &filter, SiteIterator &&i,
 	     unsigned n) noexcept
 {
-	if (!i)
-		return {};
-
 	/* skip empty sites at the beginning */
 	i = FindNonEmpty(db, filter, std::move(i));
 
