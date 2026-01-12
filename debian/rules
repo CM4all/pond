@@ -1,6 +1,9 @@
 #!/usr/bin/make -f
 # -*- mode: makefile; coding: utf-8 -*-
 
+# disable -fstack-clash-protection due to aarch64-specific GCC bug
+export DEB_BUILD_MAINT_OPTIONS = hardening=-stackclash
+
 MESON_OPTIONS = \
 	-Ddocumentation=enabled \
 	-Dsystemd=enabled \

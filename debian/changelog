@@ -1,6 +1,6 @@
 cm4all-pond (0.40) unstable; urgency=low
 
-  * 
+  * debian: disable "stackclash" hardening due to GCC bug
 
  --   
 
