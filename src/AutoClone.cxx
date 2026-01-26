@@ -8,6 +8,7 @@
 #include "client/Async.hxx"
 #include "lib/avahi/Client.hxx"
 #include "event/net/ConnectSocket.hxx"
+#include "net/SocketProtocolError.hxx"
 #include "net/log/Parser.hxx"
 #include "lib/fmt/SocketError.hxx"
 #include "util/DeleteDisposer.hxx"
@@ -213,14 +214,14 @@ AutoCloneOperation::Server::OnPondDatagram(uint16_t _id,
 		if (state == State::STATS) {
 			const auto &stats = *(const PondStatsPayload *)(const void *)payload.data();
 			if (payload.size() < sizeof(stats))
-				throw std::runtime_error("Malformed STATS packet");
+				throw SocketProtocolError{"Malformed STATS packet"};
 
 			n_records = FromBE64(stats.n_records);
 
 			state = State::IDLE;
 			operation.OnServerStats(*this);
 		} else
-			throw std::runtime_error("Unexpected response packet");
+			throw SocketProtocolError{"Unexpected response packet"};
 	}
 
 	return true;

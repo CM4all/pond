@@ -8,6 +8,7 @@
 #include "Selection.hxx"
 #include "io/Iovec.hxx"
 #include "net/SocketError.hxx"
+#include "net/SocketProtocolError.hxx"
 #include "net/PeerCredentials.hxx"
 #include "net/log/Parser.hxx"
 #include "util/ByteOrder.hxx"
@@ -60,7 +61,7 @@ MakeHeader(uint16_t id, PondResponseCommand command, size_t size)
 {
 	PondHeader header;
 	if (size >= std::numeric_limits<decltype(header.size)>::max())
-		throw std::runtime_error("Payload is too large");
+		throw SocketMessageTooLargeError{"Payload is too large"};
 
 	header.id = ToBE16(id);
 	header.command = ToBE16(uint16_t(command));
@@ -117,7 +118,7 @@ Connection::Send(uint16_t id, PondResponseCommand command,
 			/* allow queueing only if this is an attempt
 			   to send an END packet to finish a QUERY
 			   response */
-			throw std::runtime_error("Pipelining not supported");
+			throw SocketProtocolError{"Pipelining not supported"};
 
 		for (const auto &i : pi.vec)
 			send_queue.Push(i);

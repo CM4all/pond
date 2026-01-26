@@ -10,6 +10,7 @@
 #include "Filter.hxx"
 #include "lib/fmt/RuntimeError.hxx"
 #include "system/Error.hxx"
+#include "net/SocketProtocolError.hxx"
 #include "net/log/String.hxx"
 #include "net/log/Parser.hxx"
 #include "time/Parser.hxx"
@@ -506,7 +507,7 @@ ReadToBuffer(FileDescriptor fd, B &buffer)
 {
 	auto w = buffer.Write();
 	if (w.empty())
-		throw std::runtime_error("Input buffer full");
+		throw SocketBufferFullError{};
 
 	auto nbytes = fd.Read(w);
 	if (nbytes < 0)
@@ -531,7 +532,7 @@ ReadPackets(FileDescriptor fd,
 			size_t nbytes = ReadToBuffer(fd, input);
 			if (nbytes == 0) {
 				if (!input.empty())
-					throw std::runtime_error("Trailing garbage");
+					throw SocketGarbageReceivedError{"Trailing garbage"};
 				return;
 			}
 

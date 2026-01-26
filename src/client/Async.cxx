@@ -5,6 +5,7 @@
 #include "Async.hxx"
 #include "Datagram.hxx"
 #include "net/SocketError.hxx"
+#include "net/SocketProtocolError.hxx"
 
 #include <exception>
 
@@ -19,7 +20,7 @@ try {
 				      "Socket error");
 
 	if (events & SocketEvent::HANGUP)
-		throw std::runtime_error("Hangup");
+		throw SocketClosedPrematurelyError{"Hangup"};
 
 	FillInputBuffer();
 
@@ -56,14 +57,14 @@ PondAsyncClient::FillInputBuffer()
 {
 	auto w = input.Write();
 	if (w.empty())
-		throw std::runtime_error("Input buffer is full");
+		throw SocketBufferFullError{};
 
 	auto nbytes = GetSocket().Receive(w);
 	if (nbytes < 0)
 		throw MakeSocketError("Failed to receive");
 
 	if (nbytes == 0)
-		throw std::runtime_error("Premature end of stream");
+		throw SocketClosedPrematurelyError{};
 
 	input.Append(nbytes);
 }

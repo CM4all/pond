@@ -5,6 +5,7 @@
 #include "Send.hxx"
 #include "io/Iovec.hxx"
 #include "net/SendMessage.hxx"
+#include "net/SocketProtocolError.hxx"
 #include "system/Error.hxx"
 
 void
@@ -13,7 +14,7 @@ SendPondRequest(SocketDescriptor s, uint16_t id, PondRequestCommand command,
 {
 	PondHeader header;
 	if (payload.size() >= std::numeric_limits<decltype(header.size)>::max())
-		throw std::runtime_error("Payload is too large");
+		throw SocketMessageTooLargeError{"Payload is too large"};
 
 	header.id = ToBE16(id);
 	header.command = ToBE16(uint16_t(command));

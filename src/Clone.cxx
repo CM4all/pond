@@ -11,6 +11,7 @@
 #include "client/Open.hxx"
 #include "client/Datagram.hxx"
 #include "net/RConnectSocket.hxx"
+#include "net/SocketProtocolError.hxx"
 #include "net/log/Parser.hxx"
 #include "system/Error.hxx"
 #include "util/ScopeExit.hxx"
@@ -94,7 +95,7 @@ CloneOperation::OnPondDatagram(uint16_t _id, PondResponseCommand command,
 		break;
 
 	case PondResponseCommand::STATS:
-		throw std::runtime_error("Unexpected response packet");
+		throw SocketProtocolError{"Unexpected response packet"};
 	}
 
 	return true;
