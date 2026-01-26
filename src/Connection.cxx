@@ -13,6 +13,7 @@
 #include "net/log/Parser.hxx"
 #include "util/ByteOrder.hxx"
 #include "util/SpanCast.hxx"
+#include "util/UnalignedBigEndian.hxx"
 
 #include <array>
 
@@ -313,7 +314,7 @@ try {
 		if (payload.size() != sizeof(uint64_t))
 			throw SimplePondError{"Malformed FILTER_SINCE"};
 
-		current.filter.timestamp.since = Net::Log::TimePoint(Net::Log::Duration(FromBE64(*(const uint64_t *)(const void *)payload.data())));
+		current.filter.timestamp.since = Net::Log::TimePoint{Net::Log::Duration{ReadUnalignedBE64(payload.first<sizeof(uint64_t)>())}};
 		if (!current.filter.timestamp.HasSince())
 			throw SimplePondError{"Malformed FILTER_SINCE"};
 		return BufferedResult::AGAIN;
@@ -329,7 +330,7 @@ try {
 		if (payload.size() != sizeof(uint64_t))
 			throw SimplePondError{"Malformed FILTER_UNTIL"};
 
-		current.filter.timestamp.until = Net::Log::TimePoint(Net::Log::Duration(FromBE64(*(const uint64_t *)(const void *)payload.data())));
+		current.filter.timestamp.until = Net::Log::TimePoint{Net::Log::Duration{ReadUnalignedBE64(payload.first<sizeof(uint64_t)>())}};
 		if (!current.filter.timestamp.HasUntil())
 			throw SimplePondError{"Malformed FILTER_UNTIL"};
 		return BufferedResult::AGAIN;
@@ -515,7 +516,7 @@ try {
 		if (payload.size() != sizeof(uint64_t))
 			throw SimplePondError{"Malformed FILTER_DURATION_LONGER"};
 
-		current.filter.duration.longer = Net::Log::Duration{FromBE64(*(const uint64_t *)(const void *)payload.data())};
+		current.filter.duration.longer = Net::Log::Duration{ReadUnalignedBE64(payload.first<sizeof(uint64_t)>())};
 		if (!current.filter.duration.HasLonger())
 			throw SimplePondError{"Malformed FILTER_DURATION_LONGER"};
 		return BufferedResult::AGAIN;
