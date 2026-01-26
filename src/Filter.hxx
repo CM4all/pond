@@ -20,6 +20,7 @@ namespace Net { namespace Log { struct Datagram; }}
 struct Filter {
 	std::set<std::string, std::less<>> sites, hosts, generators;
 
+	std::string http_uri;
 	std::string http_uri_starts_with;
 
 	struct {
@@ -99,6 +100,7 @@ private:
 		return http_status || !hosts.empty() ||
 			duration ||
 			!generators.empty() ||
+			!http_uri.empty() ||
 			!http_uri_starts_with.empty() ||
 			http_methods != 0 ||
 			http_method_unsafe;

@@ -43,6 +43,7 @@ Filter::MatchMore(const Net::Log::Datagram &d) const noexcept
 		duration(d) &&
 		MatchFilter(d.host, hosts) &&
 		MatchFilter(d.generator, generators) &&
+		(http_uri.empty() || http_uri == d.http_uri) &&
 		MatchHttpUriStartsWith(d.http_uri, http_uri_starts_with);
 }
 

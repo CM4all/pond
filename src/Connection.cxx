@@ -582,6 +582,17 @@ try {
 
 		current.filter.http_methods = ReadUnalignedBE32(payload.first<sizeof(uint32_t)>());
 		return BufferedResult::AGAIN;
+
+	case PondRequestCommand::FILTER_HTTP_URI:
+		if (!current.MatchId(id) ||
+		    current.command != PondRequestCommand::QUERY)
+			throw SimplePondError{"Misplaced FILTER_HTTP_URI"};
+
+		if (payload.empty() || HasNullByte(ToStringView(payload)))
+			throw SimplePondError{"Malformed FILTER_HTTP_URI"};
+
+		current.filter.http_uri.assign(ToStringView(payload));
+		return BufferedResult::AGAIN;
 	}
 
 	throw SimplePondError{"Command not implemented"};

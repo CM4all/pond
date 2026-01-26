@@ -215,6 +215,11 @@ ParseFilterItem(Filter &filter, PondGroupSitePayload &group_site,
 			filter.http_methods |= uint_least32_t{1} << std::to_underlying(ParseHttpMethod(i));
 	} else if (StringIsEqual(p, "unsafe_method")) {
 		filter.http_method_unsafe = true;
+	} else if (auto uri = IsFilter(p, "uri")) {
+		if (*uri == 0)
+			throw "Bad URI";
+
+		filter.http_uri = uri;
 	} else if (auto uri_prefix = IsFilter(p, "uri-prefix")) {
 		if (*uri_prefix == 0)
 			throw "Bad URI prefix";
@@ -426,6 +431,9 @@ Query(const PondServerSpecification &server, std::span<const char *const> args)
 
 	if (filter.http_method_unsafe)
 		client.Send(id, PondRequestCommand::FILTER_HTTP_METHOD_UNSAFE);
+
+	if (!filter.http_uri.empty())
+		client.Send(id, PondRequestCommand::FILTER_HTTP_URI, filter.http_uri);
 
 	if (!filter.http_uri_starts_with.empty())
 		client.Send(id, PondRequestCommand::FILTER_HTTP_URI_STARTS_WITH, filter.http_uri_starts_with);
@@ -688,6 +696,7 @@ try {
 			   "    [type=http_access|http_error|submission|ssh|job|history]\n"
 			   "    [site=VALUE] [group_site=[MAX][@SKIP]]\n"
 			   "    [host=VALUE]\n"
+			   "    [uri=VALUE]\n"
 			   "    [uri-prefix=VALUE]\n"
 			   "    [status=STATUSCODE[:END]]\n"
 			   "    [method=METHOD[,METHOD2...]]\n"

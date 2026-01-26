@@ -156,6 +156,12 @@ enum class PondRequestCommand : uint16_t {
 	 * based on the #HttpMethod enum.
 	 */
 	FILTER_HTTP_METHODS = 23,
+
+	/**
+	 * Specify a filter on the exact value of the "http_uri"
+	 * attribute.
+	 */
+	FILTER_HTTP_URI = 24,
 };
 
 enum class PondResponseCommand : uint16_t {

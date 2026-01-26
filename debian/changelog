@@ -1,6 +1,6 @@
 cm4all-pond (0.40) unstable; urgency=low
 
-  * protocol: add FILTER_HTTP_METHODS
+  * protocol: add FILTER_HTTP_METHODS, FILTER_HTTP_URI
   * client: add option "--accumulate"
   * debian: disable "stackclash" hardening due to GCC bug
 
