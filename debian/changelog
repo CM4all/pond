@@ -4,7 +4,7 @@ cm4all-pond (0.40) unstable; urgency=low
   * client: add option "--accumulate"
   * debian: disable "stackclash" hardening due to GCC bug
 
- --   
+ -- Max Kellermann <mk@cm4all.com>  Mon, 26 Jan 2026 11:49:32 +0100
 
 cm4all-pond (0.39) unstable; urgency=low
 
