@@ -7,7 +7,7 @@
 #include "event/Loop.hxx"
 #include "event/CoarseTimerEvent.hxx"
 #include "event/net/ConnectSocket.hxx"
-#include "net/AllocatedSocketAddress.hxx"
+#include "net/InetAddress.hxx"
 #include "net/UniqueSocketDescriptor.hxx"
 #include "net/RConnectSocket.hxx"
 
@@ -38,7 +38,7 @@ class ConnectZeroconfOperation final
 
 	struct Server {
 		std::string key;
-		AllocatedSocketAddress address;
+		InetAddress address;
 
 		template<typename K, typename A>
 		Server(K &&_key, A &&_address) noexcept
@@ -91,7 +91,7 @@ private:
 
 	/* virtual methods from class AvahiServiceExplorerListener */
 	void OnAvahiNewObject(const std::string &key,
-			      SocketAddress address,
+			      const InetAddress &address,
 			      [[maybe_unused]] AvahiStringList *txt) noexcept override {
 		const bool was_empty = servers.empty();
 		servers.emplace_back(key, address);

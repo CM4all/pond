@@ -8,6 +8,7 @@
 #include "client/Async.hxx"
 #include "lib/avahi/Client.hxx"
 #include "event/net/ConnectSocket.hxx"
+#include "net/InetAddress.hxx"
 #include "net/SocketProtocolError.hxx"
 #include "net/log/Parser.hxx"
 #include "lib/fmt/SocketError.hxx"
@@ -330,7 +331,7 @@ AutoCloneOperation::OnServerError(Server &server,
 
 void
 AutoCloneOperation::OnAvahiNewObject(const std::string &key,
-				     SocketAddress address,
+				     const InetAddress &address,
 				     [[maybe_unused]] AvahiStringList *txt) noexcept
 {
 	if (servers.empty())
