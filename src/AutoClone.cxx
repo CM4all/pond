@@ -332,7 +332,8 @@ AutoCloneOperation::OnServerError(Server &server,
 void
 AutoCloneOperation::OnAvahiNewObject(const std::string &key,
 				     const InetAddress &address,
-				     [[maybe_unused]] AvahiStringList *txt) noexcept
+				     [[maybe_unused]] AvahiStringList *txt,
+				     [[maybe_unused]] Flags flags) noexcept
 {
 	if (servers.empty())
 		/* the first server was just found; reduce the timeout
