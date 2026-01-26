@@ -4,6 +4,9 @@ project('CM4all Pond', 'cpp', version: '0.40',
     'cpp_std=c++23',
     'warning_level=3',
 
+    # This is only here to build subprojects as static libraries
+    'default_library=static',
+
     'fmt:cpp_std=c++23',
   ],
 )
