@@ -10,13 +10,13 @@
 #include "io/MakeDirectory.hxx"
 #include "io/Open.hxx"
 
-#include <fcntl.h>
+#include <fcntl.h> // for AT_FDCWD
 #include <sys/stat.h>
 
 PerSitePath::PerSitePath(const char *path, const char *_filename,
 			 bool _nested)
 	:directory(path != nullptr
-		   ? OpenPath(path, O_DIRECTORY)
+		   ? OpenDirectoryPath({FileDescriptor{AT_FDCWD}, path})
 		   : UniqueFileDescriptor{}),
 	 filename(_filename),
 	 nested(_nested)
