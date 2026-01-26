@@ -10,6 +10,8 @@
 #include "http/Method.hxx"
 #include "http/Status.hxx"
 
+#include <utility> // for std::to_underlying()
+
 static std::string_view
 NullableStringView(const char *s) noexcept
 {
@@ -36,6 +38,7 @@ inline bool
 Filter::MatchMore(const Net::Log::Datagram &d) const noexcept
 {
 	return http_status(static_cast<uint16_t>(d.http_status)) &&
+		(http_methods == 0 || (http_methods & uint_least32_t{1} << std::to_underlying(d.http_method))) &&
 		(!http_method_unsafe || (d.http_method != HttpMethod{} && !IsSafeMethod(d.http_method))) &&
 		duration(d) &&
 		MatchFilter(d.host, hosts) &&

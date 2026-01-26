@@ -150,6 +150,12 @@ enum class PondRequestCommand : uint16_t {
 	 * 2616 9.1.1 and RFC 9110 9.2.1).
 	 */
 	FILTER_HTTP_METHOD_UNSAFE = 22,
+
+	/**
+	 * Specify a filter on the HTTP method.  Payload is a 32 bit mask
+	 * based on the #HttpMethod enum.
+	 */
+	FILTER_HTTP_METHODS = 23,
 };
 
 enum class PondResponseCommand : uint16_t {

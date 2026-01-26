@@ -334,6 +334,8 @@ The following filters are available:
 - :samp:`status=STATUS[:END]` shows only records with the specified
   status.  If "END" is also given, then this is the open end of a
   range.  Example: :samp:`status=500:600` shows all server errors.
+- :samp:`method=METHOD` shows only records with the specified HTTP
+  method; multiple methods can be specified separated by commas.
 - :samp:`unsafe_method` shows only records with a HTTP method that
   are "unsafe", i.e. POST, PUT etc. (see RFC 9110 9.2.1).
 - :samp:`window=COUNT[@SKIP]` selects a portion (window) of the

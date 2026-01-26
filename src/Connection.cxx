@@ -557,10 +557,30 @@ try {
 		if (current.filter.http_method_unsafe)
 			throw SimplePondError{"Duplicate FILTER_HTTP_METHOD_UNSAFE"};
 
+		if (current.filter.http_methods != 0)
+			throw SimplePondError{"FILTER_HTTP_METHOD_UNSAFE conflicts with FILTER_HTTP_METHODS"};
+
 		if (!payload.empty())
 			throw SimplePondError{"Malformed FILTER_HTTP_METHOD_UNSAFE"};
 
 		current.filter.http_method_unsafe = true;
+		return BufferedResult::AGAIN;
+
+	case PondRequestCommand::FILTER_HTTP_METHODS:
+		if (!current.MatchId(id) ||
+		    current.command != PondRequestCommand::QUERY)
+			throw SimplePondError{"Misplaced FILTER_HTTP_METHODS"};
+
+		if (current.filter.http_methods != 0)
+			throw SimplePondError{"Duplicate FILTER_HTTP_METHODS"};
+
+		if (current.filter.http_method_unsafe)
+			throw SimplePondError{"FILTER_HTTP_METHODS conflicts with FILTER_HTTP_METHOD_UNSAFE"};
+
+		if (payload.size() != sizeof(uint32_t))
+			throw SimplePondError{"Malformed FILTER_HTTP_METHODS"};
+
+		current.filter.http_methods = ReadUnalignedBE32(payload.first<sizeof(uint32_t)>());
 		return BufferedResult::AGAIN;
 	}
 

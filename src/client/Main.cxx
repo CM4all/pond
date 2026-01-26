@@ -9,6 +9,7 @@
 #include "Open.hxx"
 #include "Filter.hxx"
 #include "lib/fmt/RuntimeError.hxx"
+#include "http/Method.hxx"
 #include "system/Error.hxx"
 #include "net/SocketProtocolError.hxx"
 #include "net/log/String.hxx"
@@ -24,6 +25,7 @@
 #include "util/ScopeExit.hxx"
 #include "util/StaticFifoBuffer.hxx"
 #include "util/StringSplit.hxx"
+#include "util/IterableSplitString.hxx"
 #include "config.h"
 
 #ifdef HAVE_AVAHI
@@ -60,6 +62,16 @@ ParseLocalDate(const char *s)
 		throw std::runtime_error("Failed to parse date");
 
 	return MakeTime(tm);
+}
+
+static HttpMethod
+ParseHttpMethod(std::string_view s)
+{
+	for (std::size_t i = 1; i < static_cast<std::size_t>(HttpMethod::INVALID); ++i)
+		if (s == http_method_to_string_data[i])
+			return static_cast<HttpMethod>(i);
+
+	throw std::invalid_argument{"Unknown HTTP method"};
 }
 
 struct QueryOptions {
@@ -198,6 +210,9 @@ ParseFilterItem(Filter &filter, PondGroupSitePayload &group_site,
 
 		filter.http_status.begin = begin;
 		filter.http_status.end = end;
+	} else if (auto method_string = StringAfterPrefix(p, "method="sv)) {
+		for (const std::string_view i : IterableSplitString(std::string_view{method_string}, ','))
+			filter.http_methods |= uint_least32_t{1} << std::to_underlying(ParseHttpMethod(i));
 	} else if (StringIsEqual(p, "unsafe_method")) {
 		filter.http_method_unsafe = true;
 	} else if (auto uri_prefix = IsFilter(p, "uri-prefix")) {
@@ -404,6 +419,10 @@ Query(const PondServerSpecification &server, std::span<const char *const> args)
 		status.end = ToBE16(filter.http_status.end);
 		client.SendT(id, PondRequestCommand::FILTER_HTTP_STATUS, status);
 	}
+
+	if (filter.http_methods != 0)
+		client.SendT(id, PondRequestCommand::FILTER_HTTP_METHODS,
+			     ToBE32(filter.http_methods));
 
 	if (filter.http_method_unsafe)
 		client.Send(id, PondRequestCommand::FILTER_HTTP_METHOD_UNSAFE);
@@ -671,6 +690,7 @@ try {
 			   "    [host=VALUE]\n"
 			   "    [uri-prefix=VALUE]\n"
 			   "    [status=STATUSCODE[:END]]\n"
+			   "    [method=METHOD[,METHOD2...]]\n"
 			   "    [unsafe_method]\n"
 			   "    [generator=VALUE]\n"
 			   "    [since=ISO8601] [until=ISO8601] [date=YYYY-MM-DD] [today]\n"

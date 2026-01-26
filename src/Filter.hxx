@@ -13,6 +13,7 @@
 #include <span>
 #include <set>
 
+enum class HttpMethod : uint_least8_t;
 struct SmallDatagram;
 namespace Net { namespace Log { struct Datagram; }}
 
@@ -77,6 +78,8 @@ struct Filter {
 		}
 	} http_status;
 
+	uint_least32_t http_methods = 0;
+
 	bool http_method_unsafe = false;
 
 	bool HasOneSite() const noexcept {
@@ -97,6 +100,7 @@ private:
 			duration ||
 			!generators.empty() ||
 			!http_uri_starts_with.empty() ||
+			http_methods != 0 ||
 			http_method_unsafe;
 	}
 
