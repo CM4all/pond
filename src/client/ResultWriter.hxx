@@ -20,13 +20,32 @@
 #include <GeoIP.h>
 #endif
 
+#include <cstdint>
 #include <memory>
 #include <span>
+#include <unordered_map>
 
 namespace Net::Log { struct Datagram; }
 class OutputStream;
 class FdOutputStream;
 class GzipOutputStream;
+
+struct AccumulateParams {
+	bool enabled = false;
+
+	enum class Field : uint_least8_t {
+		REMOTE_HOST,
+		HOST,
+		SITE,
+	} field;
+
+	enum class Type : uint_least8_t {
+		TOP,
+		MORE,
+	} type;
+
+	std::size_t count;
+};
 
 class ResultWriter {
 	FileDescriptor fd;
@@ -55,6 +74,9 @@ class ResultWriter {
 
 	Net::Log::OneLineOptions one_line_options;
 
+	AccumulateParams accumulate_params;
+	std::unordered_map<std::string, std::size_t> accumulate_map;
+
 #ifdef HAVE_AVAHI
 	CachedAddressResolver address_resolver;
 
@@ -79,6 +101,7 @@ public:
 #endif
 		     Net::Log::OneLineOptions _one_line_options,
 		     bool _jsonl,
+		     AccumulateParams _accumulate_params,
 		     bool _single_site,
 		     const char *const _per_site,
 		     const char *const _per_site_filename,
@@ -110,6 +133,10 @@ public:
 	void Finish();
 
 private:
+	void PrintAccumulateTop();
+	void PrintAccumulateMore();
+	void PrintAccumulate();
+
 	void FlushBuffer();
 
 #ifdef HAVE_LIBGEOIP

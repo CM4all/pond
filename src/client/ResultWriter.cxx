@@ -26,6 +26,8 @@
 #include <fmt/core.h>
 
 #include <algorithm>
+#include <queue>
+#include <vector>
 
 #include <fcntl.h>
 #include <string.h> // for strlen(), stpcpy()
@@ -127,6 +129,7 @@ ResultWriter::ResultWriter(bool _raw, bool _age_only, bool _gzip,
 #endif
 			   const Net::Log::OneLineOptions _one_line_options,
 			   bool _jsonl,
+			   AccumulateParams _accumulate_params,
 			   bool _single_site,
 			   const char *const _per_site,
 			   const char *const _per_site_filename,
@@ -138,6 +141,7 @@ ResultWriter::ResultWriter(bool _raw, bool _age_only, bool _gzip,
 #endif
 	 per_site(_per_site, _per_site_filename, _per_site_nested),
 	 one_line_options(_one_line_options),
+	 accumulate_params(_accumulate_params),
 #ifdef HAVE_AVAHI
 	 resolve_forwarded_to(_resolve_forwarded_to),
 #endif
@@ -203,6 +207,39 @@ ResultWriter::Append(Net::Log::Datagram &&d)
 		char *p = buffer + buffer_fill;
 		p = fmt::format_to(p, "{}\n"sv, age_seconds.count());
 		buffer_fill = p - buffer;
+		return;
+	}
+
+	if (accumulate_params.enabled) {
+		std::string_view value;
+
+		switch (accumulate_params.field) {
+		case AccumulateParams::Field::REMOTE_HOST:
+			if (d.remote_host == nullptr)
+				return;
+
+			value = d.remote_host;
+			break;
+
+		case AccumulateParams::Field::HOST:
+			if (d.host == nullptr)
+				return;
+
+			value = d.host;
+			break;
+
+		case AccumulateParams::Field::SITE:
+			if (d.site == nullptr)
+				return;
+
+			value = d.site;
+			break;
+		}
+
+		auto [it, inserted] = accumulate_map.emplace(value, 1);
+		if (!inserted)
+			++it->second;
+
 		return;
 	}
 
@@ -361,9 +398,69 @@ ResultWriter::Flush()
 	FlushBuffer();
 }
 
+inline void
+ResultWriter::PrintAccumulateTop()
+{
+	assert(accumulate_params.enabled);
+
+	struct Item {
+		std::string_view value;
+		std::size_t count;
+	};
+
+	struct Compare {
+		constexpr bool operator()(const Item &a, const Item &b) const noexcept {
+			return a.count > b.count;
+		}
+	};
+
+	std::priority_queue<Item, std::vector<Item>, Compare> queue;
+
+	for (const auto &[value, count] : accumulate_map) {
+		queue.emplace(value, count);
+		if (queue.size() > accumulate_params.count)
+			queue.pop();
+	}
+
+	while (!queue.empty()) {
+		const auto &i = queue.top();
+		fmt::print("{} {}\n", i.count, i.value);
+		queue.pop();
+	}
+}
+
+inline void
+ResultWriter::PrintAccumulateMore()
+{
+	assert(accumulate_params.enabled);
+
+	for (const auto &[value, count] : accumulate_map)
+		if (count >= accumulate_params.count)
+			fmt::print("{} {}\n", count, value);
+}
+
+inline void
+ResultWriter::PrintAccumulate()
+{
+	assert(accumulate_params.enabled);
+
+	switch (accumulate_params.type) {
+	case AccumulateParams::Type::TOP:
+		PrintAccumulateTop();
+		break;
+
+	case AccumulateParams::Type::MORE:
+		PrintAccumulateMore();
+		break;
+	}
+}
+
 void
 ResultWriter::Finish()
 {
+	if (accumulate_params.enabled)
+		PrintAccumulate();
+
 	Flush();
 
 	if (gzip_output_stream) {

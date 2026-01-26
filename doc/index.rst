@@ -223,6 +223,28 @@ The following command-line options are available:
  :option:`--anonymize`, because after anonymization, visitors cannot
  be identified anymore.
 
+.. option:: --accumulate=FIELD,{top|more},COUNT
+
+ Count the number of requests for each value in the field ``FIELD``
+ and print a table with the counts of each.
+
+ Valid fields:
+
+ - ``remote_host``: the client IP address
+ - ``host``: the HTTP ``Host`` request header
+ - ``site``: the site name
+
+ Valid output types:
+
+ - ``top``: print only top-most ``COUNT`` lines
+ - ``more``: print lines with a counter of at least ``COUNT``
+
+ Examples:
+
+ - ``--accumulate=site,top,10`` prints the top-10 sites
+ - ``--accumulate=remote_host,more,1000`` prints client IP addresses
+   that have sent at least 1000 requests
+
 .. option:: --per-site=DIRECTORY
 
  Instead of writing to standard output, create one file for each site

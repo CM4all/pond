@@ -20,8 +20,10 @@
 #include "util/StringAPI.hxx"
 #include "util/StringCompare.hxx"
 #include "util/ByteOrder.hxx"
+#include "util/NumberParser.hxx"
 #include "util/ScopeExit.hxx"
 #include "util/StaticFifoBuffer.hxx"
+#include "util/StringSplit.hxx"
 #include "config.h"
 
 #ifdef HAVE_AVAHI
@@ -35,6 +37,8 @@
 
 #include <stdlib.h>
 #include <poll.h>
+
+using std::string_view_literals::operator""sv;
 
 [[gnu::pure]]
 static const char *
@@ -63,6 +67,8 @@ struct QueryOptions {
 	const char *per_site_filename = nullptr;
 
 	Net::Log::OneLineOptions one_line;
+
+	AccumulateParams accumulate;
 
 	bool jsonl = false;
 
@@ -252,7 +258,31 @@ ParseFilterItem(Filter &filter, PondGroupSitePayload &group_site,
 		options.one_line.iso8601 = true;
 	else if (StringIsEqual(p, "--jsonl"))
 		options.jsonl = true;
-	else
+	else if (const char *accumulate = StringAfterPrefix(p, "--accumulate=")) {
+		const auto [field, rest1] = Split(std::string_view{accumulate}, ',');
+
+		if (field == "remote_host"sv)
+			options.accumulate.field = AccumulateParams::Field::REMOTE_HOST;
+		else if (field == "host"sv)
+			options.accumulate.field = AccumulateParams::Field::HOST;
+		else if (field == "site"sv)
+			options.accumulate.field = AccumulateParams::Field::SITE;
+		else
+			throw "Unrecognized field";
+
+		const auto [type, count] = Split(rest1, ',');
+		if (type == "top"sv)
+			options.accumulate.type = AccumulateParams::Type::TOP;
+		else if (type == "more"sv)
+			options.accumulate.type = AccumulateParams::Type::MORE;
+		else
+			throw "Unrecognized type";
+
+		if (!ParseIntegerTo(count, options.accumulate.count))
+			throw "Invalid number";
+
+		options.accumulate.enabled = true;
+	} else
 		throw "Unrecognized query argument";
 }
 
@@ -351,6 +381,7 @@ Query(const PondServerSpecification &server, std::span<const char *const> args)
 #endif
 		options.one_line,
 		options.jsonl,
+		options.accumulate,
 		single_site,
 		options.per_site,
 		options.per_site_filename,
@@ -626,6 +657,7 @@ try {
 			   "    [--geoip]\n"
 #endif // HAVE_LIBGEOIP
 			   "    [--anonymize] [--track-visitors]\n"
+			   "    [--accumulate=FIELD,{{top|more}},COUNT]\n"
 			   "    [--per-site=PATH] [--per-site-file=FILENAME] [--per-site-nested]\n"
 			   "    [--host] [--forwarded-to] [--no-referer] [--no-agent]\n"
 			   "    [--content-type]\n"
