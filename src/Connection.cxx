@@ -472,7 +472,7 @@ try {
 			throw SimplePondError{"Misplaced FILTER_HTTP_URI_STARTS_WITH"};
 
 		if (payload.empty() || HasNullByte(ToStringView(payload)))
-			throw SimplePondError{"Malformed FILTER_HTTP_STATUS"};
+			throw SimplePondError{"Malformed FILTER_HTTP_URI_STARTS_WITH"};
 
 		current.filter.http_uri_starts_with.assign(ToStringView(payload));
 		return BufferedResult::AGAIN;

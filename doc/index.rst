@@ -314,7 +314,7 @@ The following filters are available:
 - :samp:`host=NAME` shows only records of the specified HTTP ``Host``
   header.  Specify an empty host to filter records with no host at
   all.
-- :samp:`uri-prefix=URI` shows only records whos HTTP request URI
+- :samp:`uri-prefix=URI` shows only records whose HTTP request URI
   starts with the specified string.
 - :samp:`generator=NAME` shows only records with the specified
   "generator" value.
