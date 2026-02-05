@@ -10,6 +10,7 @@
 #include "io/FileWriter.hxx"
 #include "net/SocketDescriptor.hxx"
 #include "net/log/OneLine.hxx"
+#include "util/TransparentHash.hxx"
 #include "config.h"
 
 #ifdef HAVE_AVAHI
@@ -75,7 +76,8 @@ class ResultWriter {
 	Net::Log::OneLineOptions one_line_options;
 
 	AccumulateParams accumulate_params;
-	std::unordered_map<std::string, std::size_t> accumulate_map;
+	std::unordered_map<std::string, std::size_t,
+			   TransparentHash, std::equal_to<>> accumulate_map;
 
 #ifdef HAVE_AVAHI
 	CachedAddressResolver address_resolver;

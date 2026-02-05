@@ -5,6 +5,7 @@
 #pragma once
 
 #include "SimpleAddressResolver.hxx"
+#include "util/TransparentHash.hxx"
 
 #include <unordered_map>
 
@@ -14,7 +15,8 @@
 class CachedAddressResolver final {
 	SimpleAddressResolver simple;
 
-	std::unordered_map<std::string, std::string> cache;
+	std::unordered_map<std::string, std::string,
+			   TransparentHash, std::equal_to<>> cache;
 
 public:
 	[[gnu::pure]]

@@ -5,6 +5,7 @@
 #pragma once
 
 #include "net/log/Chrono.hxx"
+#include "util/TransparentHash.hxx"
 
 #include <string>
 #include <unordered_map>
@@ -25,7 +26,8 @@ class VisitorTracker {
 		}
 	};
 
-	std::unordered_map<std::string, Visitor> m;
+	std::unordered_map<std::string, Visitor,
+			   TransparentHash, std::equal_to<>> m;
 
 	uint64_t last_id = RandomVisitorId();
 
