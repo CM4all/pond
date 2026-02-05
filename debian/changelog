@@ -1,6 +1,6 @@
 cm4all-pond (0.41) unstable; urgency=low
 
-  * 
+  * fix build with glibc 2.43
 
  --   
 
