@@ -331,6 +331,7 @@ AutoCloneOperation::OnServerError(Server &server,
 
 void
 AutoCloneOperation::OnAvahiNewObject(const std::string &key,
+				     [[maybe_unused]] const char *host_name,
 				     const InetAddress &address,
 				     [[maybe_unused]] AvahiStringList *txt,
 				     Avahi::ObjectFlags flags) noexcept
