@@ -333,8 +333,14 @@ void
 AutoCloneOperation::OnAvahiNewObject(const std::string &key,
 				     const InetAddress &address,
 				     [[maybe_unused]] AvahiStringList *txt,
-				     [[maybe_unused]] Avahi::ObjectFlags flags) noexcept
+				     Avahi::ObjectFlags flags) noexcept
 {
+	if (flags.is_our_own)
+		/* shouldn't happen because the publisher should be
+		   inactive while this object exists - but to be sure,
+		   check it and bail out */
+		return;
+
 	if (servers.empty())
 		/* the first server was just found; reduce the timeout
 		   to 5 seconds to find more servers */
