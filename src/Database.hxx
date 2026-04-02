@@ -98,7 +98,7 @@ public:
 	Database &operator=(const Database &) = delete;
 
 	auto GetMemoryCapacity() const noexcept {
-		return allocation.size();
+		return allocation.get().size();
 	}
 
 	auto GetMemoryUsage() const noexcept {

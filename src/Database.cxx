@@ -34,10 +34,10 @@ Database::Database(size_t max_size, double _per_site_message_rate_limit)
 		.rate = _per_site_message_rate_limit,
 		.burst = 10 * _per_site_message_rate_limit, // TODO: make burst configurable
 	 },
-	 all_records({(std::byte *)allocation.get(), allocation.size()})
+	 all_records(allocation.get())
 {
-	EnableHugePages(allocation.get(), allocation.size());
-	EnablePageFork(allocation.get(), allocation.size(), false);
+	EnableHugePages(allocation);
+	EnablePageFork(allocation, false);
 
 	if (max_size > 2ull * 1024 * 1024 * 1024)
 		/* exclude database memory from core dumps if it's
@@ -45,9 +45,9 @@ Database::Database(size_t max_size, double _per_site_message_rate_limit)
 		   section usually doesn't fit in the core dump
 		   partition, which would effectively make core dumps
 		   impossible */
-		EnablePageDump(allocation.get(), allocation.size(), false);
+		EnablePageDump(allocation, false);
 
-	SetVmaName(allocation.get(), allocation.size(), "PondDatabase");
+	SetVmaName(allocation.get().data(), allocation.get().size(), "PondDatabase");
 }
 
 Database::~Database() noexcept
