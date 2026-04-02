@@ -51,7 +51,7 @@ class AutoCloneOperation::Server final
 	AutoCloneOperation &operation;
 	Database &db;
 
-	const std::string key;
+	const std::string host_name;
 
 	ConnectSocket connect;
 
@@ -73,9 +73,10 @@ class AutoCloneOperation::Server final
 
 public:
 	Server(AutoCloneOperation &_operation, Database &_db,
-	       const std::string &_key) noexcept
+	       const char *_host_name) noexcept
 		:logger("auto_clone"),
-		 operation(_operation), db(_db), key(_key),
+		 operation(_operation), db(_db),
+		 host_name(_host_name),
 		 connect(operation.GetEventLoop(), *this)
 	{
 	}
@@ -108,8 +109,8 @@ public:
 		}
 	}
 
-	const auto &GetKey() const noexcept {
-		return key;
+	const auto &GetHostName() const noexcept {
+		return host_name;
 	}
 
 	bool IsIdle() const noexcept {
@@ -265,7 +266,7 @@ AutoCloneOperation::OnTimeout() noexcept
 	/* find the best available server */
 	Server *best = nullptr;
 	for (auto &i : servers) {
-		logger(1, "Found server '", i.GetKey(), "' with ",
+		logger(1, "Found server '", i.GetHostName(), "' with ",
 		       i.GetRecordCount(), " records");
 
 		if (best == nullptr ||
@@ -279,10 +280,10 @@ AutoCloneOperation::OnTimeout() noexcept
 		return;
 	}
 
-	logger(1, "Cloning from ", best->GetKey());
+	logger(1, "Cloning from ", best->GetHostName());
 
 #ifdef HAVE_LIBSYSTEMD
-	sd_notifyf(0, "STATUS=Cloning from %s", best->GetKey().c_str());
+	sd_notifyf(0, "STATUS=Cloning from %s", best->GetHostName().c_str());
 #endif
 
 	/* remove all other servers */
@@ -313,7 +314,7 @@ void
 AutoCloneOperation::OnServerError(Server &server,
 				  std::exception_ptr e) noexcept
 {
-	logger(2, "Server '", server.GetKey(), "' failed: ", e);
+	logger(2, "Server '", server.GetHostName(), "' failed: ", e);
 #ifdef HAVE_LIBSYSTEMD
 	sd_notify(0, "STATUS=");
 #endif
@@ -330,8 +331,8 @@ AutoCloneOperation::OnServerError(Server &server,
 }
 
 void
-AutoCloneOperation::OnAvahiNewObject(const std::string &key,
-				     [[maybe_unused]] const char *host_name,
+AutoCloneOperation::OnAvahiNewObject([[maybe_unused]] const std::string &key,
+				     const char *host_name,
 				     const InetAddress &address,
 				     [[maybe_unused]] AvahiStringList *txt,
 				     Avahi::ObjectFlags flags) noexcept
@@ -347,7 +348,7 @@ AutoCloneOperation::OnAvahiNewObject(const std::string &key,
 		   to 5 seconds to find more servers */
 		timeout_event.ScheduleEarlier(std::chrono::seconds{5});
 
-	auto *server = new Server(*this, db, key);
+	auto *server = new Server(*this, db, host_name);
 	servers.push_back(*server);
 	server->Connect(address);
 }
