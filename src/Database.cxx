@@ -47,7 +47,7 @@ Database::Database(size_t max_size, double _per_site_message_rate_limit)
 		   impossible */
 		EnablePageDump(allocation, false);
 
-	SetVmaName(allocation.get().data(), allocation.get().size(), "PondDatabase");
+	SetVmaName(allocation.get(), "PondDatabase");
 }
 
 Database::~Database() noexcept
