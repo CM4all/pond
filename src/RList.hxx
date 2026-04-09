@@ -112,6 +112,13 @@ public:
 	void AddAppendListener(AppendListener &l) noexcept {
 		append_listeners.Add(l);
 	}
+
+private:
+	void FixDeleted() noexcept {
+		assert(!list.empty());
+
+		skip_deque.FixDeleted(list.front());
+	}
 };
 
 class PerSiteRecordList : public RecordList<&Record::per_site_list_hook> {};

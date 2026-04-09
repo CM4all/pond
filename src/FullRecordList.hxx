@@ -113,7 +113,7 @@ public:
 		if (list.empty())
 			return nullptr;
 
-		skip_deque.FixDeleted(list.front());
+		FixDeleted();
 		return skip_deque.TimeLowerBound(since);
 	}
 
@@ -122,11 +122,18 @@ public:
 		if (list.empty())
 			return nullptr;
 
-		skip_deque.FixDeleted(list.front());
+		FixDeleted();
 		return skip_deque.LastUntil(until);
 	}
 
 	void AddAppendListener(AppendListener &l) noexcept {
 		append_listeners.Add(l);
+	}
+
+private:
+	void FixDeleted() noexcept {
+		assert(!list.empty());
+
+		skip_deque.FixDeleted(list.front());
 	}
 };
