@@ -33,7 +33,12 @@ public:
 	}
 
 	void Compress() noexcept {
-		skip_deque.Compress();
+		if (list.empty()) {
+			skip_deque.clear();
+		} else {
+			FixDeleted();
+			skip_deque.Compress();
+		}
 	}
 
 	bool empty() const noexcept {

@@ -33,7 +33,12 @@ public:
 	RecordList &operator=(const RecordList &) = delete;
 
 	void Compress() noexcept {
-		skip_deque.Compress();
+		if (list.empty()) {
+			skip_deque.clear();
+		} else {
+			FixDeleted();
+			skip_deque.Compress();
+		}
 	}
 
 	bool IsExpendable() const noexcept {
