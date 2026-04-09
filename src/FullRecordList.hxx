@@ -11,26 +11,59 @@
 
 #include <assert.h>
 
-class FullRecordList : public VCircularBuffer<Record> {
+class FullRecordList {
+	using List = VCircularBuffer<Record>;
+	List list;
+
 	RecordSkipDeque skip_deque;
 
 	AppendListenerList append_listeners;
 
 public:
-	using VCircularBuffer::VCircularBuffer;
+	explicit FullRecordList(std::span<std::byte> buffer) noexcept
+		:list(buffer) {}
 
 	~FullRecordList() noexcept {
 		assert(append_listeners.empty());
+	}
+
+	[[gnu::pure]]
+	auto GetMemoryUsage() const noexcept {
+		return list.GetMemoryUsage();
 	}
 
 	void Compress() noexcept {
 		skip_deque.Compress();
 	}
 
+	bool empty() const noexcept {
+		return list.empty();
+	}
+
+	auto size() const noexcept {
+		return list.size();
+	}
+
+	void clear() noexcept {
+		list.clear();
+	}
+
+	const auto &front() const noexcept {
+		return list.front();
+	}
+
+	const auto &back() const noexcept {
+		return list.back();
+	}
+
+	void pop_front() noexcept {
+		list.pop_front();
+	}
+
 	template<typename... Args>
-	reference emplace_back(Args... args) {
+	List::reference emplace_back(Args... args) {
 		auto &record =
-			VCircularBuffer::emplace_back(std::forward<Args>(args)...);
+			list.emplace_back(std::forward<Args>(args)...);
 		skip_deque.UpdateNew(record);
 
 		append_listeners.OnAppend(record);
@@ -39,10 +72,10 @@ public:
 	}
 
 	template<typename C, typename... Args>
-	reference check_emplace_back(C &&check, Args... args) {
+	List::reference check_emplace_back(C &&check, Args... args) {
 		auto &record =
-			VCircularBuffer::check_emplace_back(std::forward<C>(check),
-							    std::forward<Args>(args)...);
+			list.check_emplace_back(std::forward<C>(check),
+						std::forward<Args>(args)...);
 		skip_deque.UpdateNew(record);
 
 		append_listeners.OnAppend(record);
@@ -51,24 +84,24 @@ public:
 	}
 
 	const Record *First() const noexcept {
-		return empty() ? nullptr : &front();
+		return list.empty() ? nullptr : &list.front();
 	}
 
 	const Record *Last() const noexcept {
-		return empty() ? nullptr : &back();
+		return list.empty() ? nullptr : &list.back();
 	}
 
 	const Record *Next(const Record &current) const noexcept {
-		auto i = iterator_to(current);
+		auto i = list.iterator_to(current);
 		++i;
-		return i == end()
+		return i == list.end()
 			? nullptr
 			: &*i;
 	}
 
 	const Record *Previous(const Record &current) const noexcept {
-		auto i = iterator_to(current);
-		if (i == begin())
+		auto i = list.iterator_to(current);
+		if (i == list.begin())
 			return nullptr;
 
 		--i;
@@ -77,19 +110,19 @@ public:
 
 	[[gnu::pure]]
 	const Record *TimeLowerBound(Net::Log::TimePoint since) noexcept {
-		if (empty())
+		if (list.empty())
 			return nullptr;
 
-		skip_deque.FixDeleted(front());
+		skip_deque.FixDeleted(list.front());
 		return skip_deque.TimeLowerBound(since);
 	}
 
 	[[gnu::pure]]
 	const Record *LastUntil(Net::Log::TimePoint until) noexcept {
-		if (empty())
+		if (list.empty())
 			return nullptr;
 
-		skip_deque.FixDeleted(front());
+		skip_deque.FixDeleted(list.front());
 		return skip_deque.LastUntil(until);
 	}
 
