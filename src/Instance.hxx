@@ -44,6 +44,8 @@ class Instance final
 {
 	static constexpr size_t MAX_DATAGRAM_SIZE = 4096;
 
+	static constexpr Event::Duration COMPRESS_INTERVAL = std::chrono::hours{1};
+
 	const RootLogger logger;
 
 	EventLoop event_loop;

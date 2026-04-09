@@ -43,7 +43,7 @@ Instance::Instance(const Config &config)
 {
 	shutdown_listener.Enable();
 	sighup_event.Enable();
-	compress_timer.Schedule(std::chrono::hours{1});
+	compress_timer.Schedule(COMPRESS_INTERVAL);
 }
 
 Instance::~Instance() noexcept = default;
@@ -206,7 +206,7 @@ inline void
 Instance::OnCompressTimer() noexcept
 {
 	database.Compress();
-	compress_timer.Schedule(std::chrono::hours{1});
+	compress_timer.Schedule(COMPRESS_INTERVAL);
 }
 
 void
@@ -245,7 +245,7 @@ void
 Instance::OnReload(int) noexcept
 {
 	database.Compress();
-	compress_timer.Schedule(std::chrono::hours{1});
+	compress_timer.Schedule(COMPRESS_INTERVAL);
 }
 
 #ifdef HAVE_AVAHI
