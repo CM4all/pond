@@ -4,7 +4,7 @@ cm4all-pond (0.41) unstable; urgency=low
   * server: log the host name during auto_clone
   * fix build with glibc 2.43
 
- --   
+ -- Max Kellermann <mk@cm4all.com>  Thu, 09 Apr 2026 15:31:36 +0200
 
 cm4all-pond (0.40) unstable; urgency=low
 
