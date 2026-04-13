@@ -1,6 +1,6 @@
 cm4all-pond (0.42) unstable; urgency=low
 
-  * 
+  * debian: add missing build-dependency on pkg-config
 
  --   
 

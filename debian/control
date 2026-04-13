@@ -12,6 +12,7 @@ Build-Depends: debhelper (>= 13~),
  libgeoip-dev,
  libgtest-dev,
  libz-dev,
+ pkg-config,
  python3-sphinx
 Standards-Version: 4.0.0
 Vcs-Browser: https://github.com/CM4all/pond
