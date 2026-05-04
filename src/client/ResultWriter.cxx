@@ -271,8 +271,7 @@ ResultWriter::Append(Net::Log::Datagram &&d)
 		return;
 	}
 
-	char *end = Net::Log::FormatOneLine(old_end,
-					    sizeof(buffer) - buffer_fill - 64,
+	char *end = Net::Log::FormatOneLine({old_end, sizeof(buffer) - buffer_fill - 64},
 					    d, one_line_options);
 	if (end == old_end)
 		return;
