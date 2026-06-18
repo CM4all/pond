@@ -7,11 +7,13 @@
 #include "http/Method.hxx"
 #include "http/Status.hxx"
 #include "time/Cast.hxx"
-#include "time/ISO8601.hxx"
 #include "net/log/String.hxx"
 #include "net/log/Datagram.hxx"
 #include "net/log/ContentType.hxx"
-#include "util/StringBuffer.hxx"
+
+#include <fmt/chrono.h>
+
+using std::string_view_literals::operator""sv;
 
 char *
 FormatJson(char *buffer, char *end,
@@ -21,7 +23,7 @@ FormatJson(char *buffer, char *end,
 
 	if (d.HasTimestamp()) {
 		try {
-			o.AddMember("time", FormatISO8601(d.timestamp).c_str());
+			o.AddMember("time", fmt::format("{:%FT%TZ}"sv, d.timestamp));
 		} catch (...) {
 			/* just in case GmTime() throws */
 		}

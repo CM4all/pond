@@ -1,5 +1,6 @@
 cm4all-pond (0.42) unstable; urgency=low
 
+  * client: show ISO8601 timestamps at full precision
   * debian: add missing build-dependency on pkg-config
 
  --   
