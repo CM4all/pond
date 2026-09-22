@@ -73,13 +73,15 @@ PerSitePath::Open(const char *site)
 	last_directory.Close();
 
 	if (nested && nested_buffer.Set(site)) {
-		last_directory = MakeNestedDirectory({current_directory, nested_buffer.GetParent()});
+		last_directory = MakeNestedDirectory({current_directory, nested_buffer.GetParent()},
+						     {.follow_symlinks = false});
 		current_directory = last_directory;
 		current_filename = nested_buffer.GetTail();
 	}
 
 	if (filename != nullptr) {
-		last_directory = MakeDirectory({current_directory, current_filename});
+		last_directory = MakeDirectory({current_directory, current_filename},
+					       {.follow_symlinks = false});
 		current_directory = last_directory;
 		current_filename = filename;
 	}
