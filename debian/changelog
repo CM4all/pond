@@ -1,6 +1,7 @@
 cm4all-pond (0.42) unstable; urgency=low
 
   * client: show ISO8601 timestamps at full precision
+  * zeroconf: do not add hostname to Zeroconf service name
   * support HTTP QUERY (RFC 10008)
   * support libfmt 12.2.0
   * debian: add missing build-dependency on pkg-config
