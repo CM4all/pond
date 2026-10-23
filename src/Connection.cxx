@@ -401,7 +401,8 @@ try {
 		return BufferedResult::AGAIN;
 
 	case PondRequestCommand::INJECT_LOG_RECORD:
-		// TODO: check if client is privileged
+		if (!IsLocalAdmin())
+			throw SimplePondError{"Forbidden"};
 
 		if (instance.IsBlocked())
 			throw SimplePondError{"Blocked"};
