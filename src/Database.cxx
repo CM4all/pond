@@ -6,6 +6,7 @@
 #include "Selection.hxx"
 #include "Filter.hxx"
 #include "AnyList.hxx"
+#include "net/log/Parser.hxx"
 #include "system/HugePage.hxx"
 #include "system/PageAllocator.hxx"
 #include "system/VmaName.hxx"
@@ -92,6 +93,9 @@ Database::Compress() noexcept
 const Record &
 Database::Emplace(std::span<const std::byte> raw)
 {
+	if (raw.size() >= MAX_RECORD_SIZE)
+		throw Net::Log::ProtocolError{};
+
 	auto &record = all_records.emplace_back(sizeof(Record) + raw.size(),
 						++last_id, raw);
 
@@ -123,6 +127,9 @@ try {
 	if (per_site_message_rate_limit.rate <= 0)
 		/* no rate limit configured */
 		return &Emplace(raw);
+
+	if (raw.size() >= MAX_RECORD_SIZE)
+		throw Net::Log::ProtocolError{};
 
 	auto &record = all_records.check_emplace_back([this, &clock](const Record &r){
 		if (!IsMessage(r.GetParsed()))

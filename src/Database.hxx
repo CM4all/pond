@@ -8,6 +8,7 @@
 #include "RList.hxx"
 #include "SiteIterator.hxx"
 #include "system/LargeAllocation.hxx"
+#include "util/ByteSizes.hxx"
 #include "util/TokenBucket.hxx"
 #include "util/IntrusiveList.hxx"
 #include "util/IntrusiveHashSet.hxx"
@@ -91,6 +92,15 @@ class Database {
 	IntrusiveList<PerSite> site_list;
 
 public:
+	/**
+	 * Records must be smaller than this number of bytes.  This
+	 * matches the receive buffer size of the UDP receiver (where
+	 * a datagram of this size is considered truncated) and
+	 * guarantees that every record can be framed in a
+	 * #PondHeader.
+	 */
+	static constexpr std::size_t MAX_RECORD_SIZE = 4_KiB;
+
 	explicit Database(size_t max_size, double _per_site_message_rate_limit=-1);
 	~Database() noexcept;
 
