@@ -5,6 +5,7 @@ cm4all-pond (0.42) unstable; urgency=low
   * server: fix auto_clone crash
   * server: reject packets for a committed request
   * server: limit the number and size of filter values
+  * server: limit the number of connections
   * receiver: count truncated datagrams
   * database: reject records which are too large
   * client: show ISO8601 timestamps at full precision

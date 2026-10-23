@@ -45,6 +45,12 @@ class Instance final
 {
 	static constexpr size_t MAX_DATAGRAM_SIZE = Database::MAX_RECORD_SIZE;
 
+	/**
+	 * New connections are refused if there are already this many
+	 * connections.
+	 */
+	static constexpr std::size_t MAX_CONNECTIONS = 16384;
+
 	static constexpr Event::Duration COMPRESS_INTERVAL = std::chrono::minutes{20};
 
 	const RootLogger logger;

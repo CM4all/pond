@@ -155,6 +155,11 @@ Instance::AddListener(const ListenerConfig &config)
 void
 Instance::AddConnection(UniqueSocketDescriptor &&fd) noexcept
 {
+	if (connections.size() >= MAX_CONNECTIONS) {
+		logger(2, "Too many connections");
+		return;
+	}
+
 	auto *c = new Connection(*this, std::move(fd));
 	connections.push_front(*c);
 }
