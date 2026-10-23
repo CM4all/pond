@@ -55,6 +55,12 @@ class Connection final
 
 		Filter filter;
 
+		/**
+		 * The total size of all strings in the sets of
+		 * #filter.
+		 */
+		std::size_t filter_values_size = 0;
+
 		PondGroupSitePayload group_site;
 
 		PondWindowPayload window;
@@ -99,6 +105,16 @@ class Connection final
 		}
 
 		void Clear() noexcept;
+
+		/**
+		 * Add a value to one of the sets of #filter, enforcing
+		 * the per-request limits.
+		 *
+		 * Throws #SimplePondError on error.
+		 */
+		void AddFilterValue(std::set<std::string, std::less<>> &set,
+				    std::string_view value,
+				    std::string_view duplicate_message);
 
 		void Set(uint16_t _id,
 			 PondRequestCommand _command) noexcept {

@@ -12,16 +12,30 @@
 #include "net/PeerCredentials.hxx"
 #include "net/log/Parser.hxx"
 #include "util/ByteOrder.hxx"
+#include "util/ByteSizes.hxx"
 #include "util/SpanCast.hxx"
 #include "util/UnalignedBigEndian.hxx"
 
 #include <array>
+
+/**
+ * The maximum number of FILTER_SITE, FILTER_HOST and
+ * FILTER_GENERATOR values (combined) in one request.
+ */
+static constexpr std::size_t MAX_FILTER_VALUES = 64;
+
+/**
+ * The maximum total size of all FILTER_SITE, FILTER_HOST and
+ * FILTER_GENERATOR values in one request.
+ */
+static constexpr std::size_t MAX_FILTER_VALUES_SIZE = 16_KiB;
 
 void
 Connection::Request::Clear() noexcept
 {
 	command = PondRequestCommand::NOP;
 	filter = Filter();
+	filter_values_size = 0;
 	group_site.max_sites = 0;
 	window.max = 0;
 	follow = false;
@@ -30,6 +44,21 @@ Connection::Request::Clear() noexcept
 	pending_skip_sites = false;
 	selection.reset();
 	address.clear();
+}
+
+void
+Connection::Request::AddFilterValue(std::set<std::string, std::less<>> &set,
+				    std::string_view value,
+				    std::string_view duplicate_message)
+{
+	if (filter.sites.size() + filter.hosts.size() + filter.generators.size() >= MAX_FILTER_VALUES ||
+	    filter_values_size + value.size() > MAX_FILTER_VALUES_SIZE)
+		throw SimplePondError{"Too many filter values"};
+
+	if (!set.emplace(value).second)
+		throw SimplePondError{duplicate_message};
+
+	filter_values_size += value.size();
 }
 
 Connection::Connection(Instance &_instance, UniqueSocketDescriptor &&_fd) noexcept
@@ -302,9 +331,9 @@ try {
 		if (HasNullByte(ToStringView(payload)))
 			throw SimplePondError{"Malformed FILTER_SITE"};
 
-		if (auto e = current.filter.sites.emplace(ToStringView(payload));
-		    !e.second)
-			throw SimplePondError{"Duplicate FILTER_SITE"};
+		current.AddFilterValue(current.filter.sites,
+				       ToStringView(payload),
+				       "Duplicate FILTER_SITE");
 
 		return BufferedResult::AGAIN;
 
@@ -495,9 +524,9 @@ try {
 		if (HasNullByte(ToStringView(payload)))
 			throw SimplePondError{"Malformed FILTER_HOST"};
 
-		if (auto e = current.filter.hosts.emplace(ToStringView(payload));
-		    !e.second)
-			throw SimplePondError{"Duplicate FILTER_HOST"};
+		current.AddFilterValue(current.filter.hosts,
+				       ToStringView(payload),
+				       "Duplicate FILTER_HOST");
 
 		return BufferedResult::AGAIN;
 
@@ -509,9 +538,9 @@ try {
 		if (HasNullByte(ToStringView(payload)))
 			throw SimplePondError{"Malformed FILTER_GENERATOR"};
 
-		if (auto e = current.filter.generators.emplace(ToStringView(payload));
-		    !e.second)
-			throw SimplePondError{"Duplicate FILTER_GENERATOR"};
+		current.AddFilterValue(current.filter.generators,
+				       ToStringView(payload),
+				       "Duplicate FILTER_GENERATOR");
 
 		return BufferedResult::AGAIN;
 
