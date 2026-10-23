@@ -91,10 +91,13 @@ struct PondIovec {
 	}
 };
 
+/**
+ * Throws if the payload is too large.
+ */
 static unsigned
 MakeIovec(PondIovec &pi,
 	  uint16_t id, PondResponseCommand command,
-	  std::span<const std::byte> payload) noexcept
+	  std::span<const std::byte> payload)
 {
 	pi.header = MakeHeader(id, command, payload.size());
 	pi.vec[0] = MakeIovecT(pi.header);
