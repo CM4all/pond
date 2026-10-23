@@ -446,7 +446,8 @@ try {
 		return BufferedResult::AGAIN;
 
 	case PondRequestCommand::CANCEL_OPERATION:
-		instance.CancelBlockingOperation();
+		if (instance.IsBlocked())
+			instance.CancelBlockingOperation();
 		return BufferedResult::AGAIN;
 
 	case PondRequestCommand::FILTER_HTTP_STATUS:

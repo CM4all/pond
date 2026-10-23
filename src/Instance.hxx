@@ -21,6 +21,7 @@
 #include "lib/avahi/ErrorHandler.hxx"
 #endif
 
+#include <cassert>
 #include <forward_list>
 #include <memory>
 
@@ -134,8 +135,15 @@ public:
 
 	void SetBlockingOperation(std::unique_ptr<BlockingOperation> op) noexcept;
 
+	/**
+	 * Cancel the #blocking_operation (which must exist).
+	 */
 	void CancelBlockingOperation() noexcept {
-		blocking_operation.reset();
+		assert(blocking_operation);
+
+		/* clean up just like after a finished operation,
+		   e.g. re-enable Zeroconf */
+		OnOperationFinished();
 	}
 
 	void Run() noexcept {

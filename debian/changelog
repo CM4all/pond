@@ -1,5 +1,6 @@
 cm4all-pond (0.42) unstable; urgency=low
 
+  * server: re-enable Zeroconf after canceled clone
   * receiver: count truncated datagrams
   * client: show ISO8601 timestamps at full precision
   * client: allow smaller STATS payload (for backwards compatibility)
