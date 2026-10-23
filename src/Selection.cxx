@@ -20,11 +20,13 @@ Selection::IsDefined() const noexcept
 }
 
 inline Selection::UpdateResult
-Selection::SkipMismatches(unsigned max_steps) noexcept
+Selection::SkipMismatches(unsigned &budget) noexcept
 {
 	while (IsDefined()) {
-		if (max_steps-- == 0)
+		if (budget == 0)
 			return UpdateResult::AGAIN;
+
+		--budget;
 
 		if (filter(cursor->GetParsed(), cursor->GetRaw())) {
 			// found a match
@@ -50,11 +52,13 @@ Selection::IsDefinedReverse() const noexcept
 }
 
 inline Selection::UpdateResult
-Selection::ReverseSkipMismatches(unsigned max_steps) noexcept
+Selection::ReverseSkipMismatches(unsigned &budget) noexcept
 {
 	while (IsDefinedReverse()) {
-		if (max_steps-- == 0)
+		if (budget == 0)
 			return UpdateResult::AGAIN;
+
+		--budget;
 
 		if (filter(cursor->GetParsed(), cursor->GetRaw())) {
 			// found a match
@@ -127,14 +131,14 @@ Selection::OnAppend(const Record &record) noexcept
 }
 
 Selection::UpdateResult
-Selection::Update(unsigned max_steps) noexcept
+Selection::UpdateBudget(unsigned &budget) noexcept
 {
 	switch (state) {
 	case State::MISMATCH:
-		return SkipMismatches(max_steps);
+		return SkipMismatches(budget);
 
 	case State::MISMATCH_REVERSE:
-		return ReverseSkipMismatches(max_steps);
+		return ReverseSkipMismatches(budget);
 
 	case State::MATCH:
 		assert(cursor);

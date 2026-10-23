@@ -150,7 +150,16 @@ public:
 	 * steps and return #AGAIN
 	 */
 	[[nodiscard]]
-	UpdateResult Update(unsigned max_steps) noexcept;
+	UpdateResult Update(unsigned max_steps) noexcept {
+		return UpdateBudget(max_steps);
+	}
+
+	/**
+	 * Like Update(), but subtract the number of steps from the
+	 * given budget, which may be shared by several calls.
+	 */
+	[[nodiscard]]
+	UpdateResult UpdateBudget(unsigned &budget) noexcept;
 
 	const Record &operator*() const noexcept {
 		assert(state == State::MATCH);
@@ -183,12 +192,12 @@ private:
 	 * forward on until matching record was found (or until there
 	 * are no further records).
 	 */
-	UpdateResult SkipMismatches(unsigned max_steps) noexcept;
+	UpdateResult SkipMismatches(unsigned &budget) noexcept;
 
 	bool IsDefinedReverse() const noexcept;
 
 	/**
 	 * Like SkipMismatches(), but move backwards.
 	 */
-	UpdateResult ReverseSkipMismatches(unsigned max_steps) noexcept;
+	UpdateResult ReverseSkipMismatches(unsigned &budget) noexcept;
 };
