@@ -13,6 +13,7 @@
 #include "event/FarTimerEvent.hxx"
 #include "event/net/UdpHandler.hxx"
 #include "io/Logger.hxx"
+#include "util/ByteSizes.hxx"
 #include "util/IntrusiveList.hxx"
 #include "config.h"
 
@@ -42,7 +43,7 @@ class Instance final
 #endif
 	  public BlockingOperationHandler
 {
-	static constexpr size_t MAX_DATAGRAM_SIZE = 4096;
+	static constexpr size_t MAX_DATAGRAM_SIZE = 4_KiB;
 
 	static constexpr Event::Duration COMPRESS_INTERVAL = std::chrono::minutes{20};
 

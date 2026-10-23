@@ -8,6 +8,7 @@
 #include "Send.hxx"
 #include "event/SocketEvent.hxx"
 #include "net/UniqueSocketDescriptor.hxx"
+#include "util/ByteSizes.hxx"
 #include "util/StaticFifoBuffer.hxx"
 
 /**
@@ -37,7 +38,7 @@ class PondAsyncClient {
 
 	uint16_t last_id = 0;
 
-	StaticFifoBuffer<std::byte, 256 * 1024> input;
+	StaticFifoBuffer<std::byte, 256_KiB> input;
 
 public:
 	PondAsyncClient(EventLoop &event_loop,

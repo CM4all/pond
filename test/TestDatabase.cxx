@@ -5,6 +5,7 @@
 #include "net/log/Serializer.hxx"
 #include "net/log/Parser.hxx"
 #include "time/ClockCache.hxx"
+#include "util/ByteSizes.hxx"
 
 #include <gtest/gtest.h>
 
@@ -31,7 +32,7 @@ GetFullParsed(const Record &record)
 static const Record &
 Push(Database &db, const Net::Log::Datagram &src)
 {
-	std::byte buffer[16384];
+	std::byte buffer[16_KiB];
 	size_t size = Net::Log::Serialize(buffer, src);
 	return db.Emplace({buffer, size});
 }
@@ -40,14 +41,14 @@ static const Record *
 CheckPush(Database &db, const Net::Log::Datagram &src,
           const ClockCache<std::chrono::steady_clock> &clock)
 {
-	std::byte buffer[16384];
+	std::byte buffer[16_KiB];
 	size_t size = Net::Log::Serialize(buffer, src);
 	return db.CheckEmplace({buffer, size}, clock);
 }
 
 TEST(Database, Basic)
 {
-	Database db(64 * 1024);
+	Database db(64_KiB);
 	EXPECT_TRUE(db.GetAllRecords().empty());
 
 	Net::Log::Datagram d;
@@ -102,7 +103,7 @@ TEST(Database, Basic)
  */
 TEST(Database, MaxSteps)
 {
-	Database db(64 * 1024);
+	Database db(64_KiB);
 	EXPECT_TRUE(db.GetAllRecords().empty());
 
 	// Add many records with different generator values
@@ -210,7 +211,7 @@ TEST(Database, MaxSteps)
 
 TEST(Database, PerSite)
 {
-	Database db{64 * 1024};
+	Database db{64_KiB};
 	EXPECT_TRUE(db.GetAllRecords().empty());
 
 	EXPECT_FALSE(db.GetFirstSite());
@@ -436,7 +437,7 @@ IsRateLimited(Database &db, const Net::Log::Datagram &src,
 
 TEST(Database, PerSiteRateLimit)
 {
-	Database db(256 * 1024, 10);
+	Database db(256_KiB, 10);
 	EXPECT_TRUE(db.GetAllRecords().empty());
 
 	const std::chrono::steady_clock::time_point zero;
@@ -506,7 +507,7 @@ struct TestAppendListener : public AppendListener {
 
 TEST(Database, AppendListener)
 {
-	Database db(64 * 1024);
+	Database db(64_KiB);
 	TestAppendListener listener;
 
 	// Register listener with site filter
@@ -552,7 +553,7 @@ TEST(Database, AppendListener)
 
 TEST(Database, MarkRestore)
 {
-	Database db(64 * 1024);
+	Database db(64_KiB);
 
 	// Add several records with different sites
 	Push(db, {.timestamp = MakeTimestamp(1), .site = "site_a"});

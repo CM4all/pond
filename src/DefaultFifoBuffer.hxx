@@ -4,6 +4,7 @@
 
 #pragma once
 
+#include "util/ByteSizes.hxx"
 #include "util/ForeignFifoBuffer.hxx"
 
 #include <stdint.h>
@@ -14,7 +15,7 @@
  * another project.
  */
 class DefaultFifoBuffer : public ForeignFifoBuffer<std::byte> {
-	static constexpr size_t SIZE = 8192;
+	static constexpr size_t SIZE = 8_KiB;
 
 public:
 	DefaultFifoBuffer() noexcept:ForeignFifoBuffer(nullptr) {}

@@ -5,6 +5,7 @@
 #pragma once
 
 #include "net/SocketConfig.hxx"
+#include "util/ByteSizes.hxx"
 #include "config.h"
 
 #ifdef HAVE_AVAHI
@@ -15,7 +16,7 @@
 #include <forward_list>
 
 struct DatabaseConfig {
-	size_t size = 16 * 1024 * 1024;
+	std::size_t size = 16_MiB;
 
 	/**
 	 * A positive value means that records older than this

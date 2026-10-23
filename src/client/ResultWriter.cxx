@@ -256,7 +256,7 @@ ResultWriter::Append(Net::Log::Datagram &&d)
 	}
 #endif // HAVE_AVAHI
 
-	if (buffer_fill > sizeof(buffer) - 16384)
+	if (buffer_fill > sizeof(buffer) - 16_KiB)
 		FlushBuffer();
 
 	char *old_end = buffer + buffer_fill;

@@ -7,6 +7,7 @@
 #include "Send.hxx"
 #include "net/UniqueSocketDescriptor.hxx"
 #include "util/ByteOrder.hxx"
+#include "util/ByteSizes.hxx"
 #include "util/StaticFifoBuffer.hxx"
 
 struct PondDatagram;
@@ -16,7 +17,7 @@ class PondClient {
 
 	uint16_t last_id = 0;
 
-	StaticFifoBuffer<std::byte, 256 * 1024> input;
+	StaticFifoBuffer<std::byte, 256_KiB> input;
 
 public:
 	explicit PondClient(UniqueSocketDescriptor &&_fd) noexcept

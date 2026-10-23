@@ -593,7 +593,7 @@ static void
 ReadPackets(FileDescriptor fd,
 	    std::invocable<unsigned, unsigned, std::span<const std::byte>> auto f)
 {
-	StaticFifoBuffer<std::byte, 65536> input;
+	StaticFifoBuffer<std::byte, 64_KiB> input;
 
 	while (true) {
 		auto r = input.Read();

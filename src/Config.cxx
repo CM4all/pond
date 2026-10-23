@@ -87,7 +87,7 @@ PondConfigParser::Database::ParseLine(FileLineParser &line)
 
 	if (StringIsEqual(word, "size")) {
 		config.size = ParseSize(line.ExpectValueAndEnd());
-		if (config.size < 64 * 1024)
+		if (config.size < 64_KiB)
 			throw LineParser::Error("Database size is too small");
 	} else if (StringIsEqual(word, "max_age")) {
 		config.max_age = Pg::ParseIntervalS(line.ExpectValueAndEnd());

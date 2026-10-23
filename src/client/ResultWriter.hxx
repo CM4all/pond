@@ -10,6 +10,7 @@
 #include "io/FileWriter.hxx"
 #include "net/SocketDescriptor.hxx"
 #include "net/log/OneLine.hxx"
+#include "util/ByteSizes.hxx"
 #include "util/TransparentHash.hxx"
 #include "config.h"
 
@@ -90,7 +91,7 @@ class ResultWriter {
 	const bool raw, age_only, gzip, track_visitors;
 
 	size_t buffer_fill = 0;
-	char buffer[65536];
+	char buffer[64_KiB];
 
 public:
 	ResultWriter(bool _raw, bool _age_only, bool _gzip,

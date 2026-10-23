@@ -11,6 +11,7 @@
 #include "system/VmaName.hxx"
 #include "time/Cast.hxx"
 #include "time/ClockCache.hxx"
+#include "util/ByteSizes.hxx"
 #include "util/DeleteDisposer.hxx"
 
 #include <assert.h>
@@ -39,7 +40,7 @@ Database::Database(size_t max_size, double _per_site_message_rate_limit)
 	EnableHugePages(allocation);
 	EnablePageFork(allocation, false);
 
-	if (max_size > 2ull * 1024 * 1024 * 1024)
+	if (max_size > 2_GiB)
 		/* exclude database memory from core dumps if it's
 		   extremely large, because such a large memory
 		   section usually doesn't fit in the core dump

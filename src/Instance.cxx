@@ -119,7 +119,7 @@ Instance::AddReceiver(const SocketConfig &config)
 				MultiReceiveMessage(256, MAX_DATAGRAM_SIZE),
 				handler);
 
-	static constexpr int buffer_size = 4 * 1024 * 1024;
+	static constexpr int buffer_size = 4_MiB;
 	receivers.front().GetSocket().SetOption(SOL_SOCKET, SO_RCVBUF,
 						&buffer_size, sizeof(buffer_size));
 	receivers.front().GetSocket().SetOption(SOL_SOCKET, SO_RCVBUFFORCE,
