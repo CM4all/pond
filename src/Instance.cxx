@@ -160,6 +160,13 @@ Instance::AddConnection(UniqueSocketDescriptor &&fd) noexcept
 }
 
 void
+Instance::RemoveConnection(Connection &c) noexcept
+{
+	connections.erase_and_dispose(connections.iterator_to(c),
+				      DeleteDisposer{});
+}
+
+void
 Instance::SetBlockingOperation(std::unique_ptr<BlockingOperation> op) noexcept
 {
 	assert(!blocking_operation);

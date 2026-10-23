@@ -65,7 +65,8 @@ class Instance final
 	std::forward_list<MultiUdpListener> receivers;
 	std::forward_list<Listener> listeners;
 
-	IntrusiveList<Connection> connections;
+	IntrusiveList<Connection, IntrusiveListBaseHookTraits<Connection>,
+		      IntrusiveListOptions{.constant_time_size = true}> connections;
 
 	/**
 	 * An operation which blocks this daemon; Zeroconf
@@ -127,6 +128,12 @@ public:
 	void AddReceiver(const SocketConfig &config);
 	void AddListener(const ListenerConfig &config);
 	void AddConnection(UniqueSocketDescriptor &&fd) noexcept;
+
+	/**
+	 * Remove the specified #Connection from #connections and
+	 * delete it.
+	 */
+	void RemoveConnection(Connection &c) noexcept;
 
 	bool IsBlocked() const noexcept {
 		return !!blocking_operation;

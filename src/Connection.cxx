@@ -80,6 +80,12 @@ Connection::~Connection() noexcept
 	AppendListener::Unregister();
 }
 
+void
+Connection::Destroy() noexcept
+{
+	instance.RemoveConnection(*this);
+}
+
 bool
 Connection::IsLocalAdmin() const noexcept
 {

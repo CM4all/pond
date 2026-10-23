@@ -24,7 +24,7 @@ class Selection;
 class SiteIterator;
 class RootLogger;
 class Connection final
-	: public AutoUnlinkIntrusiveListHook,
+	: public IntrusiveListHook<>,
 	BufferedSocketHandler, AppendListener {
 
 	Instance &instance;
@@ -128,9 +128,7 @@ public:
 	Connection(Instance &_instance, UniqueSocketDescriptor &&fd) noexcept;
 	~Connection() noexcept;
 
-	void Destroy() noexcept {
-		delete this;
-	}
+	void Destroy() noexcept;
 
 	auto &GetEventLoop() const noexcept {
 		return socket.GetEventLoop();
