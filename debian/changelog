@@ -1,5 +1,6 @@
 cm4all-pond (0.42) unstable; urgency=low
 
+  * receiver: ignore truncated datagrams
   * client: show ISO8601 timestamps at full precision
   * zeroconf: do not add hostname to Zeroconf service name
   * zeroconf: fix leak bug
