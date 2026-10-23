@@ -435,6 +435,33 @@ IsRateLimited(Database &db, const Net::Log::Datagram &src,
 	return false;
 }
 
+TEST(Database, SwitchSite)
+{
+	Database db{64_KiB};
+
+	Push(db, {.timestamp = MakeTimestamp(1), .site = "a"});
+	Push(db, {.timestamp = MakeTimestamp(2), .site = "b", .type = Net::Log::Type::HTTP_ERROR});
+	Push(db, {.timestamp = MakeTimestamp(3), .site = "b"});
+
+	auto i = db.GetFirstSite();
+	ASSERT_TRUE(i);
+
+	auto selection = db.Select(i, {.type = Net::Log::Type::HTTP_ERROR});
+	EXPECT_EQ(selection.Update(16), Selection::UpdateResult::END);
+
+	i = db.GetNextSite(i);
+	ASSERT_TRUE(i);
+
+	/* the filter is still applied after switching */
+	db.SwitchSite(selection, i);
+	ASSERT_EQ(selection.Update(16), Selection::UpdateResult::READY);
+	EXPECT_STREQ(selection->GetParsed().site, "b");
+	EXPECT_EQ(selection->GetParsed().timestamp, MakeTimestamp(2));
+
+	++selection;
+	EXPECT_EQ(selection.Update(16), Selection::UpdateResult::END);
+}
+
 TEST(Database, PerSiteRateLimit)
 {
 	Database db(256_KiB, 10);

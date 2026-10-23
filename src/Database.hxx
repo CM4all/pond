@@ -182,6 +182,13 @@ public:
 	[[gnu::pure]]
 	Selection Select(const SiteIterator &site, const Filter &filter) noexcept;
 
+	/**
+	 * Point an existing #Selection to the specified site,
+	 * keeping its #Filter (which must not have a site filter).
+	 */
+	void SwitchSite(Selection &selection,
+			const SiteIterator &site) noexcept;
+
 private:
 	[[gnu::pure]]
 	PerSite &GetPerSite(std::string_view site) noexcept;

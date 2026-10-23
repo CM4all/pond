@@ -65,6 +65,17 @@ public:
 		 lease(std::forward<L>(_lease)) {}
 
 	/**
+	 * Switch to a different list (keeping the #Filter) and move
+	 * to its first matching record.
+	 */
+	void Reset(const AnyRecordList &_list, SharedLease &&_lease) noexcept {
+		cursor = Cursor{_list};
+		lease = std::move(_lease);
+		state = State::END;
+		Rewind();
+	}
+
+	/**
 	 * Opaque struct for Mark() and Restore().
 	 */
 	struct Marker {

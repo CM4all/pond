@@ -229,3 +229,12 @@ Database::Select(const SiteIterator &_site, const Filter &filter) noexcept
 	selection.Rewind();
 	return selection;
 }
+
+void
+Database::SwitchSite(Selection &selection, const SiteIterator &_site) noexcept
+{
+	assert(_site);
+
+	auto &site = static_cast<PerSite &>(_site.lease.GetAnchor());
+	selection.Reset(site.list, SharedLease{_site.lease});
+}
