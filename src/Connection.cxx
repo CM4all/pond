@@ -446,6 +446,9 @@ try {
 		return BufferedResult::AGAIN;
 
 	case PondRequestCommand::CANCEL_OPERATION:
+		if (!IsLocalAdmin())
+			throw SimplePondError{"Forbidden"};
+
 		if (instance.IsBlocked())
 			instance.CancelBlockingOperation();
 		return BufferedResult::AGAIN;
