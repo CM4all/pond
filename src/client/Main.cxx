@@ -565,10 +565,12 @@ Stats(const PondServerSpecification &server, std::span<const char *const> args)
 
 	fmt::print("n_received={}\n"
 		   "n_malformed={}\n"
-		   "n_discarded={}\n",
+		   "n_discarded={}\n"
+		   "n_truncated={}\n"sv,
 		   FromBE64(stats.n_received),
 		   FromBE64(stats.n_malformed),
-		   FromBE64(stats.n_discarded));
+		   FromBE64(stats.n_discarded),
+		   FromBE64(stats.n_truncated));
 }
 
 template<typename B>

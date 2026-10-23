@@ -46,6 +46,13 @@ Instance::OnUdpDatagram(std::span<const std::byte> payload,
 	return true;
 }
 
+bool
+Instance::OnUdpTruncated() noexcept
+{
+	++n_truncated;
+	return true;
+}
+
 void
 Instance::OnUdpError(std::exception_ptr &&error) noexcept
 {

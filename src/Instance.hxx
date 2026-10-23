@@ -91,7 +91,7 @@ class Instance final
 	/**
 	 * @see struct PondStatsPayload
 	 */
-	uint64_t n_received = 0, n_malformed = 0, n_discarded = 0;
+	uint64_t n_received = 0, n_malformed = 0, n_discarded = 0, n_truncated = 0;
 
 public:
 	explicit Instance(const Config &config);
@@ -159,6 +159,7 @@ private:
 	bool OnUdpDatagram(std::span<const std::byte> payload,
 			   std::span<UniqueFileDescriptor> fds,
 			   SocketAddress address, int uid) override;
+	bool OnUdpTruncated() noexcept override;
 	void OnUdpError(std::exception_ptr &&error) noexcept override;
 
 	/* virtual methods from BlockingOperationHandler */

@@ -261,6 +261,12 @@ struct PondStatsPayload {
 	 * limits).
 	 */
 	uint64_t n_discarded;
+
+	/**
+	 * The number of datagrams that were truncated because the
+	 * receive buffer was too small.
+	 */
+	uint64_t n_truncated;
 };
 
 /**
