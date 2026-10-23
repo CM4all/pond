@@ -74,6 +74,24 @@ ParseHttpMethod(std::string_view s)
 	throw std::invalid_argument{"Unknown HTTP method"};
 }
 
+template<typename T>
+requires(std::is_trivially_default_constructible_v<T> &&
+	 std::is_trivially_copyable_v<T>)
+static T
+CopyPayload(std::span<const std::byte> raw)
+{
+	if (raw.empty())
+		throw "Empty payload";
+
+	/* start with a zero-initialized value */
+	T value{};
+
+	/* copy as much data as possible over */
+	memcpy(&value, raw.data(), std::min(raw.size(), sizeof(value)));
+
+	return value;
+}
+
 struct QueryOptions {
 	const char *per_site = nullptr;
 	const char *per_site_filename = nullptr;
@@ -536,13 +554,7 @@ Stats(const PondServerSpecification &server, std::span<const char *const> args)
 	if (response.command != PondResponseCommand::STATS)
 		throw "Wrong response command";
 
-	std::span<const std::byte> payload = response.payload;
-	const PondStatsPayload &stats = *(const PondStatsPayload *)
-		(const void *)payload.data();
-
-	if (payload.size() < sizeof(PondStatsPayload))
-		// TODO: backwards compatibility, allow smaller payloads
-		throw "Wrong response payload size";
+	const auto stats = CopyPayload<PondStatsPayload>(response.payload);
 
 	fmt::print("memory_capacity={}\n"
 		   "memory_usage={}\n"
