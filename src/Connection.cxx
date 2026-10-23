@@ -762,6 +762,14 @@ Connection::OnBufferedWrite()
 
 	assert(current.command == PondRequestCommand::QUERY);
 
+	if (AppendListener::IsRegistered()) {
+		/* the send_queue has been flushed and we're waiting
+		   for new records (FOLLOW or CONTINUE); OnAppend()
+		   will resume the response */
+		socket.UnscheduleWrite();
+		return true;
+	}
+
 	if (current.pending_skip_sites) {
 		assert(current.HasGroupSite());
 
