@@ -6,6 +6,8 @@
 
 #include "util/IntrusiveList.hxx"
 
+#include <cassert>
+
 class Record;
 
 /**
@@ -46,6 +48,8 @@ public:
 	}
 
 	void Add(AppendListener &l) {
+		assert(!l.IsRegistered());
+
 		list.push_back(l);
 	}
 
