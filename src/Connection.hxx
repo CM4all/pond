@@ -40,6 +40,13 @@ class Connection final
 		bool last = false;
 
 		/**
+		 * Has this request been committed already?  If yes,
+		 * then the response is in progress, and no more
+		 * request packets are accepted for it.
+		 */
+		bool committed = false;
+
+		/**
 		 * Do we need to handle group_site.skip_sites?
 		 */
 		bool pending_skip_sites = false;
@@ -70,7 +77,7 @@ class Connection final
 		 * uncommitted request?
 		 */
 		constexpr bool MatchId(uint16_t other_id) const noexcept {
-			return IsDefined() && id == other_id;
+			return IsDefined() && !committed && id == other_id;
 		}
 
 		/**

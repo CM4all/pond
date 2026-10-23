@@ -26,6 +26,7 @@ Connection::Request::Clear() noexcept
 	window.max = 0;
 	follow = false;
 	continue_ = false;
+	committed = false;
 	pending_skip_sites = false;
 	selection.reset();
 	address.clear();
@@ -276,6 +277,7 @@ try {
 		switch (current.command) {
 		case PondRequestCommand::QUERY:
 			CommitQuery();
+			current.committed = true;
 			return BufferedResult::AGAIN;
 
 		case PondRequestCommand::CLONE:
