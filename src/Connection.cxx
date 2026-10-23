@@ -173,42 +173,64 @@ Connection::Send(uint16_t id, PondResponseCommand command,
 		throw std::runtime_error("Short send");
 }
 
+/**
+ * Move to the site following the given one.
+ *
+ * @param selection a #Selection which will be switched to the new
+ * site (if there is one)
+ */
 static SiteIterator
-FindNonEmpty(Database &db, const Filter &filter, SiteIterator &&i) noexcept
+NextSite(Database &db, Selection &selection, const SiteIterator &i) noexcept
 {
-	for (; i; i = db.GetNextSite(i)) {
-		auto selection = db.Select(i, filter);
+	auto next = db.GetNextSite(i);
+	if (next)
+		db.SwitchSite(selection, next);
+	return next;
+}
 
+/**
+ * @param selection a #Selection which points to the site referenced
+ * by the given #SiteIterator; after returning, it points to the
+ * returned site (if any)
+ */
+static SiteIterator
+FindNonEmpty(Database &db, Selection &selection, SiteIterator &&i) noexcept
+{
+	/* records may have been deleted since the Selection was
+	   created */
+	selection.FixDeleted();
+
+	while (i) {
 		switch (selection.Update(1024 * 1024)) {
 		case Selection::UpdateResult::READY:
-			break;
+			return i;
 
 		case Selection::UpdateResult::AGAIN:
 			/* for now, pretend the site is empty */
 			// TODO make asynchronous
-			continue;
+			break;
 
 		case Selection::UpdateResult::END:
-			continue;
+			break;
 		}
 
-		break;
+		i = NextSite(db, selection, i);
 	}
 
 	return i;
 }
 
 static SiteIterator
-SkipNonEmpty(Database &db, const Filter &filter, SiteIterator &&i,
+SkipNonEmpty(Database &db, Selection &selection, SiteIterator &&i,
 	     unsigned n) noexcept
 {
 	/* skip empty sites at the beginning */
-	i = FindNonEmpty(db, filter, std::move(i));
+	i = FindNonEmpty(db, selection, std::move(i));
 
 	/* now skip "n" more sites (ignoring empty sites in
 	   between) */
 	while (i && n-- > 0)
-		i = FindNonEmpty(db, filter, db.GetNextSite(i));
+		i = FindNonEmpty(db, selection, NextSite(db, selection, i));
 
 	return i;
 }
@@ -253,6 +275,10 @@ Connection::CommitQuery()
 		current.selection.reset(new Selection(db.Follow(current.filter, *this)));
 	} else if (current.HasGroupSite()) {
 		current.site_iterator = db.GetFirstSite();
+		current.selection.reset(current.site_iterator
+					? new Selection(db.Select(current.site_iterator,
+								  current.filter))
+					: new Selection());
 		current.pending_skip_sites = true;
 		socket.DeferWrite();
 	} else if (current.last) {
@@ -811,15 +837,11 @@ Connection::OnBufferedWrite()
 		current.pending_skip_sites = false;
 
 		auto &db = instance.GetDatabase();
-		current.site_iterator = SkipNonEmpty(db, current.filter,
+		current.site_iterator = SkipNonEmpty(db, *current.selection,
 						     std::move(current.site_iterator),
 						     current.group_site.skip_sites);
-		if (current.site_iterator) {
-			current.selection.reset(new Selection(db.Select(current.site_iterator,
-									current.filter)));
-		} else {
+		if (!current.site_iterator)
 			current.selection.reset(new Selection());
-		}
 	}
 
 	assert(current.selection);
@@ -918,16 +940,15 @@ Connection::OnBufferedWrite()
 	if (current.site_iterator &&
 	    --current.group_site.max_sites > 0) {
 		auto &db = instance.GetDatabase();
-		current.site_iterator = FindNonEmpty(db, current.filter,
-						     db.GetNextSite(current.site_iterator));
+		current.site_iterator = FindNonEmpty(db, selection,
+						     NextSite(db, selection,
+							      current.site_iterator));
 		// TODO: max_sites
 		if (current.site_iterator) {
 			/* we have another site; return from this
 			   method, leaving the "write" scheduled, so
 			   we'll be called again and this next call
 			   will send the new site's data */
-			selection = db.Select(current.site_iterator,
-					      current.filter);
 			socket.ScheduleWrite();
 			return true;
 		}
