@@ -47,9 +47,11 @@ class Connection final
 		bool committed = false;
 
 		/**
-		 * Do we need to handle group_site.skip_sites?
+		 * Do we need to search for the next non-empty site
+		 * (and handle group_site.skip_sites)?  This is done
+		 * by FindNonEmptySite().
 		 */
-		bool pending_skip_sites = false;
+		bool pending_find_site = false;
 
 		PondRequestCommand command = PondRequestCommand::NOP;
 
@@ -145,6 +147,18 @@ private:
 		  std::span<const std::byte> payload);
 
 	void CommitQuery();
+
+	/**
+	 * Advance #Request::site_iterator (and the #Selection) to the
+	 * next site with at least one matching record, skipping
+	 * #PondGroupSitePayload::skip_sites non-empty sites.
+	 *
+	 * @return true when finished (#Request::site_iterator is the
+	 * site to be sent next or empty if there are no more sites),
+	 * false if the search was suspended because the maximum
+	 * number of steps was exceeded; call again to resume
+	 */
+	bool FindNonEmptySite() noexcept;
 	void CommitClone();
 
 	BufferedResult OnPacket(uint16_t id, PondRequestCommand cmd,

@@ -41,7 +41,7 @@ Connection::Request::Clear() noexcept
 	follow = false;
 	continue_ = false;
 	committed = false;
-	pending_skip_sites = false;
+	pending_find_site = false;
 	selection.reset();
 	address.clear();
 }
@@ -189,50 +189,60 @@ NextSite(Database &db, Selection &selection, const SiteIterator &i) noexcept
 }
 
 /**
- * @param selection a #Selection which points to the site referenced
- * by the given #SiteIterator; after returning, it points to the
- * returned site (if any)
+ * The maximum number of steps in one OnBufferedWrite() call.
  */
-static SiteIterator
-FindNonEmpty(Database &db, Selection &selection, SiteIterator &&i) noexcept
+static constexpr unsigned MAX_STEPS = 1024 * 1024;
+
+bool
+Connection::FindNonEmptySite() noexcept
 {
-	/* records may have been deleted since the Selection was
-	   created */
+	assert(current.pending_find_site);
+	assert(current.selection);
+
+	auto &db = instance.GetDatabase();
+	auto &selection = *current.selection;
+
+	/* records may have been deleted since the last call */
 	selection.FixDeleted();
 
-	while (i) {
-		switch (selection.Update(1024 * 1024)) {
+	/* checking a record and visiting a site cost one step
+	   each */
+	unsigned budget = MAX_STEPS;
+
+	while (current.site_iterator) {
+		switch (selection.UpdateBudget(budget)) {
 		case Selection::UpdateResult::READY:
-			return i;
+			if (current.group_site.skip_sites == 0) {
+				current.pending_find_site = false;
+				return true;
+			}
+
+			--current.group_site.skip_sites;
+			break;
 
 		case Selection::UpdateResult::AGAIN:
-			/* for now, pretend the site is empty */
-			// TODO make asynchronous
-			break;
+			return false;
 
 		case Selection::UpdateResult::END:
 			break;
 		}
 
-		i = NextSite(db, selection, i);
+		/* this site is empty or skipped; move on to the next
+		   one */
+		current.site_iterator = NextSite(db, selection,
+						 current.site_iterator);
+
+		if (budget == 0)
+			return false;
+
+		--budget;
 	}
 
-	return i;
-}
-
-static SiteIterator
-SkipNonEmpty(Database &db, Selection &selection, SiteIterator &&i,
-	     unsigned n) noexcept
-{
-	/* skip empty sites at the beginning */
-	i = FindNonEmpty(db, selection, std::move(i));
-
-	/* now skip "n" more sites (ignoring empty sites in
-	   between) */
-	while (i && n-- > 0)
-		i = FindNonEmpty(db, selection, NextSite(db, selection, i));
-
-	return i;
+	/* no more sites; the Selection may still point to a skipped
+	   site, so replace it with an empty one */
+	current.selection.reset(new Selection());
+	current.pending_find_site = false;
+	return true;
 }
 
 inline void
@@ -279,7 +289,7 @@ Connection::CommitQuery()
 					? new Selection(db.Select(current.site_iterator,
 								  current.filter))
 					: new Selection());
-		current.pending_skip_sites = true;
+		current.pending_find_site = true;
 		socket.DeferWrite();
 	} else if (current.last) {
 		current.selection.reset(new Selection(db.SelectLast(current.filter)));
@@ -831,25 +841,20 @@ Connection::OnBufferedWrite()
 		return true;
 	}
 
-	if (current.pending_skip_sites) {
+	if (current.pending_find_site) {
 		assert(current.HasGroupSite());
 
-		current.pending_skip_sites = false;
-
-		auto &db = instance.GetDatabase();
-		current.site_iterator = SkipNonEmpty(db, *current.selection,
-						     std::move(current.site_iterator),
-						     current.group_site.skip_sites);
-		if (!current.site_iterator)
-			current.selection.reset(new Selection());
+		if (!FindNonEmptySite()) {
+			/* resume in the next EventLoop iteration */
+			socket.ScheduleWrite();
+			return true;
+		}
 	}
 
 	assert(current.selection);
 
 	auto &selection = *current.selection;
 	selection.FixDeleted();
-
-	static constexpr unsigned MAX_STEPS = 1024 * 1024;
 
 	/* handle window.skip */
 	uint64_t max_records = std::numeric_limits<uint64_t>::max();
@@ -940,15 +945,16 @@ Connection::OnBufferedWrite()
 	if (current.site_iterator &&
 	    --current.group_site.max_sites > 0) {
 		auto &db = instance.GetDatabase();
-		current.site_iterator = FindNonEmpty(db, selection,
-						     NextSite(db, selection,
-							      current.site_iterator));
+		current.site_iterator = NextSite(db, selection,
+						 current.site_iterator);
 		// TODO: max_sites
 		if (current.site_iterator) {
 			/* we have another site; return from this
 			   method, leaving the "write" scheduled, so
 			   we'll be called again and this next call
-			   will send the new site's data */
+			   will find the next non-empty site and send
+			   its data */
+			current.pending_find_site = true;
 			socket.ScheduleWrite();
 			return true;
 		}
