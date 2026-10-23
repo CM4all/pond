@@ -343,6 +343,11 @@ AutoCloneOperation::OnAvahiNewObject([[maybe_unused]] const std::string &key,
 		   check it and bail out */
 		return;
 
+	if (!timeout_event.IsPending())
+		/* the clone source has already been selected (see
+		   OnTimeout()); ignore all new servers */
+		return;
+
 	if (servers.empty())
 		/* the first server was just found; reduce the timeout
 		   to 5 seconds to find more servers */
