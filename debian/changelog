@@ -18,7 +18,7 @@ cm4all-pond (0.42) unstable; urgency=low
   * debian: add missing build-dependency on pkg-config
   * debian: use "debhelper-compat" instead of "debian/compat"
 
- --   
+ -- Max Kellermann <max.kellermann@ionos.com>  Mon, 26 Oct 2026 21:38:52 +0100
 
 cm4all-pond (0.41) unstable; urgency=low
 
