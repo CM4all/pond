@@ -20,7 +20,7 @@ LimitNPROC=1
 
 # Resource limits
 TasksMax=16
-LimitNOFILE=16384
+LimitNOFILE=64K
 
 # Paranoid security settings
 NoNewPrivileges=true
