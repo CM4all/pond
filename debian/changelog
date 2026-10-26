@@ -16,6 +16,7 @@ cm4all-pond (0.42) unstable; urgency=low
   * support HTTP QUERY (RFC 10008)
   * support libfmt 12.2.0
   * debian: add missing build-dependency on pkg-config
+  * debian: use "debhelper-compat" instead of "debian/compat"
 
  --   
 

@@ -2,7 +2,8 @@ Source: cm4all-pond
 Section: net
 Priority: extra
 Maintainer: Max Kellermann <mk@cm4all.com>
-Build-Depends: debhelper (>= 13~),
+Build-Depends: debhelper-compat (= 13),
+ dh-sequence-installsysusers,
  meson (>= 1.2),
  g++ (>= 4:12),
  libc6-dev (>= 2.13),
