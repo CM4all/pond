@@ -106,7 +106,7 @@ add_project_arguments(compiler.get_supported_arguments(test_cxxflags), language:
 libsystemd = dependency('libsystemd', required: get_option('systemd'))
 libgeoip = dependency('geoip', required: get_option('geoip'))
 
-inc = include_directories('src', 'libcommon/src')
+inc = include_directories('.', 'src', 'libcommon/src')
 
 libcommon_require_avahi = get_option('zeroconf')
 
@@ -135,6 +135,8 @@ daemon_sources = []
 if avahi_dep.found()
   daemon_sources += 'src/AutoClone.cxx'
 endif
+
+subdir('src/client')
 
 libpond_db = static_library(
   'pond_db',
@@ -175,8 +177,6 @@ executable('cm4all-pond',
   'src/Config.cxx',
   'src/FullRecordList.cxx',
   'src/SendQueue.cxx',
-  'src/client/Async.cxx',
-  'src/client/Send.cxx',
   'src/system/SetupProcess.cxx',
   daemon_sources,
   'libcommon/src/pg/Interval.cxx',
@@ -192,6 +192,7 @@ executable('cm4all-pond',
     http_dep,
     avahi_dep,
     libpond_db_dep,
+    libpond_client_async_dep,
   ],
   install: true,
   install_dir: 'sbin')
@@ -211,9 +212,6 @@ executable('cm4all-pond-client',
   'src/client/FormatJson.cxx',
   'src/client/VisitorTracker.cxx',
   'src/client/PerSitePath.cxx',
-  'src/client/Client.cxx',
-  'src/client/Send.cxx',
-  'src/client/Open.cxx',
   client_sources,
   include_directories: inc,
   dependencies: [
@@ -225,6 +223,7 @@ executable('cm4all-pond-client',
     http_dep,
     avahi_dep,
     zlib_dep,
+    libpond_client_sync_dep,
   ],
   install: true)
 
