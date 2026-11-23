@@ -36,3 +36,13 @@ test(
     ],
   ),
 )
+
+executable(
+  'Clone',
+  'Clone.cxx',
+  include_directories: inc,
+  dependencies: [
+    libpond_db_dep,
+    libpond_client_sync_dep,
+  ],
+)
