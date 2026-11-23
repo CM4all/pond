@@ -136,6 +136,34 @@ if avahi_dep.found()
   daemon_sources += 'src/AutoClone.cxx'
 endif
 
+libpond_db = static_library(
+  'pond_db',
+  'src/Database.cxx',
+  'src/RList.cxx',
+  'src/AnyList.cxx',
+  'src/RSkipDeque.cxx',
+  'src/Record.cxx',
+  'src/Filter.cxx',
+  'src/LightCursor.cxx',
+  'src/Cursor.cxx',
+  'src/Selection.cxx',
+  include_directories: inc,
+  dependencies: [
+    system_dep,
+    net_log_dep,
+    http_dep,
+  ],
+)
+
+libpond_db_dep = declare_dependency(
+  link_with: libpond_db,
+  dependencies: [
+    system_dep,
+    net_log_dep,
+    http_dep,
+  ],
+)
+
 executable('cm4all-pond',
   'src/Main.cxx',
   'src/CommandLine.cxx',
@@ -145,16 +173,7 @@ executable('cm4all-pond',
   'src/Connection.cxx',
   'src/Clone.cxx',
   'src/Config.cxx',
-  'src/Database.cxx',
-  'src/RList.cxx',
   'src/FullRecordList.cxx',
-  'src/AnyList.cxx',
-  'src/RSkipDeque.cxx',
-  'src/Record.cxx',
-  'src/Filter.cxx',
-  'src/LightCursor.cxx',
-  'src/Cursor.cxx',
-  'src/Selection.cxx',
   'src/SendQueue.cxx',
   'src/client/Async.cxx',
   'src/client/Send.cxx',
@@ -172,6 +191,7 @@ executable('cm4all-pond',
     io_config_dep,
     http_dep,
     avahi_dep,
+    libpond_db_dep,
   ],
   install: true,
   install_dir: 'sbin')

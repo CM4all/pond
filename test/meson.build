@@ -29,21 +29,10 @@ test(
   executable(
     'TestDatabase',
     'TestDatabase.cxx',
-    '../src/Database.cxx',
-    '../src/RList.cxx',
-    '../src/AnyList.cxx',
-    '../src/RSkipDeque.cxx',
-    '../src/Record.cxx',
-    '../src/Filter.cxx',
-    '../src/LightCursor.cxx',
-    '../src/Cursor.cxx',
-    '../src/Selection.cxx',
     include_directories: inc,
     dependencies: [
       gtest,
-      system_dep,
-      net_log_dep,
-      http_dep,
+      libpond_db_dep,
     ],
   ),
 )
