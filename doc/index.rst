@@ -92,15 +92,29 @@ The ``receiver`` block can contain the following settings:
   square brackets to disambiguate the port separator. Local sockets
   start with a slash :file:`/`, and abstract sockets start with the
   symbol ``@``.
+
+- ``interface``: limit this listener to the given network interface.
+
+- ``mode``: for local socket files, this specifies the octal file
+  mode.
+
 - ``v6only``: if set to :samp:`yes`, then IPv4 support is disabled on
   an IPv6 listener.  This is required to avoid the port conflict when
   you need an IPv4 listener with a different configuration (e.g. an
   IPv4 multicast group).
+
+- ``reuse_port``: ``yes`` enables the socket option ``SO_REUSEPORT``,
+  which allows multiple sockets to bind to the same port.
+
+- ``free_bind``: ``yes`` enables the socket option ``IP_FREEBIND``,
+  which allows binding to an address which does not yet exist. This is
+  useful when the daemon shall be started before all network
+  interfaces are up and configured.
+
 - ``multicast_group``: join this multicast group, which allows
   receiving multicast commands. Value is a multicast IPv4/IPv6
   address.  IPv6 addresses may contain a scope identifier after a
   percent sign (``%``).
-- ``interface``: limit this listener to the given network interface.
 
 ``listener``
 ------------
@@ -113,7 +127,32 @@ The ``listener`` block can contain the following settings:
   square brackets to disambiguate the port separator. Local sockets
   start with a slash :file:`/`, and abstract sockets start with the
   symbol ``@``.
+
 - ``interface``: limit this listener to the given network interface.
+
+- ``mode``: for local socket files, this specifies the octal file
+  mode.
+
+- ``mptcp``: ``yes`` enables Multi-Path TCP
+
+- ``ack_timeout``: close the connection if transmitted data remains
+  unacknowledged by the client for this number of seconds. By default,
+  dead connections can remain open for up to 20 minutes.
+
+- ``keepalive``: ``yes`` enables the socket option ``SO_KEEPALIVE``.
+  This causes some traffic for the keepalive probes, but allows
+  detecting disappeared clients even when there is no traffic.
+
+- ``v6only``: ``no`` disables IPv4 support on IPv6 listeners
+  (``IPV6_V6ONLY``).  The default is ``yes``.
+
+- ``reuse_port``: ``yes`` enables the socket option ``SO_REUSEPORT``,
+  which allows multiple sockets to bind to the same port.
+
+- ``free_bind``: ``yes`` enables the socket option ``IP_FREEBIND``,
+  which allows binding to an address which does not yet exist. This is
+  useful when the daemon shall be started before all network
+  interfaces are up and configured.
 
 - ``zeroconf_service``: if specified, then register this listener as
   Zeroconf service in the local Avahi daemon.  This can be used by

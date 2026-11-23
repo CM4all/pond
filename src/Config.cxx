@@ -104,23 +104,7 @@ PondConfigParser::Receiver::ParseLine(FileLineParser &line)
 {
 	const char *word = line.ExpectWord();
 
-	if (StringIsEqual(word, "bind")) {
-		config.bind_address = ParseSocketAddress(line.ExpectValueAndEnd(),
-							 Net::Log::DEFAULT_PORT, true);
-	} else if (StringIsEqual(word, "v6only")) {
-		const bool value = line.NextBool();
-		line.ExpectEnd();
-
-		if (!value)
-			throw std::runtime_error("Explicitly disabling v6only is not implemented");
-
-		config.v6only = value;
-	} else if (StringIsEqual(word, "multicast_group")) {
-		config.multicast_group = ParseSocketAddress(line.ExpectValueAndEnd(),
-							    0, false);
-	} else if (StringIsEqual(word, "interface")) {
-		config.interface = line.ExpectValueAndEnd();
-	} else
+	if (!config.ParseLine(word, line, SOCK_DGRAM, Net::Log::DEFAULT_PORT))
 		throw LineParser::Error("Unknown option");
 }
 
@@ -142,11 +126,7 @@ PondConfigParser::Listener::ParseLine(FileLineParser &line)
 {
 	const char *word = line.ExpectWord();
 
-	if (StringIsEqual(word, "bind")) {
-		config.bind_address = ParseSocketAddress(line.ExpectValueAndEnd(),
-							 POND_DEFAULT_PORT, true);
-	} else if (StringIsEqual(word, "interface")) {
-		config.interface = line.ExpectValueAndEnd();
+	if (config.ParseLine(word, line, SOCK_STREAM, POND_DEFAULT_PORT)) {
 #ifdef HAVE_AVAHI
 	} else if (config.zeroconf.ParseLine(word, line)) {
 #else
