@@ -1,7 +1,7 @@
 Pond
 ####
 
-Author: Max Kellermann <mk@cm4all.com>
+Author: Max Kellermann <max.kellermann@ionos.com>
 
 *Pond* is a volatile round-robin database for log messages.  It
 receives log datagrams and keeps them around for a while, to allow its
