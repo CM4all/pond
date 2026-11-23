@@ -4,6 +4,7 @@
 
 #pragma once
 
+#include "RelativeStringPointer.hxx"
 #include "net/log/Datagram.hxx"
 
 /**
@@ -13,7 +14,7 @@
 struct SmallDatagram {
 	Net::Log::TimePoint timestamp;
 
-	const char *site;
+	RelativeStringPointer<uint_least16_t> site;
 
 	Net::Log::Type type = Net::Log::Type::UNSPECIFIED;
 

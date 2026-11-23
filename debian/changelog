@@ -1,6 +1,7 @@
 cm4all-pond (0.43) unstable; urgency=low
 
   * server: add new receiver/listener socket options
+  * database: reduce memory overhead
 
  --   
 
