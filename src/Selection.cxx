@@ -16,7 +16,7 @@ inline bool
 Selection::IsDefined() const noexcept
 {
 	return cursor && (!cursor->GetParsed().HasTimestamp() ||
-			  cursor->GetParsed().timestamp - until_offset <= filter.timestamp.until);
+			  cursor->GetParsed().GetTimestamp() - until_offset <= filter.timestamp.until);
 }
 
 inline Selection::UpdateResult
@@ -48,7 +48,7 @@ inline bool
 Selection::IsDefinedReverse() const noexcept
 {
 	return cursor && (!cursor->GetParsed().HasTimestamp() ||
-			  cursor->GetParsed().timestamp + until_offset >= filter.timestamp.since);
+			  cursor->GetParsed().GetTimestamp() + until_offset >= filter.timestamp.since);
 }
 
 inline Selection::UpdateResult

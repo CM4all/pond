@@ -14,6 +14,12 @@
 
 using std::string_view_literals::operator""sv;
 
+static constexpr bool
+operator==(const RelativeTimePointer<uint_least16_t> &a, Net::Log::TimePoint b) noexcept
+{
+	return static_cast<Net::Log::TimePoint>(a) == b;
+}
+
 static constexpr auto
 MakeTimestamp(unsigned t)
 {

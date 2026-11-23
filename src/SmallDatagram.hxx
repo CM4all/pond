@@ -5,6 +5,7 @@
 #pragma once
 
 #include "RelativeStringPointer.hxx"
+#include "RelativeTimePointer.hxx"
 #include "net/log/Datagram.hxx"
 
 /**
@@ -12,17 +13,22 @@
  * used by the Pond server.
  */
 struct SmallDatagram {
-	Net::Log::TimePoint timestamp;
+	RelativeTimePointer<uint_least16_t> timestamp;
 
 	RelativeStringPointer<uint_least16_t> site;
 
 	Net::Log::Type type = Net::Log::Type::UNSPECIFIED;
 
 	constexpr SmallDatagram(const Net::Log::Datagram &src) noexcept
-		:timestamp(src.timestamp), site(src.site),
+		:timestamp(src.timestamp_ptr),
+		 site(src.site),
 		 type(src.type) {}
 
 	constexpr bool HasTimestamp() const noexcept {
-		return timestamp != Net::Log::TimePoint();
+		return static_cast<bool>(timestamp);
+	}
+
+	constexpr Net::Log::TimePoint GetTimestamp() const noexcept {
+		return timestamp;
 	}
 };
