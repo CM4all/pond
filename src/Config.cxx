@@ -120,9 +120,6 @@ PondConfigParser::Receiver::ParseLine(FileLineParser &line)
 							    0, false);
 	} else if (StringIsEqual(word, "interface")) {
 		config.interface = line.ExpectValueAndEnd();
-	} else if (StringIsEqual(word, "mptcp")) {
-		config.mptcp = line.NextBool();
-		line.ExpectEnd();
 	} else
 		throw LineParser::Error("Unknown option");
 }
