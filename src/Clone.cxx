@@ -8,8 +8,6 @@
 #include "Error.hxx"
 #include "Instance.hxx"
 #include "client/Async.hxx"
-#include "client/Open.hxx"
-#include "client/Datagram.hxx"
 #include "net/RConnectSocket.hxx"
 #include "net/SocketProtocolError.hxx"
 #include "net/log/Parser.hxx"
