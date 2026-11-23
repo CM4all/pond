@@ -18,7 +18,7 @@ public:
 private:
 	uint64_t id;
 
-	const size_t raw_size;
+	const uint_least16_t raw_size;
 
 	SmallDatagram parsed;
 

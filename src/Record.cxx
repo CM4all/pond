@@ -19,4 +19,6 @@ Record::Record(uint64_t _id, std::span<const std::byte> _raw)
 	:id(_id), raw_size(_raw.size()),
 	 parsed(Net::Log::ParseDatagram(CopyFrom(_raw)))
 {
+	if (_raw.size() > std::numeric_limits<uint_least16_t>::max())
+		throw Net::Log::ProtocolError{};
 }
