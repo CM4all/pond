@@ -17,8 +17,6 @@ struct SmallDatagram {
 
 	Net::Log::Type type = Net::Log::Type::UNSPECIFIED;
 
-	SmallDatagram() = default;
-
 	constexpr SmallDatagram(const Net::Log::Datagram &src) noexcept
 		:timestamp(src.timestamp), site(src.site),
 		 type(src.type) {}

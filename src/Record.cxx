@@ -7,12 +7,16 @@
 
 #include <algorithm>
 
-#include <string.h>
+inline std::span<const std::byte>
+Record::CopyFrom(std::span<const std::byte> src) noexcept
+{
+	std::byte *dest = reinterpret_cast<std::byte *>(this + 1);
+	std::byte *end = std::copy(src.begin(), src.end(), dest);
+	return {dest, end};
+}
 
 Record::Record(uint64_t _id, std::span<const std::byte> _raw)
-	:id(_id), raw_size(_raw.size())
+	:id(_id), raw_size(_raw.size()),
+	 parsed(Net::Log::ParseDatagram(CopyFrom(_raw)))
 {
-	memcpy((void *)(this + 1), _raw.data(), raw_size);
-
-	parsed = Net::Log::ParseDatagram(GetRaw());
 }

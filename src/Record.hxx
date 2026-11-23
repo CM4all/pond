@@ -54,4 +54,7 @@ public:
 	bool IsOlderThanOrUnknown(Net::Log::TimePoint t) const noexcept {
 		return !parsed.HasTimestamp() || parsed.timestamp < t;
 	}
+
+private:
+	std::span<const std::byte> CopyFrom(std::span<const std::byte> src) noexcept;
 };
