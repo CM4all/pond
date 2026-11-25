@@ -5,7 +5,7 @@ cm4all-pond (0.43) unstable; urgency=low
   * receiver: reject unsupported "magic" values
   * database: reduce memory overhead
 
- --   
+ -- Max Kellermann <max.kellermann@ionos.com>  Wed, 25 Nov 2026 14:12:17 +0100
 
 cm4all-pond (0.42) unstable; urgency=low
 
