@@ -19,6 +19,7 @@
 #include <systemd/sd-daemon.h>
 #endif
 
+#include <cstring> // for memcpy()
 #include <memory>
 
 #include <net/if.h>
@@ -168,6 +169,24 @@ ToString(std::span<const std::byte> b) noexcept
 	return std::string{ToStringView(b)};
 }
 
+template<typename T>
+requires(std::is_trivially_default_constructible_v<T> &&
+	 std::is_trivially_copyable_v<T>)
+static T
+CopyPayload(std::span<const std::byte> raw)
+{
+	if (raw.empty())
+		throw SocketProtocolError{"Empty payload"};
+
+	/* start with a zero-initialized value */
+	T value{};
+
+	/* copy as much data as possible over */
+	memcpy(&value, raw.data(), std::min(raw.size(), sizeof(value)));
+
+	return value;
+}
+
 bool
 AutoCloneOperation::Server::OnPondDatagram(uint16_t _id,
 					   PondResponseCommand command,
@@ -214,9 +233,7 @@ AutoCloneOperation::Server::OnPondDatagram(uint16_t _id,
 
 	case PondResponseCommand::STATS:
 		if (state == State::STATS) {
-			const auto &stats = *(const PondStatsPayload *)(const void *)payload.data();
-			if (payload.size() < sizeof(stats))
-				throw SocketProtocolError{"Malformed STATS packet"};
+			const auto stats = CopyPayload<PondStatsPayload>(payload);
 
 			n_records = FromBE64(stats.n_records);
 
